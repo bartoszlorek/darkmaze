@@ -1,4 +1,4 @@
-import { DirectionIndex, DirectionAngle, differenceAngle } from "./math";
+import { DirectionIndex, DirectionAngle, subtractAngle } from "./math";
 
 export enum WallState {
   open = 0,
@@ -28,28 +28,28 @@ export class MazeFragment {
     let angle: undefined | number;
 
     if (this.walls[DirectionIndex.up] === WallState.open) {
-      const diff = differenceAngle(DirectionAngle.up, normalizedAngle);
+      const diff = subtractAngle(DirectionAngle.up, normalizedAngle);
       if (angle === undefined || Math.abs(diff) < Math.abs(angle)) {
         angle = diff;
       }
     }
 
     if (this.walls[DirectionIndex.right] === WallState.open) {
-      const diff = differenceAngle(DirectionAngle.right, normalizedAngle);
+      const diff = subtractAngle(DirectionAngle.right, normalizedAngle);
       if (angle === undefined || Math.abs(diff) < Math.abs(angle)) {
         angle = diff;
       }
     }
 
     if (this.walls[DirectionIndex.down] === WallState.open) {
-      const diff = differenceAngle(DirectionAngle.down, normalizedAngle);
+      const diff = subtractAngle(DirectionAngle.down, normalizedAngle);
       if (angle === undefined || Math.abs(diff) < Math.abs(angle)) {
         angle = diff;
       }
     }
 
     if (this.walls[DirectionIndex.left] === WallState.open) {
-      const diff = differenceAngle(DirectionAngle.left, normalizedAngle);
+      const diff = subtractAngle(DirectionAngle.left, normalizedAngle);
       if (angle === undefined || Math.abs(diff) < Math.abs(angle)) {
         angle = diff;
       }

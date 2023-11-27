@@ -13,9 +13,9 @@ export enum DirectionAngle {
 }
 
 /**
- * The direction index of the angle.
+ * Returns the direction index of the angle.
  */
-export function angleDirectionIndex(angle: number): DirectionIndex {
+export function angleToIndex(angle: number): DirectionIndex {
   return Math.floor(normalizeAngle(angle + 45) / 90);
 }
 
@@ -23,22 +23,30 @@ export function angleDirectionIndex(angle: number): DirectionIndex {
  * The definition of floored division modulo.
  * https://en.wikipedia.org/wiki/Modulo
  */
-export function modulo(a: number, n: number) {
+export function flooredModulo(a: number, n: number) {
   return a - Math.floor(a / n) * n;
 }
 
 /**
- * The angle between two angles.
+ * Returns the angle between two angles.
  */
-export function differenceAngle(a: number, b: number) {
-  return modulo(a - b + 180, 360) - 180;
+export function subtractAngle(a: number, b: number) {
+  return flooredModulo(a - b + 180, 360) - 180;
 }
 
 /**
- * The angle between 0 and 360 degrees.
+ * Returns the angle between 0 and 360 degrees.
  */
 export function normalizeAngle(angle: number) {
   return ((angle % 360) + 360) % 360;
+}
+
+/**
+ * Linear interpolation between two angles.
+ */
+export function lerpAngle(a: number, b: number, bias: number) {
+  // TODO: should return integer value
+  return lerp(a, a - subtractAngle(a, b), bias);
 }
 
 /**
@@ -46,11 +54,4 @@ export function normalizeAngle(angle: number) {
  */
 export function lerp(a: number, b: number, bias: number) {
   return a * (1 - bias) + b * bias;
-}
-
-/**
- * Linear interpolation between two angles.
- */
-export function lerpAngle(a: number, b: number, bias: number) {
-  return a - differenceAngle(a, b) * bias;
 }

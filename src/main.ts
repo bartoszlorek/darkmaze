@@ -1,10 +1,12 @@
 import * as PIXI from "pixi.js";
-import { CELL_SIZE, CELL_HALF } from "./consts";
 import { createApplication } from "./application";
 import { createTicker } from "./ticker";
 import { Keyboard } from "./Keyboard";
 import { MazeFragment } from "./MazeFragment";
 import { Player } from "./Player";
+
+const CELL_SIZE = 64;
+const CELL_HALF = CELL_SIZE / 2;
 
 // setup
 const logs = document.querySelector("#logs") as HTMLElement;
