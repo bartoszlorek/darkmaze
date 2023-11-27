@@ -45,8 +45,12 @@ export function normalizeAngle(angle: number) {
  * Linear interpolation between two angles.
  */
 export function lerpAngle(a: number, b: number, bias: number) {
-  // TODO: should return integer value
-  return lerp(a, a - subtractAngle(a, b), bias);
+  const diff = subtractAngle(a, b);
+
+  if (Math.abs(diff) > 1) {
+    return Math.round(lerp(a, a - diff, bias));
+  }
+  return b;
 }
 
 /**
