@@ -44,9 +44,7 @@ export class Player {
   }
 
   public update(currentRoom: Room) {
-    if (this.turnSpeed !== 0) {
-      this.angle = normalizeAngle(this.angle + this.turnSpeed);
-    }
+    let isMoving = false;
 
     if (this.moveSpeed !== 0) {
       const isForwardMove = this.moveSpeed > 0;
@@ -95,8 +93,10 @@ export class Player {
           break;
       }
 
-      // the player has traveled a certain distance
-      if (this.x !== x || this.y !== y) {
+      // some distance has been traveled
+      isMoving = this.x !== x || this.y !== y;
+
+      if (isMoving) {
         switch (index) {
           case DirectionIndex.up:
             this.angle = lerpAngle(
@@ -134,6 +134,11 @@ export class Player {
 
       this.x = x;
       this.y = y;
+    }
+
+    // the move has higher priority than rotation
+    if (!isMoving && this.turnSpeed !== 0) {
+      this.angle = normalizeAngle(this.angle + this.turnSpeed);
     }
   }
 }
