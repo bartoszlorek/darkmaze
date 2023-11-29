@@ -6,10 +6,10 @@ import {
   lerp,
   lerpAngle,
 } from "./math";
-import { MazeFragment, WallState } from "./MazeFragment";
+import { Room, WallState } from "./Room";
 
-export const PLAYER_TURN_SPEED = 5; // degrees
-export const PLAYER_MOVE_SPEED = 0.05; // pixels
+export const PLAYER_TURN_SPEED = 4; // degrees
+export const PLAYER_MOVE_SPEED = 0.03; // pixels
 export const PLAYER_ALIGNMENT_BIAS = 0.3;
 
 export class Player {
@@ -17,6 +17,7 @@ export class Player {
   public y: number;
   public angle: number;
 
+  // movement
   protected moveSpeed: number = 0;
   protected turnSpeed: number = 0;
 
@@ -26,23 +27,23 @@ export class Player {
     this.angle = angle;
   }
 
-  moveForward() {
+  public moveForward() {
     this.moveSpeed += PLAYER_MOVE_SPEED;
   }
 
-  moveBackward() {
+  public moveBackward() {
     this.moveSpeed -= PLAYER_MOVE_SPEED;
   }
 
-  turnRight() {
+  public turnRight() {
     this.turnSpeed += PLAYER_TURN_SPEED;
   }
 
-  turnLeft() {
+  public turnLeft() {
     this.turnSpeed -= PLAYER_TURN_SPEED;
   }
 
-  update(fragment: MazeFragment) {
+  public update(currentRoom: Room) {
     if (this.turnSpeed !== 0) {
       this.angle = normalizeAngle(this.angle + this.turnSpeed);
     }
@@ -58,38 +59,38 @@ export class Player {
 
       switch (index) {
         case DirectionIndex.up:
-          x = lerp(this.x, fragment.x, PLAYER_ALIGNMENT_BIAS);
+          x = lerp(this.x, currentRoom.x, PLAYER_ALIGNMENT_BIAS);
           y -= Math.abs(this.moveSpeed);
 
-          if (fragment.walls[DirectionIndex.up] === WallState.closed) {
-            y = Math.max(y, fragment.y);
+          if (currentRoom.walls[DirectionIndex.up] === WallState.closed) {
+            y = Math.max(y, currentRoom.y);
           }
           break;
 
         case DirectionIndex.right:
           x += Math.abs(this.moveSpeed);
-          y = lerp(this.y, fragment.y, PLAYER_ALIGNMENT_BIAS);
+          y = lerp(this.y, currentRoom.y, PLAYER_ALIGNMENT_BIAS);
 
-          if (fragment.walls[DirectionIndex.right] === WallState.closed) {
-            x = Math.min(x, fragment.x);
+          if (currentRoom.walls[DirectionIndex.right] === WallState.closed) {
+            x = Math.min(x, currentRoom.x);
           }
           break;
 
         case DirectionIndex.down:
-          x = lerp(this.x, fragment.x, PLAYER_ALIGNMENT_BIAS);
+          x = lerp(this.x, currentRoom.x, PLAYER_ALIGNMENT_BIAS);
           y += Math.abs(this.moveSpeed);
 
-          if (fragment.walls[DirectionIndex.down] === WallState.closed) {
-            y = Math.min(y, fragment.y);
+          if (currentRoom.walls[DirectionIndex.down] === WallState.closed) {
+            y = Math.min(y, currentRoom.y);
           }
           break;
 
         case DirectionIndex.left:
           x -= Math.abs(this.moveSpeed);
-          y = lerp(this.y, fragment.y, PLAYER_ALIGNMENT_BIAS);
+          y = lerp(this.y, currentRoom.y, PLAYER_ALIGNMENT_BIAS);
 
-          if (fragment.walls[DirectionIndex.left] === WallState.closed) {
-            x = Math.max(x, fragment.x);
+          if (currentRoom.walls[DirectionIndex.left] === WallState.closed) {
+            x = Math.max(x, currentRoom.x);
           }
           break;
       }

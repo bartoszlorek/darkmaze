@@ -1,141 +1,41 @@
 import * as PIXI from "pixi.js";
-import { createApplication } from "./application";
-import { createTicker } from "./ticker";
-import { Keyboard } from "./Keyboard";
-import { MazeFragment } from "./MazeFragment";
-import { Player } from "./Player";
+import { createApplication } from "./createApplication";
+import { createLevel } from "./createLevel";
+import { createLevelRenderer } from "./createLevelRenderer";
+import { createPlayer } from "./createPlayer";
 
-const CELL_SIZE = 64;
-const CELL_HALF = CELL_SIZE / 2;
-
-// setup
-const logs = document.querySelector("#logs") as HTMLElement;
 const app = createApplication();
-const keyboard = new Keyboard<
-  "ArrowUp" | "ArrowDown" | "ArrowLeft" | "ArrowRight" | "w" | "s" | "a" | "d"
->();
+const [player] = createPlayer();
+const level = createLevel();
 
-// entities
-const player = new Player(1, 1, 0);
-const fragments = [
-  new MazeFragment(0, 0, [1, 0, 0, 1]),
-  new MazeFragment(1, 0, [1, 0, 1, 0]),
-  new MazeFragment(2, 0, [1, 1, 0, 0]),
+const logs = document.querySelector("#logs") as HTMLElement;
+const log = (data: string) => {
+  logs.textContent = data.replace(/\n\u0020+/gm, "\n").trim();
+};
 
-  new MazeFragment(0, 1, [0, 0, 1, 1]),
-  new MazeFragment(1, 1, [1, 1, 1, 0]),
-  new MazeFragment(2, 1, [0, 1, 0, 1]),
-
-  new MazeFragment(0, 2, [1, 0, 1, 1]),
-  new MazeFragment(1, 2, [1, 0, 1, 0]),
-  new MazeFragment(2, 2, [0, 1, 1, 0]),
-];
-
-// rendering
-const bunny = PIXI.Sprite.from("https://pixijs.com/assets/bunny.png");
-bunny.anchor.set(0.5);
-
-const graphics = new PIXI.Graphics();
-graphics.lineStyle(4, "#5f5854");
-fragments.forEach((cell) => {
-  const left = cell.x * CELL_SIZE;
-  const top = cell.y * CELL_SIZE;
-  const right = left + CELL_SIZE;
-  const bottom = top + CELL_SIZE;
-
-  if (cell.walls[0]) {
-    graphics.moveTo(left, top);
-    graphics.lineTo(right, top);
-  }
-
-  if (cell.walls[1]) {
-    graphics.moveTo(right, top);
-    graphics.lineTo(right, bottom);
-  }
-
-  if (cell.walls[2]) {
-    graphics.moveTo(left, bottom);
-    graphics.lineTo(right, bottom);
-  }
-
-  if (cell.walls[3]) {
-    graphics.moveTo(left, bottom);
-    graphics.lineTo(left, top);
-  }
-});
-
-const formatLogs = (props: {
-  player: Player;
-  closestPathAngle?: number;
-  currentFragment: MazeFragment;
-}) =>
-  `
-player_angle: ${props.player.angle}
-player_x: ${props.player.x}
-player_y: ${props.player.y}
-closest_path_angle: ${props.closestPathAngle}
-current_walls: ${props.currentFragment.walls}
-
-`.trim();
-
-const ticker = createTicker((deltaTime) => {
-  const currentFragment = fragments.find((c) => c.contains(player.x, player.y));
-  if (currentFragment === undefined) {
+app.ticker.add(() => {
+  const currentRoom = level.rooms.find((a) => a.contains(player.x, player.y));
+  if (currentRoom === undefined) {
     throw new Error("the player is outside the maze");
   }
 
-  const closestPathAngle = currentFragment.closestOpenWallAngle(player.angle);
+  const closestPathAngle = currentRoom.closestOpenWallAngle(player.angle);
   if (closestPathAngle === undefined) {
     throw new Error("the current cell has no way out");
   }
 
-  logs.textContent = formatLogs({
-    player,
-    closestPathAngle,
-    currentFragment,
-  });
+  log(`
+  player_angle: ${player.angle}
+  player_x: ${player.x}
+  player_y: ${player.y}
 
-  // updating
-  player.update(currentFragment);
-  bunny.x = player.x * CELL_SIZE + CELL_HALF;
-  bunny.y = player.y * CELL_SIZE + CELL_HALF;
-  bunny.angle = player.angle;
+  closest_path_angle: ${closestPathAngle}
+  current_walls: ${currentRoom.walls}
+  `);
+
+  player.update(currentRoom);
 });
 
-app.stage.x = CELL_SIZE;
-app.stage.y = CELL_SIZE;
-app.stage.addChild(graphics);
-app.stage.addChild(bunny);
-app.ticker.add(ticker);
-
-keyboard.on(["ArrowLeft", "a"], (pressed) => {
-  if (pressed) {
-    player.turnLeft();
-  } else {
-    player.turnRight();
-  }
-});
-
-keyboard.on(["ArrowRight", "d"], (pressed) => {
-  if (pressed) {
-    player.turnRight();
-  } else {
-    player.turnLeft();
-  }
-});
-
-keyboard.on(["ArrowUp", "w"], (pressed) => {
-  if (pressed) {
-    player.moveForward();
-  } else {
-    player.moveBackward();
-  }
-});
-
-keyboard.on(["ArrowDown", "s"], (pressed) => {
-  if (pressed) {
-    player.moveBackward();
-  } else {
-    player.moveForward();
-  }
-});
+const renderer = createLevelRenderer({ player, level });
+app.stage.addChild(renderer.container);
+app.ticker.add(renderer.update);

@@ -5,7 +5,7 @@ export enum WallState {
   closed = 1,
 }
 
-export class MazeFragment {
+export class Room {
   public x: number;
   public y: number;
   public walls: [WallState, WallState, WallState, WallState];
@@ -20,11 +20,11 @@ export class MazeFragment {
     this.walls = walls;
   }
 
-  contains(x: number, y: number) {
+  public contains(x: number, y: number): boolean {
     return !(this.x !== Math.round(x) || this.y !== Math.round(y));
   }
 
-  closestOpenWallAngle(normalizedAngle: number) {
+  public closestOpenWallAngle(normalizedAngle: number): number | undefined {
     let angle: undefined | number;
 
     if (this.walls[DirectionIndex.up] === WallState.open) {
