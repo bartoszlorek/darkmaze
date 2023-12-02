@@ -24,7 +24,7 @@ export class Room {
     return !(this.x !== Math.round(x) || this.y !== Math.round(y));
   }
 
-  public closestOpenWallAngle(normalizedAngle: number): number | undefined {
+  public closestOpenWallDiffAngle(normalizedAngle: number): number | undefined {
     let angle: undefined | number;
 
     if (this.walls[DirectionIndex.up] === WallState.open) {

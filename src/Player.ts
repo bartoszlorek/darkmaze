@@ -18,8 +18,12 @@ export class Player {
   public angle: number;
 
   // movement
-  protected moveSpeed: number = 0;
-  protected turnSpeed: number = 0;
+  public moveDirection: number = 0;
+  public turnDirection: number = 0;
+
+  // environment
+  public correctPathDiffAngle: number = 0; // [-180..180]
+  public correctPathDiffFactor: number = 0; // [-1..1]
 
   constructor(x: number, y: number, angle: number) {
     this.x = x;
@@ -28,26 +32,38 @@ export class Player {
   }
 
   public moveForward() {
-    this.moveSpeed += PLAYER_MOVE_SPEED;
+    this.moveDirection += 1;
   }
 
   public moveBackward() {
-    this.moveSpeed -= PLAYER_MOVE_SPEED;
+    this.moveDirection -= 1;
   }
 
   public turnRight() {
-    this.turnSpeed += PLAYER_TURN_SPEED;
+    this.turnDirection += 1;
   }
 
   public turnLeft() {
-    this.turnSpeed -= PLAYER_TURN_SPEED;
+    this.turnDirection -= 1;
   }
 
   public update(currentRoom: Room) {
-    let isMoving = false;
+    this.applyMovement(currentRoom);
 
-    if (this.moveSpeed !== 0) {
-      const isForwardMove = this.moveSpeed > 0;
+    const diffAngle = currentRoom.closestOpenWallDiffAngle(this.angle);
+    if (diffAngle !== undefined) {
+      this.correctPathDiffAngle = diffAngle;
+      this.correctPathDiffFactor = diffAngle / 180;
+    }
+  }
+
+  protected applyMovement(currentRoom: Room) {
+    const moveSpeed = this.moveDirection * PLAYER_MOVE_SPEED;
+    const turnSpeed = this.turnDirection * PLAYER_TURN_SPEED;
+    let didSomeDistance = false;
+
+    if (moveSpeed !== 0) {
+      const isForwardMove = moveSpeed > 0;
       const index = isForwardMove
         ? angleToIndex(this.angle)
         : angleToIndex(this.angle + 180);
@@ -57,7 +73,7 @@ export class Player {
 
       switch (index) {
         case DirectionIndex.up:
-          y -= Math.abs(this.moveSpeed);
+          y -= Math.abs(moveSpeed);
 
           if (currentRoom.walls[DirectionIndex.up] === WallState.closed) {
             y = Math.max(y, currentRoom.y);
@@ -68,7 +84,7 @@ export class Player {
           break;
 
         case DirectionIndex.right:
-          x += Math.abs(this.moveSpeed);
+          x += Math.abs(moveSpeed);
 
           if (currentRoom.walls[DirectionIndex.right] === WallState.closed) {
             x = Math.min(x, currentRoom.x);
@@ -79,7 +95,7 @@ export class Player {
           break;
 
         case DirectionIndex.down:
-          y += Math.abs(this.moveSpeed);
+          y += Math.abs(moveSpeed);
 
           if (currentRoom.walls[DirectionIndex.down] === WallState.closed) {
             y = Math.min(y, currentRoom.y);
@@ -90,7 +106,7 @@ export class Player {
           break;
 
         case DirectionIndex.left:
-          x -= Math.abs(this.moveSpeed);
+          x -= Math.abs(moveSpeed);
 
           if (currentRoom.walls[DirectionIndex.left] === WallState.closed) {
             x = Math.max(x, currentRoom.x);
@@ -101,10 +117,8 @@ export class Player {
           break;
       }
 
-      // some distance has been traveled
-      isMoving = this.x !== x || this.y !== y;
-
-      if (isMoving) {
+      didSomeDistance = this.x !== x || this.y !== y;
+      if (didSomeDistance) {
         switch (index) {
           case DirectionIndex.up:
             this.angle = lerpAngle(
@@ -145,8 +159,8 @@ export class Player {
     }
 
     // the move has higher priority than rotation
-    if (!isMoving && this.turnSpeed !== 0) {
-      this.angle = normalizeAngle(this.angle + this.turnSpeed);
+    if (!didSomeDistance && turnSpeed !== 0) {
+      this.angle = normalizeAngle(this.angle + turnSpeed);
     }
   }
 }

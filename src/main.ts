@@ -19,18 +19,16 @@ app.ticker.add(() => {
     throw new Error("the player is outside the maze");
   }
 
-  const closestPathAngle = currentRoom.closestOpenWallAngle(player.angle);
-  if (closestPathAngle === undefined) {
-    throw new Error("the current cell has no way out");
-  }
-
   log(`
   player_angle: ${player.angle}
   player_x: ${player.x}
   player_y: ${player.y}
+  player_move_dir: ${player.moveDirection}
+  player_turn_dir: ${player.turnDirection}
 
-  closest_path_angle: ${closestPathAngle}
   current_walls: ${currentRoom.walls}
+  correct_path_diff_angle: ${player.correctPathDiffAngle}
+  correct_path_diff_factor: ${player.correctPathDiffFactor}
   `);
 
   player.update(currentRoom);
