@@ -57,38 +57,46 @@ export class Player {
 
       switch (index) {
         case DirectionIndex.up:
-          x = lerp(this.x, currentRoom.x, PLAYER_ALIGNMENT_BIAS);
           y -= Math.abs(this.moveSpeed);
 
           if (currentRoom.walls[DirectionIndex.up] === WallState.closed) {
             y = Math.max(y, currentRoom.y);
           }
+          if (this.y !== y) {
+            x = lerp(this.x, currentRoom.x, PLAYER_ALIGNMENT_BIAS);
+          }
           break;
 
         case DirectionIndex.right:
           x += Math.abs(this.moveSpeed);
-          y = lerp(this.y, currentRoom.y, PLAYER_ALIGNMENT_BIAS);
 
           if (currentRoom.walls[DirectionIndex.right] === WallState.closed) {
             x = Math.min(x, currentRoom.x);
           }
+          if (this.x !== x) {
+            y = lerp(this.y, currentRoom.y, PLAYER_ALIGNMENT_BIAS);
+          }
           break;
 
         case DirectionIndex.down:
-          x = lerp(this.x, currentRoom.x, PLAYER_ALIGNMENT_BIAS);
           y += Math.abs(this.moveSpeed);
 
           if (currentRoom.walls[DirectionIndex.down] === WallState.closed) {
             y = Math.min(y, currentRoom.y);
           }
+          if (this.y !== y) {
+            x = lerp(this.x, currentRoom.x, PLAYER_ALIGNMENT_BIAS);
+          }
           break;
 
         case DirectionIndex.left:
           x -= Math.abs(this.moveSpeed);
-          y = lerp(this.y, currentRoom.y, PLAYER_ALIGNMENT_BIAS);
 
           if (currentRoom.walls[DirectionIndex.left] === WallState.closed) {
             x = Math.max(x, currentRoom.x);
+          }
+          if (this.x !== x) {
+            y = lerp(this.y, currentRoom.y, PLAYER_ALIGNMENT_BIAS);
           }
           break;
       }
