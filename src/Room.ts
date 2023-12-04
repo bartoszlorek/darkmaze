@@ -1,4 +1,4 @@
-import { DirectionIndex, DirectionAngle, subtractAngle } from "./math";
+import { DirectionIndex, DirectionAngle, subtractAngle } from "./utils";
 
 export enum WallState {
   open = 0,

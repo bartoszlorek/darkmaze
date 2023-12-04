@@ -3,18 +3,14 @@
     "strict": true,
     "target": "esnext",
     "moduleResolution": "node",
-    "resolveJsonModule": true,
     "declaration": true,
     "emitDeclarationOnly": true,
     "isolatedModules": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
-    "jsx": "react",
-    "baseUrl": ".",
-    "paths": {
-      "blob2d": ["src/index.ts"]
-    }
+    "jsx": "react-jsx",
+    "baseUrl": "./"
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "./typings.d.ts"],
   "exclude": ["node_modules"]
 }
