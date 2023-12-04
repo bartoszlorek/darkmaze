@@ -39,9 +39,7 @@ export function Main({ app }: PropsType) {
     return () => {
       app.ticker.remove(handleGameLoop);
     };
-  }, [app, player, level]);
-
-  console.log("--render");
+  }, [app, level, player]);
 
   return (
     <>
