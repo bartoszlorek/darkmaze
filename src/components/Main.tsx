@@ -1,6 +1,7 @@
 import "./Main.module.scss";
 import * as React from "react";
 import * as PIXI from "pixi.js";
+import { Compass } from "./Compass";
 import { GameViewLayer } from "./GameViewLayer";
 import { Logger } from "./Logger";
 import { drawLevel } from "./drawLevel";
@@ -41,6 +42,8 @@ export function Main({ app }: PropsType) {
     };
   }, [app, level, player]);
 
+  console.log("--main render");
+
   return (
     <>
       {visible && (
@@ -74,8 +77,8 @@ export function Main({ app }: PropsType) {
           }}
         />
       )}
-
       <Logger player={player} />
+      <Compass player={player} />
       <button
         onClick={handleToggle}
         style={{ position: "fixed", right: 24, bottom: 24 }}

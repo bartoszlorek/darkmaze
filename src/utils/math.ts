@@ -47,8 +47,8 @@ export function normalizeAngle(angle: number) {
 export function lerpAngle(a: number, b: number, bias: number) {
   const diff = subtractAngle(a, b);
 
-  if (Math.abs(diff) > 1) {
-    return Math.round(lerp(a, a - diff, bias));
+  if (Math.abs(diff) >= 0.5) {
+    return lerp(a, a - diff, bias);
   }
   return b;
 }
