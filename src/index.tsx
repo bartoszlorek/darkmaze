@@ -1,6 +1,6 @@
 import * as PIXI from "pixi.js";
 import { createRoot } from "react-dom/client";
-import { Main } from "./components/Main";
+import { Main } from "./scenes/Main";
 
 const view = document.getElementById("view") as HTMLCanvasElement;
 const root = document.getElementById("root") as HTMLDivElement;

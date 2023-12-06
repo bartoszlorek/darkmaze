@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Keyboard } from "../Keyboard";
-import { Player } from "../Player";
+import type { Player } from "../Player";
 
 type PlayerMovementKeys =
   | "ArrowUp"
@@ -12,15 +12,11 @@ type PlayerMovementKeys =
   | "a"
   | "d";
 
-export function usePlayer(): Player {
-  const playerRef = React.useRef<Player>();
+type PropsType = Readonly<{
+  player: Player;
+}>;
 
-  if (!playerRef.current) {
-    playerRef.current = new Player(1, 1, 0);
-  }
-
-  const player = playerRef.current;
-
+export function useKeyboard({ player }: PropsType) {
   React.useEffect(() => {
     const keyboard = new Keyboard<PlayerMovementKeys>();
 
@@ -60,6 +56,4 @@ export function usePlayer(): Player {
       keyboard.destroy();
     };
   }, [player]);
-
-  return player;
 }

@@ -1,13 +1,13 @@
-import "./Main.module.scss";
 import * as React from "react";
 import * as PIXI from "pixi.js";
-import { Compass } from "./Compass";
-import { GameViewLayer } from "./GameViewLayer";
-import { Logger } from "./Logger";
+import { Compass, GameViewLayer, Logger } from "../components";
+import { Level } from "../Level";
+import { Player } from "../Player";
+import { Room } from "../Room";
 import { drawLevel } from "./drawLevel";
 import { drawPlayer } from "./drawPlayer";
-import { useLevel } from "./useLevel";
-import { usePlayer } from "./usePlayer";
+import { useInstance } from "./useInstance";
+import { useKeyboard } from "./useKeyboard";
 
 const GRID_SIZE = 48;
 
@@ -16,20 +16,25 @@ type PropsType = Readonly<{
 }>;
 
 export function Main({ app }: PropsType) {
-  const player = usePlayer();
-  const level = useLevel();
-  console.log("--MainRender");
+  console.log("--main");
+
+  const player = useInstance(() => new Player(1, 1, 0));
+  const level = useInstance(() => new Level(generateRooms()));
+
+  useKeyboard({
+    player,
+  });
 
   React.useEffect(() => {
-    const handleGameLoop = (deltaTime: number) => {
+    const mainGameLoop = (deltaTime: number) => {
       const currentRoom = level.findCurrentRoom(player);
       player.update(deltaTime, currentRoom);
     };
 
-    app.ticker.add(handleGameLoop);
+    app.ticker.add(mainGameLoop);
 
     return () => {
-      app.ticker.remove(handleGameLoop);
+      app.ticker.remove(mainGameLoop);
     };
   }, [app, level, player]);
 
@@ -70,4 +75,20 @@ export function Main({ app }: PropsType) {
       <Compass player={player} />
     </>
   );
+}
+
+function generateRooms(): Room[] {
+  return [
+    new Room(0, 0, [1, 0, 0, 1]),
+    new Room(1, 0, [1, 0, 1, 0]),
+    new Room(2, 0, [1, 1, 0, 0]),
+
+    new Room(0, 1, [0, 0, 1, 1]),
+    new Room(1, 1, [1, 1, 1, 0]),
+    new Room(2, 1, [0, 1, 0, 1]),
+
+    new Room(0, 2, [1, 0, 1, 1]),
+    new Room(1, 2, [1, 0, 1, 0]),
+    new Room(2, 2, [0, 1, 1, 0]),
+  ];
 }

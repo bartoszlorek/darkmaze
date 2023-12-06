@@ -11,6 +11,14 @@
     "react-hooks/rules-of-hooks": "error",
     "react-hooks/exhaustive-deps": "warn"
   },
+  "overrides": [
+    {
+      "files": ["webpack.config.js"],
+      "rules": {
+        "@typescript-eslint/no-var-requires": "off"
+      }
+    }
+  ],
   "env": {
     "es6": true,
     "browser": true,
