@@ -1,0 +1,20 @@
+$lightColor: #646365;
+
+.left,
+.right {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  width: 50%;
+  transition: opacity 800ms ease;
+}
+
+.left {
+  left: 0;
+  background: linear-gradient(to right, $lightColor, ease, transparent);
+}
+
+.right {
+  right: 0;
+  background: linear-gradient(to left, $lightColor, ease, transparent);
+}

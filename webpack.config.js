@@ -1,6 +1,8 @@
 const path = require("path");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
+const autoprefixer = require("autoprefixer");
+const easingGradients = require("postcss-easing-gradients");
 
 module.exports = (_, argv) => ({
   mode: "development",
@@ -30,6 +32,19 @@ module.exports = (_, argv) => ({
                   argv.mode === "production"
                     ? "[hash:base64]"
                     : "[name]__[local]--[hash:base64:5]",
+              },
+            },
+          },
+          {
+            loader: "postcss-loader",
+            options: {
+              postcssOptions: {
+                plugins: [
+                  autoprefixer({
+                    cascade: false,
+                  }),
+                  easingGradients,
+                ],
               },
             },
           },

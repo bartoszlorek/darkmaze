@@ -1,6 +1,7 @@
 import * as React from "react";
 import * as PIXI from "pixi.js";
-import { Compass, GameViewLayer, Logger } from "../components";
+import { subscribeResize } from "../utils";
+import { Compass, GameViewLayer, PathLights } from "../components";
 import { Level } from "../Level";
 import { Player } from "../Player";
 import { Room } from "../Room";
@@ -44,10 +45,14 @@ export function Main({ app }: PropsType) {
         app={app}
         onMount={(layer) => {
           const parent = new PIXI.Container();
-          const levelMiddle = (level.dimension * GRID_SIZE) / 2;
-          parent.x = window.innerWidth / 2 - levelMiddle;
-          parent.y = window.innerHeight / 2 - levelMiddle;
-          layer.addChild(parent);
+          const centerParent = () => {
+            const levelMiddle = (level.dimension * GRID_SIZE) / 2;
+            parent.x = window.innerWidth / 2 - levelMiddle;
+            parent.y = window.innerHeight / 2 - levelMiddle;
+          };
+
+          const unsubscribeResize = subscribeResize(centerParent);
+          centerParent();
 
           const redrawLevel = drawLevel({
             parent,
@@ -61,17 +66,23 @@ export function Main({ app }: PropsType) {
             gridSize: GRID_SIZE,
           });
 
+          layer.addChild(parent);
+
           return {
             redrawLevel,
             redrawPlayer,
+            unsubscribeResize,
           };
         }}
-        onUpdate={(deltaTime, context) => {
-          context.redrawLevel();
-          context.redrawPlayer();
+        onUpdate={(_, ctx) => {
+          ctx.redrawLevel();
+          ctx.redrawPlayer();
+        }}
+        onUnmount={(_, ctx) => {
+          ctx.unsubscribeResize();
         }}
       />
-      <Logger player={player} />
+      <PathLights player={player} />
       <Compass player={player} />
     </>
   );
