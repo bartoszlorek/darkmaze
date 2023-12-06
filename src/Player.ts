@@ -9,9 +9,9 @@ import {
 import { EventEmitter } from "./EventEmitter";
 import { Room, WallState } from "./Room";
 
-export const PLAYER_TURN_SPEED = 5; // degrees
-export const PLAYER_MOVE_SPEED = 0.05; // pixels
-export const PLAYER_ALIGNMENT_BIAS = 0.3;
+export const PLAYER_TURN_SPEED = 6; // degrees
+export const PLAYER_MOVE_SPEED = 0.06; // pixels
+export const PLAYER_ALIGNMENT_BIAS = 0.1;
 
 export type PlayerEvents = {
   move: { x: number; y: number };

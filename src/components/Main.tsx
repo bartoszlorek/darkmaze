@@ -9,7 +9,7 @@ import { drawPlayer } from "./drawPlayer";
 import { useLevel } from "./useLevel";
 import { usePlayer } from "./usePlayer";
 
-const GRID_SIZE = 64;
+const GRID_SIZE = 48;
 
 type PropsType = Readonly<{
   app: PIXI.Application;
@@ -18,20 +18,11 @@ type PropsType = Readonly<{
 export function Main({ app }: PropsType) {
   const player = usePlayer();
   const level = useLevel();
-
-  const [visible, setVisible] = React.useState(true);
-  const handleToggle = () => setVisible((prev) => !prev);
+  console.log("--MainRender");
 
   React.useEffect(() => {
     const handleGameLoop = (deltaTime: number) => {
-      const currentRoom = level.rooms.find((room) =>
-        room.contains(player.x, player.y)
-      );
-
-      if (currentRoom === undefined) {
-        throw new Error("the player is outside the maze");
-      }
-
+      const currentRoom = level.findCurrentRoom(player);
       player.update(deltaTime, currentRoom);
     };
 
@@ -42,49 +33,41 @@ export function Main({ app }: PropsType) {
     };
   }, [app, level, player]);
 
-  console.log("--main render");
-
   return (
     <>
-      {visible && (
-        <GameViewLayer
-          app={app}
-          onMount={(layer) => {
-            const parent = new PIXI.Container();
-            parent.x = 200;
-            parent.y = 200;
+      <GameViewLayer
+        app={app}
+        onMount={(layer) => {
+          const parent = new PIXI.Container();
+          const levelMiddle = (level.dimension * GRID_SIZE) / 2;
+          parent.x = window.innerWidth / 2 - levelMiddle;
+          parent.y = window.innerHeight / 2 - levelMiddle;
+          layer.addChild(parent);
 
-            drawLevel({
-              parent,
-              level,
-              gridSize: GRID_SIZE,
-            });
+          const redrawLevel = drawLevel({
+            parent,
+            level,
+            gridSize: GRID_SIZE,
+          });
 
-            const redrawPlayer = drawPlayer({
-              parent,
-              player,
-              gridSize: GRID_SIZE,
-            });
+          const redrawPlayer = drawPlayer({
+            parent,
+            player,
+            gridSize: GRID_SIZE,
+          });
 
-            layer.addChild(parent);
-
-            return {
-              redrawPlayer,
-            };
-          }}
-          onUpdate={(deltaTime, context) => {
-            context.redrawPlayer();
-          }}
-        />
-      )}
+          return {
+            redrawLevel,
+            redrawPlayer,
+          };
+        }}
+        onUpdate={(deltaTime, context) => {
+          context.redrawLevel();
+          context.redrawPlayer();
+        }}
+      />
       <Logger player={player} />
       <Compass player={player} />
-      <button
-        onClick={handleToggle}
-        style={{ position: "fixed", right: 24, bottom: 24 }}
-      >
-        toggle view
-      </button>
     </>
   );
 }

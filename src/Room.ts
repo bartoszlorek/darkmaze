@@ -10,6 +10,12 @@ export class Room {
   public y: number;
   public walls: [WallState, WallState, WallState, WallState];
 
+  /**
+   * the room exploration is moving from
+   * one unexplored room to another
+   */
+  public explored: boolean = false;
+
   constructor(
     x: number,
     y: number,
