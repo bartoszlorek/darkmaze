@@ -9,21 +9,28 @@ import { drawLevel } from "./drawLevel";
 import { drawPlayer } from "./drawPlayer";
 import { useInstance } from "./useInstance";
 import { useKeyboard } from "./useKeyboard";
+import type { SceneServiceRef } from "../machines";
 
 const GRID_SIZE = 48;
 
 type PropsType = Readonly<{
   app: PIXI.Application;
+  sceneService: SceneServiceRef;
 }>;
 
-export function Main({ app }: PropsType) {
-  console.log("--main");
+export function StoryScene({ app, sceneService }: PropsType) {
+  console.log("--story");
 
   const player = useInstance(() => new Player(1, 1, 0));
   const level = useInstance(() => new Level(generateRooms()));
 
+  const handleEscape = React.useCallback(() => {
+    sceneService.send({ type: "EXIT" });
+  }, [sceneService]);
+
   useKeyboard({
     player,
+    onEscape: handleEscape,
   });
 
   React.useEffect(() => {

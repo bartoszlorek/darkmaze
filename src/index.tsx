@@ -1,6 +1,6 @@
 import * as PIXI from "pixi.js";
 import { createRoot } from "react-dom/client";
-import { Main } from "./scenes/Main";
+import { MainScene } from "./scenes/MainScene";
 
 const view = document.getElementById("view") as HTMLCanvasElement;
 const root = document.getElementById("root") as HTMLDivElement;
@@ -10,4 +10,4 @@ const app = new PIXI.Application({
   view,
 });
 
-createRoot(root).render(<Main app={app} />);
+createRoot(root).render(<MainScene app={app} />);

@@ -28,6 +28,7 @@ export class Keyboard<Key extends string = string> {
 
   public destroy() {
     this.unregisterHandler();
+    this.states.clear();
     this.events.clear();
   }
 
@@ -63,6 +64,7 @@ export class Keyboard<Key extends string = string> {
     if (this.handler !== undefined) {
       window.removeEventListener("keydown", this.handler);
       window.removeEventListener("keyup", this.handler);
+      this.handler = undefined;
     }
   }
 }

@@ -2,6 +2,8 @@ import * as React from "react";
 import { Keyboard } from "../Keyboard";
 import type { Player } from "../Player";
 
+type GeneralKeys = "Escape";
+
 type PlayerMovementKeys =
   | "ArrowUp"
   | "ArrowDown"
@@ -14,11 +16,12 @@ type PlayerMovementKeys =
 
 type PropsType = Readonly<{
   player: Player;
+  onEscape?: () => void;
 }>;
 
-export function useKeyboard({ player }: PropsType) {
+export function useKeyboard({ player, onEscape }: PropsType) {
   React.useEffect(() => {
-    const keyboard = new Keyboard<PlayerMovementKeys>();
+    const keyboard = new Keyboard<PlayerMovementKeys | GeneralKeys>();
 
     keyboard.on(["ArrowLeft", "a"], (pressed) => {
       if (pressed) {
@@ -52,8 +55,16 @@ export function useKeyboard({ player }: PropsType) {
       }
     });
 
+    if (onEscape) {
+      keyboard.on(["Escape"], (pressed) => {
+        if (pressed) {
+          onEscape();
+        }
+      });
+    }
+
     return () => {
       keyboard.destroy();
     };
-  }, [player]);
+  }, [player, onEscape]);
 }
