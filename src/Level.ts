@@ -13,7 +13,6 @@ export class Level extends EventEmitter<LevelEvents> {
   public dimension: number;
 
   protected lastVisitedRoom: Room | null = null;
-  protected exploredRoomsCount: number = 0;
 
   constructor(rooms: Room[]) {
     super();
@@ -45,23 +44,24 @@ export class Level extends EventEmitter<LevelEvents> {
       room: this.lastVisitedRoom,
     });
 
-    // the room exploration is moving from
-    // one unexplored room to another
-    if (!this.lastVisitedRoom.explored && !currentRoom.explored) {
-      this.lastVisitedRoom.explored = true;
-      this.exploredRoomsCount += 1;
-      this.emit("room_explore", {
-        room: this.lastVisitedRoom,
-      });
-    }
+    if (!currentRoom.explored) {
+      // an unexplored room with one entrance
+      // (dead end) can be explored immediately
+      if (currentRoom.deadEnd) {
+        currentRoom.explored = true;
+        this.emit("room_explore", {
+          room: currentRoom,
+        });
+      }
 
-    // the last room on the level
-    if (this.exploredRoomsCount === this.rooms.length - 1) {
-      currentRoom.explored = true;
-      this.exploredRoomsCount += 1;
-      this.emit("room_explore", {
-        room: currentRoom,
-      });
+      // a room with many entrances can be explored
+      // by moving to another unexplored room
+      if (!this.lastVisitedRoom.explored) {
+        this.lastVisitedRoom.explored = true;
+        this.emit("room_explore", {
+          room: this.lastVisitedRoom,
+        });
+      }
     }
 
     this.lastVisitedRoom = currentRoom;

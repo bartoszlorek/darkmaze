@@ -16,6 +16,12 @@ export class Room {
    */
   public explored: boolean = false;
 
+  /**
+   * the room has only one open wall,
+   * which is the entrance
+   */
+  public deadEnd: boolean = false;
+
   constructor(
     x: number,
     y: number,
@@ -24,6 +30,12 @@ export class Room {
     this.x = x;
     this.y = y;
     this.walls = walls;
+
+    const openWallsCount = walls.reduce((sum, state) => {
+      return sum + (state === WallState.open ? 1 : 0);
+    }, 0);
+
+    this.deadEnd = openWallsCount === 1;
   }
 
   public contains(x: number, y: number): boolean {
