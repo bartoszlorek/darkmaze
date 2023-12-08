@@ -20,7 +20,7 @@ type PropsType = Readonly<{
 export function StoryScene({ app }: PropsType) {
   console.log("--story");
 
-  const player = useInstance(() => new Player(0, 1, 0));
+  const player = useInstance(() => new Player(1, 1, 0));
   const level = useInstance(() => new Level(generateRooms()));
 
   const navigate = useNavigate();
