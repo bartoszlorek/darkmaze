@@ -1,18 +1,10 @@
 import * as React from "react";
-import type { SceneServiceRef } from "../machines";
+import { useNavigate } from "react-router-dom";
 
-type PropsType = Readonly<{
-  sceneService: SceneServiceRef;
-}>;
-
-export function TitleScene({ sceneService }: PropsType) {
-  const handleStoryClick = () => {
-    sceneService.send({ type: "START_STORY" });
-  };
-
-  const handleFreerunClick = () => {
-    sceneService.send({ type: "START_FREERUN" });
-  };
+export function TitleScene() {
+  const navigate = useNavigate();
+  const handleStoryClick = () => navigate("/story");
+  const handleFreerunClick = () => navigate("/freerun");
 
   return (
     <div>

@@ -1,5 +1,6 @@
 import * as React from "react";
 import * as PIXI from "pixi.js";
+import { useNavigate } from "react-router-dom";
 import { subscribeResize } from "../utils";
 import { Compass, GameViewLayer, PathLights } from "../components";
 import { Level } from "../Level";
@@ -9,24 +10,21 @@ import { drawLevel } from "./drawLevel";
 import { drawPlayer } from "./drawPlayer";
 import { useInstance } from "./useInstance";
 import { useKeyboard } from "./useKeyboard";
-import type { SceneServiceRef } from "../machines";
 
 const GRID_SIZE = 48;
 
 type PropsType = Readonly<{
   app: PIXI.Application;
-  sceneService: SceneServiceRef;
 }>;
 
-export function StoryScene({ app, sceneService }: PropsType) {
+export function StoryScene({ app }: PropsType) {
   console.log("--story");
 
-  const player = useInstance(() => new Player(1, 1, 0));
+  const player = useInstance(() => new Player(0, 1, 0));
   const level = useInstance(() => new Level(generateRooms()));
 
-  const handleEscape = React.useCallback(() => {
-    sceneService.send({ type: "EXIT" });
-  }, [sceneService]);
+  const navigate = useNavigate();
+  const handleEscape = React.useCallback(() => navigate("/"), [navigate]);
 
   useKeyboard({
     player,
