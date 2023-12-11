@@ -5,7 +5,7 @@ export enum WallState {
   closed = 1,
 }
 
-export type RoomType = "empty" | "gold" | "evil" | "portal";
+export type RoomType = "empty" | "evil" | "golden" | "passage";
 
 export class Room {
   public x: number;
@@ -14,8 +14,8 @@ export class Room {
   public type: RoomType;
 
   /**
-   * the room exploration is moving from
-   * one unexplored room to another
+   * the rooms exploration reveals the shape
+   * of the level as player moves between rooms
    */
   public explored: boolean = false;
 

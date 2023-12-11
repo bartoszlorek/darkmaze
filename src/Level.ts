@@ -86,9 +86,9 @@ export class Level extends EventEmitter<LevelEvents> {
     });
 
     if (!currentRoom.explored) {
-      // an unexplored room with one entrance
+      // a not empty room or with only one entrance
       // (dead end) can be explored immediately
-      if (currentRoom.deadEnd) {
+      if (currentRoom.type !== "empty" || currentRoom.deadEnd) {
         currentRoom.explored = true;
         this.emit("room_explore", {
           room: currentRoom,
