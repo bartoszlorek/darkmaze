@@ -6,7 +6,7 @@ type PropsType = Readonly<{
   position: number; // [0 .. 1]
 }>;
 
-export const CompassPoint = ({ value, position }: PropsType) => {
+export function CompassPoint({ value, position }: PropsType) {
   if (position < 0 || position > 1) {
     return null;
   }
@@ -15,4 +15,4 @@ export const CompassPoint = ({ value, position }: PropsType) => {
       <span className={styles.text}>{value}</span>
     </div>
   );
-};
+}

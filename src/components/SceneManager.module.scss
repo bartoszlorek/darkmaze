@@ -1,0 +1,26 @@
+.curtain {
+  position: absolute;
+  background-color: #050505;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  animation-name: fadeOut;
+  animation-duration: 400ms;
+  animation-timing-function: cubic-bezier(0.3, 0, 1, 0.8);
+  animation-fill-mode: forwards;
+  animation-delay: 200ms;
+  opacity: 1;
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}

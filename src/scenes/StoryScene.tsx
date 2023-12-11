@@ -1,69 +1,42 @@
 import * as React from "react";
 import * as PIXI from "pixi.js";
 import { useNavigate } from "react-router-dom";
-import { Compass, PathLights } from "../components";
-import { Level } from "../Level";
-import { Player } from "../Player";
-import { Room } from "../Room";
-import { MainStageLayer } from "./MainStageLayer";
-import { useInstance } from "./useInstance";
-import { useKeyboard } from "./useKeyboard";
+import { SceneManager } from "../components";
+import { Keyboard } from "../Keyboard";
+import { StoryScene1 } from "./StoryScene1";
+import { StoryScene2 } from "./StoryScene2";
+
+type StoryKeys = "Escape";
 
 type PropsType = Readonly<{
   app: PIXI.Application;
 }>;
 
 export function StoryScene({ app }: PropsType) {
-  const player = useInstance(() => new Player(1, 1, 0));
-  const level = useInstance(() => new Level(generateRooms()));
-
   const navigate = useNavigate();
-  const handleEscape = React.useCallback(() => navigate("/"), [navigate]);
-
-  useKeyboard({
-    player,
-    onEscape: handleEscape,
-  });
+  const [sceneIndex, setSceneIndex] = React.useState(0);
+  const nextScene = React.useCallback(() => {
+    setSceneIndex((n) => n + 1);
+  }, []);
 
   React.useEffect(() => {
-    level.subscribe("room_enter", ({ room }) => {
-      const adjacentRooms = level.getAdjacentRooms(room);
-      console.log({ adjacentRooms });
+    const keyboard = new Keyboard<StoryKeys>();
+    keyboard.on(["Escape"], (pressed) => {
+      if (pressed) navigate("/");
     });
 
-    const mainGameLoop = (deltaTime: number) => {
-      const currentRoom = level.updateCurrentRoom(player);
-      player.update(deltaTime, currentRoom);
-    };
-
-    app.ticker.add(mainGameLoop);
-
     return () => {
-      app.ticker.remove(mainGameLoop);
+      keyboard.destroy();
     };
-  }, [app, level, player]);
+  }, [navigate]);
 
   return (
-    <>
-      <MainStageLayer app={app} player={player} level={level} />
-      <PathLights player={player} />
-      <Compass player={player} />
-    </>
+    <SceneManager
+      sceneIndex={sceneIndex}
+      scenes={[
+        <StoryScene1 app={app} nextScene={nextScene} />,
+        <StoryScene2 app={app} />,
+      ]}
+    />
   );
-}
-
-function generateRooms(): Room[] {
-  return [
-    new Room(0, 0, [1, 0, 0, 1]),
-    new Room(1, 0, [1, 0, 1, 0]),
-    new Room(2, 0, [1, 1, 0, 0]),
-
-    new Room(0, 1, [0, 0, 1, 1]),
-    new Room(1, 1, [1, 1, 1, 0]),
-    new Room(2, 1, [0, 1, 0, 1]),
-
-    new Room(0, 2, [1, 0, 1, 1]),
-    new Room(1, 2, [1, 0, 1, 0]),
-    new Room(2, 2, [0, 1, 1, 0]),
-  ];
 }
