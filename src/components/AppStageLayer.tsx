@@ -4,11 +4,11 @@ import * as PIXI from "pixi.js";
 type PropsType<Context> = Readonly<{
   app: PIXI.Application;
   onMount: (layer: PIXI.Container) => Context;
-  onUnmount?: (layer: PIXI.Container, context: Context) => void;
-  onUpdate?: (deltaTime: number, context: Context) => void;
+  onUnmount: (layer: PIXI.Container, context: Context) => void;
+  onUpdate: (deltaTime: number, context: Context) => void;
 }>;
 
-export function GameViewLayer<Context>({
+export function AppStageLayer<Context>({
   app,
   onMount,
   onUnmount,
@@ -26,7 +26,7 @@ export function GameViewLayer<Context>({
     const context = onMountRef.current?.(layer);
 
     const tickerCallback = (deltaTime: number) => {
-      onUpdateRef.current?.(deltaTime, context);
+      onUpdateRef.current(deltaTime, context);
     };
 
     app.ticker.add(tickerCallback);
@@ -34,7 +34,7 @@ export function GameViewLayer<Context>({
 
     return () => {
       app.ticker.remove(tickerCallback);
-      onUnmountRef.current?.(layer, context);
+      onUnmountRef.current(layer, context);
       layer.destroy({ children: true });
     };
   }, [app]);
