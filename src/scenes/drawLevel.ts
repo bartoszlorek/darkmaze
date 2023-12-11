@@ -5,7 +5,7 @@ import type { DrawFunction } from "./draw";
 const lineStyleOptions = {
   width: 4,
   color: "#646365",
-  cap: PIXI.LINE_CAP.ROUND,
+  cap: PIXI.LINE_CAP.SQUARE,
 };
 
 export const drawLevel: DrawFunction<{

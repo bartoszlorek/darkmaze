@@ -5,10 +5,13 @@ export enum WallState {
   closed = 1,
 }
 
+export type RoomType = "empty" | "gold" | "evil" | "portal";
+
 export class Room {
   public x: number;
   public y: number;
   public walls: [WallState, WallState, WallState, WallState];
+  public type: RoomType;
 
   /**
    * the room exploration is moving from
@@ -25,11 +28,13 @@ export class Room {
   constructor(
     x: number,
     y: number,
-    walls: [WallState, WallState, WallState, WallState]
+    walls: [WallState, WallState, WallState, WallState],
+    type: RoomType = "empty"
   ) {
     this.x = x;
     this.y = y;
     this.walls = walls;
+    this.type = type;
 
     const openWallsCount = walls.reduce((sum, state) => {
       return sum + (state === WallState.open ? 1 : 0);

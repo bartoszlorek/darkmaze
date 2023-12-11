@@ -32,8 +32,13 @@ export function StoryScene({ app }: PropsType) {
   });
 
   React.useEffect(() => {
+    level.subscribe("room_enter", ({ room }) => {
+      const adjacentRooms = level.getAdjacentRooms(room);
+      console.log({ adjacentRooms });
+    });
+
     const mainGameLoop = (deltaTime: number) => {
-      const currentRoom = level.findCurrentRoom(player);
+      const currentRoom = level.updateCurrentRoom(player);
       player.update(deltaTime, currentRoom);
     };
 

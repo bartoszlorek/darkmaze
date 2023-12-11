@@ -28,12 +28,12 @@ export class Player extends EventEmitter<PlayerEvents> {
   public moveDirection: number = 0;
   public turnDirection: number = 0;
 
-  // environment
+  // relation to the level paths
   public pathDiffAngle: number = 0; // [-180..180]
   public pathDiffFactor: number = 0; // [-1..1]
 
-  // allocated memory
-  protected events: PlayerEvents = {
+  // pre-allocated memory
+  private _events: PlayerEvents = {
     move: { x: 0, y: 0 },
     turn: { angle: 0 },
     path: { diffAngle: 0, diffFactor: 0 },
@@ -70,9 +70,9 @@ export class Player extends EventEmitter<PlayerEvents> {
       const diffFactor = diffAngle / 180;
 
       if (this.pathDiffAngle !== diffAngle) {
-        this.events.path.diffAngle = diffAngle;
-        this.events.path.diffFactor = diffFactor;
-        this.emit("path", this.events.path);
+        this._events.path.diffAngle = diffAngle;
+        this._events.path.diffFactor = diffFactor;
+        this.emit("path", this._events.path);
       }
 
       this.pathDiffAngle = diffAngle;
@@ -177,9 +177,9 @@ export class Player extends EventEmitter<PlayerEvents> {
             break;
         }
 
-        this.events.move.x = x;
-        this.events.move.y = y;
-        this.emit("move", this.events.move);
+        this._events.move.x = x;
+        this._events.move.y = y;
+        this.emit("move", this._events.move);
       }
 
       this.x = x;
@@ -192,8 +192,8 @@ export class Player extends EventEmitter<PlayerEvents> {
     }
 
     if (angleBefore !== this.angle) {
-      this.events.turn.angle = this.angle;
-      this.emit("turn", this.events.turn);
+      this._events.turn.angle = this.angle;
+      this.emit("turn", this._events.turn);
     }
   }
 }
