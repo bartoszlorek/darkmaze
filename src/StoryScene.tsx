@@ -15,8 +15,14 @@ type PropsType = Readonly<{
 export function StoryScene({ app }: PropsType) {
   const navigate = useNavigate();
   const [sceneIndex, setSceneIndex] = React.useState(0);
+  const [resetKey, setResetKey] = React.useState(0);
+
   const nextScene = React.useCallback(() => {
     setSceneIndex((n) => n + 1);
+  }, []);
+
+  const resetScene = React.useCallback(() => {
+    setResetKey((n) => n + 1);
   }, []);
 
   React.useEffect(() => {
@@ -32,10 +38,11 @@ export function StoryScene({ app }: PropsType) {
 
   return (
     <SceneManager
+      resetKey={resetKey}
       sceneIndex={sceneIndex}
       scenes={[
         <StoryScene1 app={app} nextScene={nextScene} />,
-        <StoryScene2 app={app} />,
+        <StoryScene2 app={app} resetScene={resetScene} />,
       ]}
     />
   );

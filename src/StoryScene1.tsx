@@ -15,8 +15,6 @@ type PropsType = Readonly<{
 }>;
 
 export function StoryScene1({ app, nextScene }: PropsType) {
-  console.log("--StoryScene1");
-
   const [paused, setPaused] = React.useState(false);
   const player = useInstance(() => new Player(1, 1, 0));
   const level = useInstance(() => new Level(createRooms()));
@@ -36,7 +34,7 @@ export function StoryScene1({ app, nextScene }: PropsType) {
     level.subscribe("room_enter", ({ room }) => {
       if (room.type === "passage") {
         setPaused(true);
-        setTimeout(nextScene, 500);
+        setTimeout(nextScene, 800);
       }
     });
   }, [level, nextScene]);

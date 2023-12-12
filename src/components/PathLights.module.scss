@@ -2,11 +2,12 @@ $lightColor: #646365;
 
 .left,
 .right {
-  position: fixed;
+  position: absolute;
   top: 0;
   bottom: 0;
   width: 50%;
   transition: opacity 800ms ease;
+  pointer-events: none;
   opacity: 0;
 }
 

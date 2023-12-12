@@ -62,6 +62,11 @@ export class Player extends EventEmitter<PlayerEvents> {
     this.turnDirection -= 1;
   }
 
+  public resetMovement() {
+    this.moveDirection = 0;
+    this.turnDirection = 0;
+  }
+
   public update(deltaTime: number, currentRoom: Room) {
     this.applyMovement(deltaTime, currentRoom);
 

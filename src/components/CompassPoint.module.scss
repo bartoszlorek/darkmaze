@@ -1,13 +1,13 @@
 .point {
-  position: absolute;
-  background-color: #45444f;
-  width: 4px;
-  height: 16px;
-  top: 50%;
-  transform: translateY(-50%);
-  margin-left: -2px;
   display: flex;
   justify-content: center;
+  position: absolute;
+  top: 50%;
+  width: 4px;
+  height: 16px;
+  transform: translateY(-50%);
+  margin-left: -2px;
+  background-color: #45444f;
 }
 
 .text {

@@ -20,8 +20,10 @@ type PropsType = Readonly<{
 export function usePlayerKeyboard({ player, paused }: PropsType) {
   React.useEffect(() => {
     if (paused) {
+      player.resetMovement();
       return;
     }
+
     const keyboard = new Keyboard<PlayerMovementKeys>();
 
     keyboard.on(["ArrowLeft", "a"], (pressed) => {
