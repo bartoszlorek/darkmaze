@@ -5,6 +5,7 @@ import { Level } from "../Level";
 import { Player } from "../Player";
 import { Room } from "../Room";
 import { MainStageLayer } from "./MainStageLayer";
+import { useGameLoop } from "./useGameLoop";
 import { useInstance } from "./useInstance";
 import { usePlayerKeyboard } from "./usePlayerKeyboard";
 
@@ -13,6 +14,8 @@ type PropsType = Readonly<{
 }>;
 
 export function StoryScene2({ app }: PropsType) {
+  console.log("--StoryScene2");
+
   const player = useInstance(() => new Player(1, 1, 0));
   const level = useInstance(() => new Level(createRooms()));
 
@@ -21,23 +24,18 @@ export function StoryScene2({ app }: PropsType) {
     paused: false,
   });
 
+  useGameLoop({
+    app,
+    player,
+    level,
+  });
+
   React.useEffect(() => {
     level.subscribe("room_enter", ({ room }) => {
       const adjacentRooms = level.getAdjacentRooms(room);
       console.log({ adjacentRooms });
     });
-
-    const mainTick = (deltaTime: number) => {
-      const currentRoom = level.updateCurrentRoom(player);
-      player.update(deltaTime, currentRoom);
-    };
-
-    app.ticker.add(mainTick);
-
-    return () => {
-      app.ticker.remove(mainTick);
-    };
-  }, [app, level, player]);
+  }, [level]);
 
   return (
     <>
