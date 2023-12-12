@@ -2,9 +2,11 @@ import * as PIXI from "pixi.js";
 import type { DrawFunction } from "./utils";
 import type { Level } from "./Level";
 
+const LEVEL_COLOR = "#646365";
+
 const lineStyleOptions = {
   width: 4,
-  color: "#646365",
+  color: LEVEL_COLOR,
   cap: PIXI.LINE_CAP.SQUARE,
 };
 
@@ -48,6 +50,12 @@ export const drawLevel: DrawFunction<{
       if (room.walls[3]) {
         g.moveTo(left, bottom);
         g.lineTo(left, top);
+      }
+
+      if (room.type === "passage") {
+        g.beginFill(LEVEL_COLOR);
+        g.drawCircle(left + gridSize / 2, top + gridSize / 2, gridSize * 0.25);
+        g.endFill();
       }
     }
   };
