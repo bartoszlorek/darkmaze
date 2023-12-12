@@ -1,6 +1,6 @@
-import { Room } from "./Room";
+import { EventEmitter } from "./engine";
 import { Player } from "./Player";
-import { EventEmitter } from "./EventEmitter";
+import { Room } from "./Room";
 
 type Maybe<T> = T | null;
 

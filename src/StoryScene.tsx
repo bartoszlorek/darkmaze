@@ -1,8 +1,8 @@
 import * as React from "react";
 import * as PIXI from "pixi.js";
 import { useNavigate } from "react-router-dom";
-import { SceneManager } from "../components";
-import { Keyboard } from "../Keyboard";
+import { SceneManager } from "./components";
+import { Keyboard } from "./engine";
 import { StoryScene1 } from "./StoryScene1";
 import { StoryScene2 } from "./StoryScene2";
 

@@ -1,9 +1,9 @@
 import * as React from "react";
 import * as PIXI from "pixi.js";
-import { Compass, PathLights } from "../components";
-import { Level } from "../Level";
-import { Player } from "../Player";
-import { Room } from "../Room";
+import { Compass, PathLights } from "./components";
+import { Level } from "./Level";
+import { Player } from "./Player";
+import { Room } from "./Room";
 import { MainStageLayer } from "./MainStageLayer";
 import { useGameLoop } from "./useGameLoop";
 import { useInstance } from "./useInstance";

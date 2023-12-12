@@ -1,4 +1,4 @@
-import { arrayRemove } from "./utils";
+import { arrayRemove } from "../utils";
 
 export type EventHandler<T> = (value: T) => void;
 

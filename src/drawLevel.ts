@@ -1,6 +1,6 @@
 import * as PIXI from "pixi.js";
-import type { Level } from "../Level";
-import type { DrawFunction } from "./draw";
+import type { DrawFunction } from "./utils";
+import type { Level } from "./Level";
 
 const lineStyleOptions = {
   width: 4,

@@ -1,11 +1,11 @@
 import * as React from "react";
 import * as PIXI from "pixi.js";
-import { AppStageLayer } from "../components";
-import { subscribeResize } from "../utils";
+import { StageLayer } from "./engine";
+import { subscribeResize } from "./utils";
 import { drawLevel } from "./drawLevel";
 import { drawPlayer } from "./drawPlayer";
-import { Level } from "../Level";
-import { Player } from "../Player";
+import { Level } from "./Level";
+import { Player } from "./Player";
 
 const GRID_SIZE = 48;
 
@@ -17,7 +17,7 @@ type PropsType = Readonly<{
 
 export function MainStageLayer({ app, player, level }: PropsType) {
   return (
-    <AppStageLayer
+    <StageLayer
       app={app}
       onMount={(layer) => {
         const parent = new PIXI.Container();

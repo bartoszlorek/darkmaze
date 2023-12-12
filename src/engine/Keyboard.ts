@@ -1,4 +1,4 @@
-type EventCallback = (pressed: boolean) => void;
+export type EventCallback = (pressed: boolean) => void;
 
 export class Keyboard<Key extends string = string> {
   protected states: Map<Key, boolean>;

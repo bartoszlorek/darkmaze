@@ -1,7 +1,7 @@
 import * as React from "react";
 import * as PIXI from "pixi.js";
-import { Level } from "../Level";
-import { Player } from "../Player";
+import { Level } from "./Level";
+import { Player } from "./Player";
 
 type PropsType = Readonly<{
   app: PIXI.Application;

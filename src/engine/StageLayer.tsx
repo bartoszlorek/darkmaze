@@ -8,7 +8,7 @@ type PropsType<Context> = Readonly<{
   onUpdate: (deltaTime: number, context: Context) => void;
 }>;
 
-export function AppStageLayer<Context>({
+export function StageLayer<Context>({
   app,
   onMount,
   onUnmount,

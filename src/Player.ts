@@ -6,7 +6,7 @@ import {
   lerp,
   lerpAngle,
 } from "./utils";
-import { EventEmitter } from "./EventEmitter";
+import { EventEmitter } from "./engine";
 import { Room, WallState } from "./Room";
 
 export const PLAYER_TURN_SPEED = 6; // degrees
