@@ -14,6 +14,6 @@ export const drawPlayer: DrawFunction<{
   return () => {
     sprite.x = player.x * gridSize + gridSize / 2;
     sprite.y = player.y * gridSize + gridSize / 2;
-    sprite.angle = Math.round(player.angle / 10) * 10;
+    sprite.angle = Math.round(player.angle / 45) * 45;
   };
 };

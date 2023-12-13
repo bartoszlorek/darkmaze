@@ -12,8 +12,9 @@ export function Compass({ player }: PropsType) {
   const [angle, setAngle] = React.useState(player.angle / 360);
 
   React.useEffect(() => {
-    const unsubscribe = player.subscribe("turn", (value) => {
-      setAngle(value.angle / 360);
+    const unsubscribe = player.subscribe("turn", (payload) => {
+      const pixelizedAngle = Math.round(payload.angle / 5) * 5;
+      setAngle(pixelizedAngle / 360);
     });
 
     return () => {

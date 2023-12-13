@@ -1,10 +1,12 @@
 import {
-  DirectionIndex,
   DirectionAngle,
+  DirectionIndex,
   angleToIndex,
-  normalizeAngle,
+  indexToAngle,
   lerp,
   lerpAngle,
+  normalizeAngle,
+  subtractAngle,
 } from "./utils";
 import { EventEmitter } from "./engine";
 import { Room, WallState } from "./Room";
@@ -17,7 +19,7 @@ export const PLAYER_DEFAULT_STATUS: PlayerStatus = "idle";
 export type PlayerEvents = {
   move: { x: number; y: number };
   turn: { angle: number };
-  path: { diffAngle: number; diffFactor: number };
+  pathSense: { left: number; right: number };
   status: { value: PlayerStatus };
 };
 
@@ -40,15 +42,15 @@ export class Player extends EventEmitter<PlayerEvents> {
   public moveDirection: number = 0;
   public turnDirection: number = 0;
 
-  // relation to the level paths
-  public pathDiffAngle: number = 0; // [-180..180]
-  public pathDiffFactor: number = 0; // [-1..1]
+  // detection of alternative level paths
+  public pathSenseLeft: number = 0; // [0..1]
+  public pathSenseRight: number = 0; // [0..1]
 
   // pre-allocated memory
   private _events: PlayerEvents = {
     move: { x: 0, y: 0 },
     turn: { angle: 0 },
-    path: { diffAngle: 0, diffFactor: 0 },
+    pathSense: { left: 0, right: 0 },
     status: { value: PLAYER_DEFAULT_STATUS },
   };
 
@@ -93,9 +95,8 @@ export class Player extends EventEmitter<PlayerEvents> {
       } else {
         this.setStatus("idle");
       }
+      this.applyPathSense(currentRoom);
     }
-
-    this.applyPathDiff(currentRoom);
   }
 
   protected applyMovement(deltaTime: number, currentRoom: Room) {
@@ -215,19 +216,38 @@ export class Player extends EventEmitter<PlayerEvents> {
     }
   }
 
-  protected applyPathDiff(currentRoom: Room) {
-    const diffAngle = currentRoom.closestOpenWallDiffAngle(this.angle);
-    if (diffAngle !== undefined) {
-      const diffFactor = diffAngle / 180;
+  protected applyPathSense(currentRoom: Room) {
+    let pathSenseLeft = this.pathSenseLeft;
+    let pathSenseRight = this.pathSenseRight;
 
-      if (this.pathDiffAngle !== diffAngle) {
-        this._events.path.diffAngle = diffAngle;
-        this._events.path.diffFactor = diffFactor;
-        this.emit("path", this._events.path);
-      }
+    const angleLeft = this.angle - 90;
+    const angleRight = this.angle + 90;
+    const indexLeft = angleToIndex(angleLeft);
+    const indexRight = angleToIndex(angleRight);
 
-      this.pathDiffAngle = diffAngle;
-      this.pathDiffFactor = diffFactor;
+    if (currentRoom.walls[indexLeft] === WallState.open) {
+      const diff = subtractAngle(angleLeft, indexToAngle(indexLeft));
+      pathSenseLeft = (45 - Math.abs(diff)) / 45;
+    } else {
+      pathSenseLeft = 0;
+    }
+
+    if (currentRoom.walls[indexRight] === WallState.open) {
+      const diff = subtractAngle(angleRight, indexToAngle(indexRight));
+      pathSenseRight = (45 - Math.abs(diff)) / 45;
+    } else {
+      pathSenseRight = 0;
+    }
+
+    if (
+      pathSenseLeft !== this.pathSenseLeft ||
+      pathSenseRight !== this.pathSenseRight
+    ) {
+      this.pathSenseLeft = pathSenseLeft;
+      this.pathSenseRight = pathSenseRight;
+      this._events.pathSense.left = pathSenseLeft;
+      this._events.pathSense.right = pathSenseRight;
+      this.emit("pathSense", this._events.pathSense);
     }
   }
 }

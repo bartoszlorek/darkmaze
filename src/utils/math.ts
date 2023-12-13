@@ -12,6 +12,15 @@ export enum DirectionAngle {
   left = 270,
 }
 
+export const directionAngles: DirectionAngle[] = [0, 90, 180, 270];
+
+/**
+ * Returns the angle of the direction index.
+ */
+export function indexToAngle(index: DirectionIndex): DirectionAngle {
+  return directionAngles[index];
+}
+
 /**
  * Returns the direction index of the angle.
  */
