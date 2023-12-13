@@ -6,8 +6,7 @@ import { drawLevel } from "./drawLevel";
 import { drawPlayer } from "./drawPlayer";
 import { Level } from "./Level";
 import { Player } from "./Player";
-
-const GRID_SIZE = 48;
+import { GRID_SIZE } from "./consts";
 
 type PropsType = Readonly<{
   app: PIXI.Application;

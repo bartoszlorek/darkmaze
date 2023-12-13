@@ -4,7 +4,7 @@ import type { Level } from "./Level";
 
 const lineStyleOptions = {
   width: 4,
-  color: "#646365",
+  color: 0x646365,
   cap: PIXI.LINE_CAP.SQUARE,
 };
 
@@ -17,7 +17,6 @@ export const drawLevel: DrawFunction<{
 
   return () => {
     g.clear();
-    g.lineStyle(lineStyleOptions);
 
     for (let i = 0; i < level.rooms.length; i++) {
       const room = level.rooms[i];
@@ -29,6 +28,8 @@ export const drawLevel: DrawFunction<{
       const top = room.y * gridSize;
       const right = left + gridSize;
       const bottom = top + gridSize;
+
+      g.lineStyle(lineStyleOptions);
 
       if (room.walls[0]) {
         g.moveTo(left, top);
@@ -50,16 +51,40 @@ export const drawLevel: DrawFunction<{
         g.lineTo(left, top);
       }
 
-      if (room.type === "passage") {
-        g.drawCircle(left + gridSize / 2, top + gridSize / 2, gridSize * 0.25);
-      } else if (room.type === "evil") {
-        g.drawRect(
-          left + gridSize * 0.25,
-          top + gridSize * 0.25,
-          gridSize / 2,
-          gridSize / 2
-        );
+      switch (room.type) {
+        case "evil":
+          drawEvil(g, left, top, gridSize);
+          break;
+
+        case "golden":
+          drawGolden(g, left, top, gridSize);
+          break;
+
+        case "passage":
+          drawPassage(g, left, top, gridSize);
+          break;
       }
     }
   };
 };
+
+function drawEvil(g: PIXI.Graphics, x: number, y: number, size: number) {
+  g.lineStyle(0)
+    .beginFill(0xb45252)
+    .drawCircle(x + size / 2, y + size / 2, size * 0.25)
+    .endFill();
+}
+
+function drawGolden(g: PIXI.Graphics, x: number, y: number, size: number) {
+  g.lineStyle(0)
+    .beginFill(0xede19e)
+    .drawCircle(x + size / 2, y + size / 2, size * 0.25)
+    .endFill();
+}
+
+function drawPassage(g: PIXI.Graphics, x: number, y: number, size: number) {
+  g.lineStyle(0)
+    .beginFill(0x646365)
+    .drawRect(x + size * 0.25, y + size * 0.25, size / 2, size / 2)
+    .endFill();
+}

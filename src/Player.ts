@@ -27,7 +27,8 @@ export type PlayerStatus =
   | "entering"
   | "exiting"
   | "paused"
-  | "died";
+  | "died"
+  | "won";
 
 export class Player extends EventEmitter<PlayerEvents> {
   public x: number;
@@ -89,11 +90,12 @@ export class Player extends EventEmitter<PlayerEvents> {
       if (this.moveDirection !== 0 || this.turnDirection !== 0) {
         this.setStatus("running");
         this.applyMovement(deltaTime, currentRoom);
-        this.applyPathDiff(currentRoom);
       } else {
         this.setStatus("idle");
       }
     }
+
+    this.applyPathDiff(currentRoom);
   }
 
   protected applyMovement(deltaTime: number, currentRoom: Room) {

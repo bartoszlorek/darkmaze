@@ -4,8 +4,10 @@ import { MainScene } from "./MainScene";
 
 const view = document.getElementById("view") as HTMLCanvasElement;
 const root = document.getElementById("root") as HTMLDivElement;
+
 const app = new PIXI.Application({
   backgroundAlpha: 0,
+  antialias: false,
   resizeTo: window,
   view,
 });

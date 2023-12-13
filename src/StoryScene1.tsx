@@ -9,8 +9,7 @@ import { useGameLoop } from "./useGameLoop";
 import { useInstance } from "./useInstance";
 import { usePlayerKeyboard } from "./usePlayerKeyboard";
 import { usePlayerStatus } from "./usePlayerStatus";
-
-const ANTICIPATION_TIME = 500;
+import { ANTICIPATION_TIME } from "./consts";
 
 type PropsType = Readonly<{
   app: PIXI.Application;

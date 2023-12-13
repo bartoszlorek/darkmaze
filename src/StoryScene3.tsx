@@ -17,8 +17,8 @@ type PropsType = Readonly<{
   resetScene: () => void;
 }>;
 
-export function StoryScene2({ app, nextScene, resetScene }: PropsType) {
-  const player = useInstance(() => new Player(1, 1, 0));
+export function StoryScene3({ app, nextScene, resetScene }: PropsType) {
+  const player = useInstance(() => new Player(2, 1, 0));
   const level = useInstance(() => new Level(createRooms()));
   const playerStatus = usePlayerStatus({ player });
 
@@ -41,9 +41,9 @@ export function StoryScene2({ app, nextScene, resetScene }: PropsType) {
           setTimeout(() => player.setStatus("died"), ANTICIPATION_TIME);
           break;
 
-        case "passage":
-          player.setStatus("exiting");
-          setTimeout(nextScene, ANTICIPATION_TIME);
+        case "golden":
+          player.setStatus("paused");
+          setTimeout(() => player.setStatus("won"), ANTICIPATION_TIME);
           break;
 
         default: {
@@ -52,7 +52,7 @@ export function StoryScene2({ app, nextScene, resetScene }: PropsType) {
         }
       }
     });
-  }, [player, level, nextScene]);
+  }, [player, level]);
 
   return (
     <>
@@ -66,30 +66,37 @@ export function StoryScene2({ app, nextScene, resetScene }: PropsType) {
           actions={<Button onClick={resetScene}>reset</Button>}
         />
       )}
+      {playerStatus === "won" && (
+        <ActionScreen
+          title="you won"
+          titleColor="yellow"
+          actions={<Button onClick={nextScene}>continue</Button>}
+        />
+      )}
     </>
   );
 }
 
 function createRooms(): Room[] {
   return [
-    new Room(0, 0, [1, 0, 0, 1]),
-    new Room(1, 0, [1, 1, 0, 0]),
-    new Room(2, 0, [1, 0, 0, 1]),
+    new Room(0, 0, [1, 1, 0, 1], "evil"),
+    new Room(1, 0, [1, 0, 1, 1], "golden"),
+    new Room(2, 0, [1, 0, 1, 0]),
     new Room(3, 0, [1, 1, 0, 0]),
 
-    new Room(0, 1, [0, 1, 0, 1]),
-    new Room(1, 1, [0, 1, 1, 1]),
-    new Room(2, 1, [0, 1, 0, 1]),
+    new Room(0, 1, [0, 0, 0, 1]),
+    new Room(1, 1, [1, 0, 1, 0]),
+    new Room(2, 1, [1, 1, 1, 0]),
     new Room(3, 1, [0, 1, 0, 1]),
 
-    new Room(0, 2, [0, 0, 0, 1]),
-    new Room(1, 2, [1, 1, 0, 0]),
-    new Room(2, 2, [0, 1, 0, 1]),
-    new Room(3, 2, [0, 1, 0, 1]),
+    new Room(0, 2, [0, 1, 0, 1]),
+    new Room(1, 2, [1, 0, 1, 1], "evil"),
+    new Room(2, 2, [1, 0, 0, 0]),
+    new Room(3, 2, [0, 1, 0, 0]),
 
-    new Room(0, 3, [0, 1, 1, 1], "evil"),
-    new Room(1, 3, [0, 0, 1, 1]),
+    new Room(0, 3, [0, 0, 1, 1]),
+    new Room(1, 3, [1, 0, 1, 0]),
     new Room(2, 3, [0, 1, 1, 0]),
-    new Room(3, 3, [0, 1, 1, 1], "passage"),
+    new Room(3, 3, [0, 1, 1, 1], "evil"),
   ];
 }

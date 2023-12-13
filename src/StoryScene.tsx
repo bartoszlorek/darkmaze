@@ -5,6 +5,7 @@ import { SceneManager } from "./components";
 import { Keyboard } from "./engine";
 import { StoryScene1 } from "./StoryScene1";
 import { StoryScene2 } from "./StoryScene2";
+import { StoryScene3 } from "./StoryScene3";
 
 type StoryKeys = "Escape";
 
@@ -25,10 +26,17 @@ export function StoryScene({ app }: PropsType) {
     setResetKey((n) => n + 1);
   }, []);
 
+  const exitScene = React.useCallback(() => {
+    navigate("/");
+  }, [navigate]);
+
   React.useEffect(() => {
     const keyboard = new Keyboard<StoryKeys>();
+
     keyboard.on(["Escape"], (pressed) => {
-      if (pressed) navigate("/");
+      if (pressed) {
+        navigate("/");
+      }
     });
 
     return () => {
@@ -42,7 +50,8 @@ export function StoryScene({ app }: PropsType) {
       sceneIndex={sceneIndex}
       scenes={[
         <StoryScene1 app={app} nextScene={nextScene} />,
-        <StoryScene2 app={app} resetScene={resetScene} />,
+        <StoryScene2 app={app} nextScene={nextScene} resetScene={resetScene} />,
+        <StoryScene3 app={app} nextScene={exitScene} resetScene={resetScene} />,
       ]}
     />
   );
