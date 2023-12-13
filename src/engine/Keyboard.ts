@@ -27,6 +27,13 @@ export class Keyboard<Key extends string = string> {
   }
 
   public destroy() {
+    // unpressed all pressed buttons
+    this.states.forEach((pressed, key) => {
+      if (pressed) {
+        this.events.get(key)?.(!pressed);
+      }
+    });
+
     this.unregisterHandler();
     this.states.clear();
     this.events.clear();
