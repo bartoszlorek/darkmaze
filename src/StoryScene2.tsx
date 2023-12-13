@@ -10,6 +10,8 @@ import { useInstance } from "./useInstance";
 import { usePlayerKeyboard } from "./usePlayerKeyboard";
 import { usePlayerStatus } from "./usePlayerStatus";
 
+const ANTICIPATION_TIME = 500;
+
 type PropsType = Readonly<{
   app: PIXI.Application;
   resetScene: () => void;
@@ -35,7 +37,8 @@ export function StoryScene2({ app, resetScene }: PropsType) {
     level.subscribe("room_enter", ({ room }) => {
       switch (room.type) {
         case "evil":
-          player.setStatus("died");
+          player.setStatus("paused");
+          setTimeout(() => player.setStatus("died"), ANTICIPATION_TIME);
           break;
 
         case "passage":

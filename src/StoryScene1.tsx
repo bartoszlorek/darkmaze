@@ -10,6 +10,8 @@ import { useInstance } from "./useInstance";
 import { usePlayerKeyboard } from "./usePlayerKeyboard";
 import { usePlayerStatus } from "./usePlayerStatus";
 
+const ANTICIPATION_TIME = 500;
+
 type PropsType = Readonly<{
   app: PIXI.Application;
   nextScene: () => void;
@@ -35,7 +37,7 @@ export function StoryScene1({ app, nextScene }: PropsType) {
     level.subscribe("room_enter", ({ room }) => {
       if (room.type === "passage") {
         player.setStatus("exiting");
-        setTimeout(nextScene, 500);
+        setTimeout(nextScene, ANTICIPATION_TIME);
       }
     });
   }, [player, level, nextScene]);
