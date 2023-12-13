@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Keyboard } from "./engine";
-import type { Player } from "./Player";
+import type { Player, PlayerStatus } from "./Player";
 
 type PlayerMovementKeys =
   | "ArrowUp"
@@ -14,13 +14,15 @@ type PlayerMovementKeys =
 
 type PropsType = Readonly<{
   player: Player;
-  paused: boolean;
+  playerStatus: PlayerStatus;
 }>;
 
-export function usePlayerKeyboard({ player, paused }: PropsType) {
+export function usePlayerKeyboard({ player, playerStatus }: PropsType) {
+  const shouldBindKeyboard =
+    playerStatus === "idle" || playerStatus === "running";
+
   React.useEffect(() => {
-    if (paused) {
-      player.resetMovement();
+    if (!shouldBindKeyboard) {
       return;
     }
 
@@ -61,5 +63,5 @@ export function usePlayerKeyboard({ player, paused }: PropsType) {
     return () => {
       keyboard.destroy();
     };
-  }, [player, paused]);
+  }, [player, shouldBindKeyboard]);
 }

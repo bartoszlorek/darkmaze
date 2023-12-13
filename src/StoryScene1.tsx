@@ -8,6 +8,7 @@ import { MainStageLayer } from "./MainStageLayer";
 import { useGameLoop } from "./useGameLoop";
 import { useInstance } from "./useInstance";
 import { usePlayerKeyboard } from "./usePlayerKeyboard";
+import { usePlayerStatus } from "./usePlayerStatus";
 
 type PropsType = Readonly<{
   app: PIXI.Application;
@@ -15,13 +16,13 @@ type PropsType = Readonly<{
 }>;
 
 export function StoryScene1({ app, nextScene }: PropsType) {
-  const [paused, setPaused] = React.useState(false);
   const player = useInstance(() => new Player(1, 1, 0));
   const level = useInstance(() => new Level(createRooms()));
+  const playerStatus = usePlayerStatus({ player });
 
   usePlayerKeyboard({
     player,
-    paused,
+    playerStatus,
   });
 
   useGameLoop({
@@ -33,11 +34,11 @@ export function StoryScene1({ app, nextScene }: PropsType) {
   React.useEffect(() => {
     level.subscribe("room_enter", ({ room }) => {
       if (room.type === "passage") {
-        setPaused(true);
-        setTimeout(nextScene, 800);
+        player.setStatus("exiting");
+        setTimeout(nextScene, 500);
       }
     });
-  }, [level, nextScene]);
+  }, [player, level, nextScene]);
 
   return (
     <>

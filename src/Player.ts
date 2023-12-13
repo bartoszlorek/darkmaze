@@ -12,17 +12,28 @@ import { Room, WallState } from "./Room";
 export const PLAYER_TURN_SPEED = 6; // degrees
 export const PLAYER_MOVE_SPEED = 0.06; // pixels
 export const PLAYER_ALIGNMENT_BIAS = 0.1;
+export const PLAYER_DEFAULT_STATUS: PlayerStatus = "idle";
 
 export type PlayerEvents = {
   move: { x: number; y: number };
   turn: { angle: number };
   path: { diffAngle: number; diffFactor: number };
+  status: { value: PlayerStatus };
 };
+
+export type PlayerStatus =
+  | "idle"
+  | "running"
+  | "entering"
+  | "exiting"
+  | "paused"
+  | "died";
 
 export class Player extends EventEmitter<PlayerEvents> {
   public x: number;
   public y: number;
   public angle: number;
+  public status: PlayerStatus = PLAYER_DEFAULT_STATUS;
 
   // movement
   public moveDirection: number = 0;
@@ -37,6 +48,7 @@ export class Player extends EventEmitter<PlayerEvents> {
     move: { x: 0, y: 0 },
     turn: { angle: 0 },
     path: { diffAngle: 0, diffFactor: 0 },
+    status: { value: PLAYER_DEFAULT_STATUS },
   };
 
   constructor(x: number, y: number, angle: number) {
@@ -62,26 +74,25 @@ export class Player extends EventEmitter<PlayerEvents> {
     this.turnDirection -= 1;
   }
 
-  public resetMovement() {
-    this.moveDirection = 0;
-    this.turnDirection = 0;
+  public setStatus(status: PlayerStatus) {
+    if (this.status !== status) {
+      this.status = status;
+      this._events.status.value = status;
+      this.emit("status", this._events.status);
+    }
   }
 
   public update(deltaTime: number, currentRoom: Room) {
-    this.applyMovement(deltaTime, currentRoom);
-
-    const diffAngle = currentRoom.closestOpenWallDiffAngle(this.angle);
-    if (diffAngle !== undefined) {
-      const diffFactor = diffAngle / 180;
-
-      if (this.pathDiffAngle !== diffAngle) {
-        this._events.path.diffAngle = diffAngle;
-        this._events.path.diffFactor = diffFactor;
-        this.emit("path", this._events.path);
+    // the player status switches between idle and running
+    // automatically, other statuses must be handled manually
+    if (this.status === "idle" || this.status === "running") {
+      if (this.moveDirection !== 0 || this.turnDirection !== 0) {
+        this.setStatus("running");
+        this.applyMovement(deltaTime, currentRoom);
+        this.applyPathDiff(currentRoom);
+      } else {
+        this.setStatus("idle");
       }
-
-      this.pathDiffAngle = diffAngle;
-      this.pathDiffFactor = diffFactor;
     }
   }
 
@@ -199,6 +210,22 @@ export class Player extends EventEmitter<PlayerEvents> {
     if (angleBefore !== this.angle) {
       this._events.turn.angle = this.angle;
       this.emit("turn", this._events.turn);
+    }
+  }
+
+  protected applyPathDiff(currentRoom: Room) {
+    const diffAngle = currentRoom.closestOpenWallDiffAngle(this.angle);
+    if (diffAngle !== undefined) {
+      const diffFactor = diffAngle / 180;
+
+      if (this.pathDiffAngle !== diffAngle) {
+        this._events.path.diffAngle = diffAngle;
+        this._events.path.diffFactor = diffFactor;
+        this.emit("path", this._events.path);
+      }
+
+      this.pathDiffAngle = diffAngle;
+      this.pathDiffFactor = diffFactor;
     }
   }
 }

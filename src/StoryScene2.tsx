@@ -1,6 +1,6 @@
 import * as React from "react";
 import * as PIXI from "pixi.js";
-import { Compass, DieScreen, PathLights } from "./components";
+import { ActionScreen, Button, Compass, PathLights } from "./components";
 import { Level } from "./Level";
 import { Player } from "./Player";
 import { Room } from "./Room";
@@ -8,6 +8,7 @@ import { MainStageLayer } from "./MainStageLayer";
 import { useGameLoop } from "./useGameLoop";
 import { useInstance } from "./useInstance";
 import { usePlayerKeyboard } from "./usePlayerKeyboard";
+import { usePlayerStatus } from "./usePlayerStatus";
 
 type PropsType = Readonly<{
   app: PIXI.Application;
@@ -15,14 +16,13 @@ type PropsType = Readonly<{
 }>;
 
 export function StoryScene2({ app, resetScene }: PropsType) {
-  const [died, setDied] = React.useState(false);
-  const [paused, setPaused] = React.useState(false);
   const player = useInstance(() => new Player(1, 1, 0));
   const level = useInstance(() => new Level(createRooms()));
+  const playerStatus = usePlayerStatus({ player });
 
   usePlayerKeyboard({
     player,
-    paused: paused || died,
+    playerStatus,
   });
 
   useGameLoop({
@@ -33,22 +33,35 @@ export function StoryScene2({ app, resetScene }: PropsType) {
 
   React.useEffect(() => {
     level.subscribe("room_enter", ({ room }) => {
-      if (room.type === "evil") {
-        setDied(true);
-        return;
-      }
+      switch (room.type) {
+        case "evil":
+          player.setStatus("died");
+          break;
 
-      const adjacentRooms = level.getAdjacentRooms(room);
-      console.log({ adjacentRooms });
+        case "passage":
+          player.setStatus("exiting");
+          break;
+
+        default: {
+          const adjacentRooms = level.getAdjacentRooms(room);
+          console.log({ adjacentRooms });
+        }
+      }
     });
-  }, [level]);
+  }, [player, level]);
 
   return (
     <>
       <MainStageLayer app={app} player={player} level={level} />
       <PathLights player={player} />
       <Compass player={player} />
-      {died && <DieScreen onResetClick={resetScene} />}
+      {playerStatus === "died" && (
+        <ActionScreen
+          title="you died"
+          titleColor="red"
+          actions={<Button onClick={resetScene}>reset</Button>}
+        />
+      )}
     </>
   );
 }

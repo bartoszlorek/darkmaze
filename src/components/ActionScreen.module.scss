@@ -9,9 +9,25 @@
   justify-content: center;
   align-items: center;
   flex-direction: column;
+
+  & > * + * {
+    margin-top: 16px;
+  }
 }
 
-.headline {
-  color: #b45252;
+.title {
   font-size: 15vmin;
+  margin: 0;
+}
+
+.titleColorRed {
+  color: #b45252;
+}
+
+.titleColorYellow {
+  color: #ede19e;
+}
+
+.titleColorWhite {
+  color: #f2f0e5;
 }

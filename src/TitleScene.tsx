@@ -1,5 +1,6 @@
 import * as React from "react";
 import { useNavigate } from "react-router-dom";
+import { ActionScreen, Button } from "./components";
 
 export function TitleScene() {
   const navigate = useNavigate();
@@ -7,10 +8,14 @@ export function TitleScene() {
   const handleFreerunClick = () => navigate("/freerun");
 
   return (
-    <div>
-      <h1>darkmaze</h1>
-      <button onClick={handleStoryClick}>story</button>
-      <button onClick={handleFreerunClick}>freerun</button>
-    </div>
+    <ActionScreen
+      title="darkmaze"
+      actions={
+        <>
+          <Button onClick={handleStoryClick}>story</Button>
+          <Button onClick={handleFreerunClick}>freerun</Button>
+        </>
+      }
+    />
   );
 }
