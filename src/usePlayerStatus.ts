@@ -11,9 +11,9 @@ export function usePlayerStatus({ player }: PropsType) {
   );
 
   React.useEffect(() => {
-    const unsubscribe = player.subscribe("status", (payload) =>
-      setStatus(payload.value)
-    );
+    const unsubscribe = player.subscribe("status", (payload) => {
+      setStatus(payload.value);
+    });
 
     return () => {
       unsubscribe();

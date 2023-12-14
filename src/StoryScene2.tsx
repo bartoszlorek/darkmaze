@@ -58,7 +58,7 @@ export function StoryScene2({ app, nextScene, resetScene }: PropsType) {
     <>
       <MainStageLayer app={app} player={player} level={level} />
       <PathLights player={player} />
-      <Compass player={player} />
+      <Compass player={player} level={level} />
       {playerStatus === "died" && (
         <ActionScreen
           title="you died"

@@ -45,7 +45,7 @@ export function StoryScene1({ app, nextScene }: PropsType) {
     <>
       <MainStageLayer app={app} player={player} level={level} />
       <PathLights player={player} />
-      <Compass player={player} />
+      <Compass player={player} level={level} />
     </>
   );
 }

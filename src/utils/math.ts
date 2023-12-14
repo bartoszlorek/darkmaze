@@ -68,3 +68,17 @@ export function lerpAngle(a: number, b: number, bias: number) {
 export function lerp(a: number, b: number, bias: number) {
   return a * (1 - bias) + b * bias;
 }
+
+/**
+ * Returns the angle between two points.
+ */
+export function angleBetweenPoints(
+  originX: number,
+  originY: number,
+  pointX: number,
+  pointY: number
+) {
+  const deltaX = pointX - originX;
+  const deltaY = pointY - originY;
+  return (Math.atan2(deltaY, deltaX) * 180) / Math.PI + 90;
+}

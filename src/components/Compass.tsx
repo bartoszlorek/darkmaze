@@ -1,37 +1,59 @@
 import * as React from "react";
-import { flooredModulo } from "../utils";
+import { flooredModulo, angleBetweenPoints } from "../utils";
 import { CompassPoint } from "./CompassPoint";
+import type { Level } from "../Level";
 import type { Player } from "../Player";
 import styles from "./Compass.module.scss";
 
 export type CompassRawPointType = {
   label: string;
   angle: number;
+  align: "top" | "bottom";
   cap?: boolean;
 };
 
 type PropsType = Readonly<{
   player: Player;
+  level: Level;
 }>;
 
-export function Compass({ player }: PropsType) {
+export function Compass({ player, level }: PropsType) {
+  const [playerX, setPlayerX] = React.useState(player.x);
+  const [playerY, setPlayerY] = React.useState(player.y);
   const [playerAngle, setPlayerAngle] = React.useState(player.angle);
 
+  const nonEmptyRooms = React.useMemo(
+    () => level.rooms.filter((room) => room.type !== "empty"),
+    [level]
+  );
+
   React.useEffect(() => {
-    const unsubscribe = player.subscribe("turn", (payload) =>
-      setPlayerAngle(payload.angle)
-    );
+    const unsubscribeMove = player.subscribe("move", (payload) => {
+      setPlayerX(payload.x);
+      setPlayerY(payload.y);
+    });
+
+    const unsubscribeTurn = player.subscribe("turn", (payload) => {
+      setPlayerAngle(payload.angle);
+    });
 
     return () => {
-      unsubscribe();
+      unsubscribeMove();
+      unsubscribeTurn();
     };
   }, [player]);
 
   const points: CompassRawPointType[] = [
-    { label: "N", angle: 0 },
-    { label: "S", angle: 180 },
-    { label: "E", angle: 90 },
-    { label: "W", angle: 270 },
+    { label: "N", angle: 0, align: "top" },
+    { label: "S", angle: 180, align: "top" },
+    { label: "E", angle: 90, align: "top" },
+    { label: "W", angle: 270, align: "top" },
+    ...nonEmptyRooms.map<CompassRawPointType>((room, i) => ({
+      label: `${room.type}_${i}`,
+      angle: angleBetweenPoints(playerX, playerY, room.x, room.y),
+      align: "bottom",
+      cap: true,
+    })),
   ];
 
   return (
@@ -41,6 +63,7 @@ export function Compass({ player }: PropsType) {
           key={point.label}
           label={point.label}
           value={getPointValue(playerAngle, point.angle)}
+          align={point.align}
           cap={point.cap}
         />
       ))}
