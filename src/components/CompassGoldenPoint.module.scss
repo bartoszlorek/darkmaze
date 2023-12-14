@@ -1,6 +1,4 @@
 .point {
-  display: flex;
-  justify-content: center;
   position: absolute;
   top: 50%;
   width: 4px;
@@ -10,6 +8,11 @@
   background-color: #45444f;
 }
 
-.text {
-  margin-top: -24px;
+.goblet {
+  width: 16px;
+  height: 16px;
+  background-color: #ede19e;
+  border-radius: 50%;
+  margin-top: 24px;
+  margin-left: -6px;
 }

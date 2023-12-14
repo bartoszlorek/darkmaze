@@ -1,16 +1,24 @@
 import * as React from "react";
 import { flooredModulo, angleBetweenPoints } from "../utils";
+import { CompassEvilPoint } from "./CompassEvilPoint";
+import { CompassGoldenPoint } from "./CompassGoldenPoint";
 import { CompassPoint } from "./CompassPoint";
 import type { Level } from "../Level";
 import type { Player } from "../Player";
+import type { Room } from "../Room";
 import styles from "./Compass.module.scss";
 
-export type CompassRawPointType = {
+type CompassRawPointType = {
   label: string;
   angle: number;
-  align: "top" | "bottom";
-  cap?: boolean;
 };
+
+const labeledPoints: CompassRawPointType[] = [
+  { label: "N", angle: 0 },
+  { label: "S", angle: 180 },
+  { label: "E", angle: 90 },
+  { label: "W", angle: 270 },
+];
 
 type PropsType = Readonly<{
   player: Player;
@@ -22,10 +30,12 @@ export function Compass({ player, level }: PropsType) {
   const [playerY, setPlayerY] = React.useState(player.y);
   const [playerAngle, setPlayerAngle] = React.useState(player.angle);
 
-  const nonEmptyRooms = React.useMemo(
-    () => level.rooms.filter((room) => room.type !== "empty"),
+  const goldenRooms = React.useMemo(
+    () => level.rooms.filter((room) => room.type === "golden"),
     [level]
   );
+
+  const [nearbyEvilRooms, setNearbyEvilRooms] = React.useState<Room[]>([]);
 
   React.useEffect(() => {
     const unsubscribeMove = player.subscribe("move", (payload) => {
@@ -37,34 +47,51 @@ export function Compass({ player, level }: PropsType) {
       setPlayerAngle(payload.angle);
     });
 
+    const unsubscribeRoomEnter = level.subscribe("room_enter", ({ room }) => {
+      const foundNearbyEvilRooms = level
+        .getAdjacentRooms(room)
+        .reduce((acc, room) => {
+          if (room?.type === "evil") {
+            acc.push(room);
+          }
+          return acc;
+        }, [] as Room[]);
+
+      setNearbyEvilRooms(foundNearbyEvilRooms);
+    });
+
     return () => {
       unsubscribeMove();
       unsubscribeTurn();
+      unsubscribeRoomEnter();
     };
-  }, [player]);
-
-  const points: CompassRawPointType[] = [
-    { label: "N", angle: 0, align: "top" },
-    { label: "S", angle: 180, align: "top" },
-    { label: "E", angle: 90, align: "top" },
-    { label: "W", angle: 270, align: "top" },
-    ...nonEmptyRooms.map<CompassRawPointType>((room, i) => ({
-      label: `${room.type}_${i}`,
-      angle: angleBetweenPoints(playerX, playerY, room.x, room.y),
-      align: "bottom",
-      cap: true,
-    })),
-  ];
+  }, [player, level]);
 
   return (
     <div className={styles.track}>
-      {points.map((point) => (
+      {labeledPoints.map((point) => (
         <CompassPoint
           key={point.label}
           label={point.label}
           value={getPointValue(playerAngle, point.angle)}
-          align={point.align}
-          cap={point.cap}
+        />
+      ))}
+      {goldenRooms.map((room, i) => (
+        <CompassGoldenPoint
+          key={i}
+          value={getPointValue(
+            playerAngle,
+            angleBetweenPoints(playerX, playerY, room.x, room.y)
+          )}
+        />
+      ))}
+      {nearbyEvilRooms.map((room, i) => (
+        <CompassEvilPoint
+          key={i}
+          value={getPointValue(
+            playerAngle,
+            angleBetweenPoints(playerX, playerY, room.x, room.y)
+          )}
         />
       ))}
     </div>
