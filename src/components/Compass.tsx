@@ -1,19 +1,14 @@
 import * as React from "react";
 import { flooredModulo, angleBetweenPoints } from "../utils";
+import { CompassDirectionPoint } from "./CompassDirectionPoint";
 import { CompassEvilPoint } from "./CompassEvilPoint";
 import { CompassGoldenPoint } from "./CompassGoldenPoint";
-import { CompassPoint } from "./CompassPoint";
 import type { Level } from "../Level";
 import type { Player } from "../Player";
 import type { Room } from "../Room";
 import styles from "./Compass.module.scss";
 
-type CompassRawPointType = {
-  label: string;
-  angle: number;
-};
-
-const labeledPoints: CompassRawPointType[] = [
+const directionsPoints = [
   { label: "N", angle: 0 },
   { label: "S", angle: 180 },
   { label: "E", angle: 90 },
@@ -30,34 +25,33 @@ export function Compass({ player, level }: PropsType) {
   const [playerY, setPlayerY] = React.useState(player.y);
   const [playerAngle, setPlayerAngle] = React.useState(player.angle);
 
-  const goldenRooms = React.useMemo(
+  /**
+   * a dynamic list of rooms
+   */
+  const [nearbyEvilRooms, setNearbyEvilRooms] = React.useState<Room[]>([]);
+
+  /**
+   * a static list of rooms
+   */
+  const goldenRooms = React.useMemo<Room[]>(
     () => level.rooms.filter((room) => room.type === "golden"),
     [level]
   );
 
-  const [nearbyEvilRooms, setNearbyEvilRooms] = React.useState<Room[]>([]);
-
   React.useEffect(() => {
     const unsubscribeMove = player.subscribe("move", (payload) => {
-      setPlayerX(payload.x);
-      setPlayerY(payload.y);
+      setPlayerX(pixelateMove(payload.x));
+      setPlayerY(pixelateMove(payload.y));
     });
 
     const unsubscribeTurn = player.subscribe("turn", (payload) => {
-      setPlayerAngle(payload.angle);
+      setPlayerAngle(pixelateAngle(payload.angle));
     });
 
     const unsubscribeRoomEnter = level.subscribe("room_enter", ({ room }) => {
-      const foundNearbyEvilRooms = level
-        .getAdjacentRooms(room)
-        .reduce((acc, room) => {
-          if (room?.type === "evil") {
-            acc.push(room);
-          }
-          return acc;
-        }, [] as Room[]);
-
-      setNearbyEvilRooms(foundNearbyEvilRooms);
+      setNearbyEvilRooms(
+        level.filterAdjacentRooms(room, (a) => a.type === "evil")
+      );
     });
 
     return () => {
@@ -69,17 +63,17 @@ export function Compass({ player, level }: PropsType) {
 
   return (
     <div className={styles.track}>
-      {labeledPoints.map((point) => (
-        <CompassPoint
+      {directionsPoints.map((point) => (
+        <CompassDirectionPoint
           key={point.label}
           label={point.label}
-          value={getPointValue(playerAngle, point.angle)}
+          value={getPointInViewValue(playerAngle, point.angle)}
         />
       ))}
       {goldenRooms.map((room, i) => (
         <CompassGoldenPoint
           key={i}
-          value={getPointValue(
+          value={getPointInViewValue(
             playerAngle,
             angleBetweenPoints(playerX, playerY, room.x, room.y)
           )}
@@ -88,7 +82,7 @@ export function Compass({ player, level }: PropsType) {
       {nearbyEvilRooms.map((room, i) => (
         <CompassEvilPoint
           key={i}
-          value={getPointValue(
+          value={getPointInViewValue(
             playerAngle,
             angleBetweenPoints(playerX, playerY, room.x, room.y)
           )}
@@ -102,7 +96,15 @@ const FIELD_OF_VIEW = 200;
 const FIELD_OF_VIEW_SCALE = 360 / FIELD_OF_VIEW;
 const FIELD_OF_VIEW_OFFSET = (360 - FIELD_OF_VIEW) / 2;
 
-function getPointValue(playerAngle: number, pointAngle: number) {
+function getPointInViewValue(playerAngle: number, pointAngle: number) {
   const radial = flooredModulo(pointAngle - playerAngle + 180, 360);
   return ((radial - FIELD_OF_VIEW_OFFSET) * FIELD_OF_VIEW_SCALE) / 360;
+}
+
+function pixelateMove(value: number) {
+  return Math.round(value / 0.5) * 0.5;
+}
+
+function pixelateAngle(value: number) {
+  return Math.round(value / 10) * 10;
 }

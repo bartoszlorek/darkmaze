@@ -13,7 +13,9 @@ import { Room, WallState } from "./Room";
 
 export const PLAYER_TURN_SPEED = 6; // degrees
 export const PLAYER_MOVE_SPEED = 0.06; // pixels
-export const PLAYER_ALIGNMENT_BIAS = 0.1;
+export const PLAYER_ALIGNMENT_MOVE_BIAS = 0.1;
+export const PLAYER_ALIGNMENT_TURN_BIAS = 0.5;
+export const PLAYER_ALIGNMENT_IDLE_BIAS = 0.02;
 export const PLAYER_DEFAULT_STATUS: PlayerStatus = "idle";
 
 export type PlayerEvents = {
@@ -94,7 +96,24 @@ export class Player extends EventEmitter<PlayerEvents> {
         this.applyMovement(deltaTime, currentRoom);
       } else {
         this.setStatus("idle");
+
+        // align the angle to the world directions
+        const alignedAngle = Math.round(this.angle / 45) * 45;
+        const currentAngle = this.angle;
+
+        if (currentAngle !== alignedAngle) {
+          this.angle = lerpAngle(
+            currentAngle,
+            alignedAngle,
+            PLAYER_ALIGNMENT_IDLE_BIAS
+          );
+
+          this._events.turn.angle = this.angle;
+          this.emit("turn", this._events.turn);
+        }
       }
+
+      // after all movement operations
       this.applyPathSense(currentRoom);
     }
   }
@@ -122,7 +141,7 @@ export class Player extends EventEmitter<PlayerEvents> {
             y = Math.max(y, currentRoom.y);
           }
           if (this.y !== y) {
-            x = lerp(this.x, currentRoom.x, PLAYER_ALIGNMENT_BIAS);
+            x = lerp(this.x, currentRoom.x, PLAYER_ALIGNMENT_MOVE_BIAS);
           }
           break;
 
@@ -133,7 +152,7 @@ export class Player extends EventEmitter<PlayerEvents> {
             x = Math.min(x, currentRoom.x);
           }
           if (this.x !== x) {
-            y = lerp(this.y, currentRoom.y, PLAYER_ALIGNMENT_BIAS);
+            y = lerp(this.y, currentRoom.y, PLAYER_ALIGNMENT_MOVE_BIAS);
           }
           break;
 
@@ -144,7 +163,7 @@ export class Player extends EventEmitter<PlayerEvents> {
             y = Math.min(y, currentRoom.y);
           }
           if (this.y !== y) {
-            x = lerp(this.x, currentRoom.x, PLAYER_ALIGNMENT_BIAS);
+            x = lerp(this.x, currentRoom.x, PLAYER_ALIGNMENT_MOVE_BIAS);
           }
           break;
 
@@ -155,7 +174,7 @@ export class Player extends EventEmitter<PlayerEvents> {
             x = Math.max(x, currentRoom.x);
           }
           if (this.x !== x) {
-            y = lerp(this.y, currentRoom.y, PLAYER_ALIGNMENT_BIAS);
+            y = lerp(this.y, currentRoom.y, PLAYER_ALIGNMENT_MOVE_BIAS);
           }
           break;
       }
@@ -167,7 +186,7 @@ export class Player extends EventEmitter<PlayerEvents> {
             this.angle = lerpAngle(
               this.angle,
               isForwardMove ? DirectionAngle.up : DirectionAngle.down,
-              PLAYER_ALIGNMENT_BIAS
+              PLAYER_ALIGNMENT_TURN_BIAS
             );
             break;
 
@@ -175,7 +194,7 @@ export class Player extends EventEmitter<PlayerEvents> {
             this.angle = lerpAngle(
               this.angle,
               isForwardMove ? DirectionAngle.right : DirectionAngle.left,
-              PLAYER_ALIGNMENT_BIAS
+              PLAYER_ALIGNMENT_TURN_BIAS
             );
             break;
 
@@ -183,7 +202,7 @@ export class Player extends EventEmitter<PlayerEvents> {
             this.angle = lerpAngle(
               this.angle,
               isForwardMove ? DirectionAngle.down : DirectionAngle.up,
-              PLAYER_ALIGNMENT_BIAS
+              PLAYER_ALIGNMENT_TURN_BIAS
             );
             break;
 
@@ -191,7 +210,7 @@ export class Player extends EventEmitter<PlayerEvents> {
             this.angle = lerpAngle(
               this.angle,
               isForwardMove ? DirectionAngle.left : DirectionAngle.right,
-              PLAYER_ALIGNMENT_BIAS
+              PLAYER_ALIGNMENT_TURN_BIAS
             );
             break;
         }
