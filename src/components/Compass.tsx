@@ -106,5 +106,5 @@ function pixelateMove(value: number) {
 }
 
 function pixelateAngle(value: number) {
-  return Math.round(value / 10) * 10;
+  return Math.round(value / 15) * 15;
 }

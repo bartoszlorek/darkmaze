@@ -1,8 +1,9 @@
 import {
   DirectionAngle,
   DirectionIndex,
-  angleToIndex,
-  indexToAngle,
+  angleFromDirectionIndex,
+  directionIndexFromAngle,
+  facingAngleFromAngle,
   lerp,
   lerpAngle,
   normalizeAngle,
@@ -11,11 +12,11 @@ import {
 import { EventEmitter } from "./engine";
 import { Room, WallState } from "./Room";
 
-export const PLAYER_TURN_SPEED = 6; // degrees
+export const PLAYER_TURN_SPEED = 5; // degrees
 export const PLAYER_MOVE_SPEED = 0.06; // pixels
-export const PLAYER_ALIGNMENT_MOVE_BIAS = 0.1;
-export const PLAYER_ALIGNMENT_TURN_BIAS = 0.5;
-export const PLAYER_ALIGNMENT_IDLE_BIAS = 0.02;
+export const PLAYER_MOVE_FOLLOWING_AXIS = 0.1;
+export const PLAYER_MOVE_FOLLOWING_ANGLE = 0.3;
+export const PLAYER_IDLE_ALIGNMENT = 0.02;
 export const PLAYER_DEFAULT_STATUS: PlayerStatus = "idle";
 
 export type PlayerEvents = {
@@ -97,15 +98,13 @@ export class Player extends EventEmitter<PlayerEvents> {
       } else {
         this.setStatus("idle");
 
-        // align the angle to the world directions
-        const alignedAngle = Math.round(this.angle / 45) * 45;
-        const currentAngle = this.angle;
-
-        if (currentAngle !== alignedAngle) {
+        // align the angle to the facing angle of the player
+        const alignedAngle = facingAngleFromAngle(this.angle);
+        if (alignedAngle !== this.angle) {
           this.angle = lerpAngle(
-            currentAngle,
+            this.angle,
             alignedAngle,
-            PLAYER_ALIGNMENT_IDLE_BIAS
+            PLAYER_IDLE_ALIGNMENT
           );
 
           this._events.turn.angle = this.angle;
@@ -119,118 +118,108 @@ export class Player extends EventEmitter<PlayerEvents> {
   }
 
   protected applyMovement(deltaTime: number, currentRoom: Room) {
-    const angleBefore = this.angle;
-    const moveSpeed = this.moveDirection * PLAYER_MOVE_SPEED * deltaTime;
-    const turnSpeed = this.turnDirection * PLAYER_TURN_SPEED * deltaTime;
+    let nextX = this.x;
+    let nextY = this.y;
+    let nextAngle = this.angle;
     let didSomeDistance = false;
 
-    if (moveSpeed !== 0) {
-      const isForwardMove = moveSpeed > 0;
-      const index = isForwardMove
-        ? angleToIndex(this.angle)
-        : angleToIndex(this.angle + 180);
+    if (this.moveDirection !== 0) {
+      const isMovingForward = this.moveDirection > 0;
+      const index = currentRoom.directionIndexFromAngle(
+        isMovingForward ? this.angle : normalizeAngle(this.angle + 180)
+      );
 
-      let x = this.x;
-      let y = this.y;
-
+      // the other axis and the angle should follow
+      // the movement in the given direction
       switch (index) {
         case DirectionIndex.up:
-          y -= Math.abs(moveSpeed);
+          nextY -= PLAYER_MOVE_SPEED * deltaTime;
 
           if (currentRoom.walls[DirectionIndex.up] === WallState.closed) {
-            y = Math.max(y, currentRoom.y);
+            nextY = Math.max(nextY, currentRoom.y);
           }
-          if (this.y !== y) {
-            x = lerp(this.x, currentRoom.x, PLAYER_ALIGNMENT_MOVE_BIAS);
+
+          if (nextY !== this.y) {
+            nextX = lerp(nextX, currentRoom.x, PLAYER_MOVE_FOLLOWING_AXIS);
+            nextAngle = lerpAngle(
+              nextAngle,
+              isMovingForward ? DirectionAngle.up : DirectionAngle.down,
+              PLAYER_MOVE_FOLLOWING_ANGLE
+            );
           }
           break;
 
         case DirectionIndex.right:
-          x += Math.abs(moveSpeed);
+          nextX += PLAYER_MOVE_SPEED * deltaTime;
 
           if (currentRoom.walls[DirectionIndex.right] === WallState.closed) {
-            x = Math.min(x, currentRoom.x);
+            nextX = Math.min(nextX, currentRoom.x);
           }
-          if (this.x !== x) {
-            y = lerp(this.y, currentRoom.y, PLAYER_ALIGNMENT_MOVE_BIAS);
+
+          if (nextX !== this.x) {
+            nextY = lerp(nextY, currentRoom.y, PLAYER_MOVE_FOLLOWING_AXIS);
+            nextAngle = lerpAngle(
+              nextAngle,
+              isMovingForward ? DirectionAngle.right : DirectionAngle.left,
+              PLAYER_MOVE_FOLLOWING_ANGLE
+            );
           }
           break;
 
         case DirectionIndex.down:
-          y += Math.abs(moveSpeed);
+          nextY += PLAYER_MOVE_SPEED * deltaTime;
 
           if (currentRoom.walls[DirectionIndex.down] === WallState.closed) {
-            y = Math.min(y, currentRoom.y);
+            nextY = Math.min(nextY, currentRoom.y);
           }
-          if (this.y !== y) {
-            x = lerp(this.x, currentRoom.x, PLAYER_ALIGNMENT_MOVE_BIAS);
+
+          if (nextY !== this.y) {
+            nextX = lerp(nextX, currentRoom.x, PLAYER_MOVE_FOLLOWING_AXIS);
+            nextAngle = lerpAngle(
+              nextAngle,
+              isMovingForward ? DirectionAngle.down : DirectionAngle.up,
+              PLAYER_MOVE_FOLLOWING_ANGLE
+            );
           }
           break;
 
         case DirectionIndex.left:
-          x -= Math.abs(moveSpeed);
+          nextX -= PLAYER_MOVE_SPEED * deltaTime;
 
           if (currentRoom.walls[DirectionIndex.left] === WallState.closed) {
-            x = Math.max(x, currentRoom.x);
+            nextX = Math.max(nextX, currentRoom.x);
           }
-          if (this.x !== x) {
-            y = lerp(this.y, currentRoom.y, PLAYER_ALIGNMENT_MOVE_BIAS);
+
+          if (nextX !== this.x) {
+            nextY = lerp(nextY, currentRoom.y, PLAYER_MOVE_FOLLOWING_AXIS);
+            nextAngle = lerpAngle(
+              nextAngle,
+              isMovingForward ? DirectionAngle.left : DirectionAngle.right,
+              PLAYER_MOVE_FOLLOWING_ANGLE
+            );
           }
           break;
       }
 
-      didSomeDistance = this.x !== x || this.y !== y;
+      didSomeDistance = nextX !== this.x || nextY !== this.y;
       if (didSomeDistance) {
-        switch (index) {
-          case DirectionIndex.up:
-            this.angle = lerpAngle(
-              this.angle,
-              isForwardMove ? DirectionAngle.up : DirectionAngle.down,
-              PLAYER_ALIGNMENT_TURN_BIAS
-            );
-            break;
-
-          case DirectionIndex.right:
-            this.angle = lerpAngle(
-              this.angle,
-              isForwardMove ? DirectionAngle.right : DirectionAngle.left,
-              PLAYER_ALIGNMENT_TURN_BIAS
-            );
-            break;
-
-          case DirectionIndex.down:
-            this.angle = lerpAngle(
-              this.angle,
-              isForwardMove ? DirectionAngle.down : DirectionAngle.up,
-              PLAYER_ALIGNMENT_TURN_BIAS
-            );
-            break;
-
-          case DirectionIndex.left:
-            this.angle = lerpAngle(
-              this.angle,
-              isForwardMove ? DirectionAngle.left : DirectionAngle.right,
-              PLAYER_ALIGNMENT_TURN_BIAS
-            );
-            break;
-        }
-
-        this._events.move.x = x;
-        this._events.move.y = y;
+        this.x = nextX;
+        this.y = nextY;
+        this._events.move.x = nextX;
+        this._events.move.y = nextY;
         this.emit("move", this._events.move);
       }
-
-      this.x = x;
-      this.y = y;
     }
 
     // the move has higher priority than rotation
-    if (!didSomeDistance && turnSpeed !== 0) {
-      this.angle = normalizeAngle(this.angle + turnSpeed);
+    if (!didSomeDistance && this.turnDirection !== 0) {
+      const turnSpeed = this.turnDirection * PLAYER_TURN_SPEED * deltaTime;
+      nextAngle = normalizeAngle(nextAngle + turnSpeed);
     }
 
-    if (angleBefore !== this.angle) {
-      this._events.turn.angle = this.angle;
+    if (nextAngle !== this.angle) {
+      this.angle = nextAngle;
+      this._events.turn.angle = nextAngle;
       this.emit("turn", this._events.turn);
     }
   }
@@ -241,19 +230,27 @@ export class Player extends EventEmitter<PlayerEvents> {
 
     const angleLeft = this.angle - 90;
     const angleRight = this.angle + 90;
-    const indexLeft = angleToIndex(angleLeft);
-    const indexRight = angleToIndex(angleRight);
+    const indexLeft = directionIndexFromAngle(angleLeft);
+    const indexRight = directionIndexFromAngle(angleRight);
 
     if (currentRoom.walls[indexLeft] === WallState.open) {
-      const diff = subtractAngle(angleLeft, indexToAngle(indexLeft));
-      pathSenseLeft = (45 - Math.abs(diff)) / 45;
+      const angleDiff = subtractAngle(
+        angleFromDirectionIndex(indexLeft),
+        angleLeft
+      );
+
+      pathSenseLeft = (45 - Math.abs(angleDiff)) / 45;
     } else {
       pathSenseLeft = 0;
     }
 
     if (currentRoom.walls[indexRight] === WallState.open) {
-      const diff = subtractAngle(angleRight, indexToAngle(indexRight));
-      pathSenseRight = (45 - Math.abs(diff)) / 45;
+      const angleDiff = subtractAngle(
+        angleFromDirectionIndex(indexRight),
+        angleRight
+      );
+
+      pathSenseRight = (45 - Math.abs(angleDiff)) / 45;
     } else {
       pathSenseRight = 0;
     }

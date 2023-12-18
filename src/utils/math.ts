@@ -12,20 +12,46 @@ export enum DirectionAngle {
   left = 270,
 }
 
-export const directionAngles: DirectionAngle[] = [0, 90, 180, 270];
+export enum FacingIndex {
+  up = 0,
+  upRight = 1,
+  right = 2,
+  downRight = 3,
+  down = 4,
+  downLeft = 5,
+  left = 6,
+  upLeft = 7,
+}
 
-/**
- * Returns the angle of the direction index.
- */
-export function indexToAngle(index: DirectionIndex): DirectionAngle {
+export enum FacingAngle {
+  up = 0,
+  upRight = 45,
+  right = 90,
+  downRight = 135,
+  down = 180,
+  downLeft = 225,
+  left = 270,
+  upLeft = 315,
+}
+
+export const directionAngles: DirectionAngle[] = [0, 90, 180, 270];
+export function angleFromDirectionIndex(index: DirectionIndex): DirectionAngle {
   return directionAngles[index];
 }
 
-/**
- * Returns the direction index of the angle.
- */
-export function angleToIndex(angle: number): DirectionIndex {
+export function directionIndexFromAngle(angle: number): DirectionIndex {
   return Math.floor(normalizeAngle(angle + 45) / 90);
+}
+
+/**
+ * A facing angle has 8 possible directions, each of 45 degrees.
+ */
+export function facingAngleFromAngle(angle: number): FacingAngle {
+  return Math.floor(angle / 45) * 45;
+}
+
+export function facingIndexFromAngle(angle: number): FacingIndex {
+  return facingAngleFromAngle(angle) / 45;
 }
 
 /**
@@ -37,17 +63,25 @@ export function flooredModulo(a: number, n: number) {
 }
 
 /**
- * Returns the angle between two angles.
- */
-export function subtractAngle(a: number, b: number) {
-  return flooredModulo(a - b + 180, 360) - 180;
-}
-
-/**
  * Returns the angle between 0 and 360 degrees.
  */
 export function normalizeAngle(angle: number) {
   return ((angle % 360) + 360) % 360;
+}
+
+export function subtractAngle(a: number, b: number) {
+  return flooredModulo(a - b + 180, 360) - 180;
+}
+
+export function angleBetweenPoints(
+  originX: number,
+  originY: number,
+  pointX: number,
+  pointY: number
+) {
+  const deltaX = pointX - originX;
+  const deltaY = pointY - originY;
+  return (Math.atan2(deltaY, deltaX) * 180) / Math.PI + 90;
 }
 
 /**
@@ -67,18 +101,4 @@ export function lerpAngle(a: number, b: number, bias: number) {
  */
 export function lerp(a: number, b: number, bias: number) {
   return a * (1 - bias) + b * bias;
-}
-
-/**
- * Returns the angle between two points.
- */
-export function angleBetweenPoints(
-  originX: number,
-  originY: number,
-  pointX: number,
-  pointY: number
-) {
-  const deltaX = pointX - originX;
-  const deltaY = pointY - originY;
-  return (Math.atan2(deltaY, deltaX) * 180) / Math.PI + 90;
 }

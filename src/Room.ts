@@ -1,3 +1,5 @@
+import { DirectionIndex, FacingIndex, facingIndexFromAngle } from "./utils";
+
 export enum WallState {
   open = 0,
   closed = 1,
@@ -39,6 +41,42 @@ export class Room {
     }, 0);
 
     this.deadEnd = openWallsCount === 1;
+  }
+
+  public directionIndexFromAngle(angle: number): DirectionIndex {
+    switch (facingIndexFromAngle(angle)) {
+      case FacingIndex.up:
+        return DirectionIndex.up;
+
+      case FacingIndex.down:
+        return DirectionIndex.down;
+
+      case FacingIndex.right:
+        return DirectionIndex.right;
+
+      case FacingIndex.left:
+        return DirectionIndex.left;
+
+      case FacingIndex.upRight:
+        return this.walls[DirectionIndex.up] === WallState.open
+          ? DirectionIndex.up
+          : DirectionIndex.right;
+
+      case FacingIndex.downRight:
+        return this.walls[DirectionIndex.down] === WallState.open
+          ? DirectionIndex.down
+          : DirectionIndex.right;
+
+      case FacingIndex.upLeft:
+        return this.walls[DirectionIndex.up] === WallState.open
+          ? DirectionIndex.up
+          : DirectionIndex.left;
+
+      case FacingIndex.downLeft:
+        return this.walls[DirectionIndex.down] === WallState.open
+          ? DirectionIndex.down
+          : DirectionIndex.left;
+    }
   }
 
   public contains(x: number, y: number): boolean {
