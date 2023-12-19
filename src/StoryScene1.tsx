@@ -2,8 +2,8 @@ import * as React from "react";
 import * as PIXI from "pixi.js";
 import { ANTICIPATION_TIME, DIALOGUES } from "./consts";
 import { Compass, Dialog, PathLights } from "./components";
+import { createPlayer } from "./createPlayer";
 import { Level } from "./Level";
-import { Player } from "./Player";
 import { Room } from "./Room";
 import { MainStageLayer } from "./MainStageLayer";
 import { useDialog } from "./useDialog";
@@ -19,8 +19,8 @@ type PropsType = Readonly<{
 }>;
 
 export function StoryScene1({ app, nextScene, debug }: PropsType) {
-  const player = useInstance(() => new Player(1, 1, 0));
   const level = useInstance(() => new Level(createRooms()));
+  const player = useInstance(() => createPlayer(level));
   const playerStatus = usePlayerStatus({ player });
   const [dialog, setDialog] = useDialog(DIALOGUES);
 
@@ -48,7 +48,12 @@ export function StoryScene1({ app, nextScene, debug }: PropsType) {
 
   return (
     <>
-      <MainStageLayer app={app} player={player} level={level} debug={debug} />
+      <MainStageLayer
+        app={app}
+        player={player}
+        level={level}
+        levelRevealed={debug}
+      />
       <PathLights player={player} />
       <Compass player={player} level={level} />
       {dialog !== null && <Dialog value={dialog} />}
@@ -63,7 +68,7 @@ function createRooms(): Room[] {
     new Room(2, 0, [1, 1, 0, 0]),
 
     new Room(0, 1, [0, 0, 1, 1]),
-    new Room(1, 1, [1, 1, 1, 0]),
+    new Room(1, 1, [1, 1, 1, 0], "start"),
     new Room(2, 1, [0, 1, 0, 1]),
 
     new Room(0, 2, [1, 0, 1, 1], "passage"),

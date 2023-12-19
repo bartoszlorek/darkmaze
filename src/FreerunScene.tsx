@@ -1,14 +1,6 @@
 import * as React from "react";
 import * as PIXI from "pixi.js";
-import { Compass, PathLights } from "./components";
-import { Level } from "./Level";
-import { Player } from "./Player";
-import { Room } from "./Room";
-import { MainStageLayer } from "./MainStageLayer";
-import { useGameLoop } from "./useGameLoop";
-import { useInstance } from "./useInstance";
-import { usePlayerKeyboard } from "./usePlayerKeyboard";
-import { usePlayerStatus } from "./usePlayerStatus";
+import { FreerunScenePlay } from "./FreerunScenePlay";
 
 type PropsType = Readonly<{
   app: PIXI.Application;
@@ -16,26 +8,21 @@ type PropsType = Readonly<{
 
 export function FreerunScene({ app }: PropsType) {
   const [debug, setDebug] = React.useState(false);
-  const player = useInstance(() => new Player(1, 1, 0));
-  const level = useInstance(() => new Level(createRooms()));
-  const playerStatus = usePlayerStatus({ player });
+  const [resetKey, setResetKey] = React.useState(0);
 
-  usePlayerKeyboard({
-    player,
-    playerStatus,
-  });
-
-  useGameLoop({
-    app,
-    player,
-    level,
-  });
+  const resetScene = React.useCallback(() => {
+    setResetKey((n) => n + 1);
+  }, []);
 
   return (
     <>
-      <MainStageLayer app={app} player={player} level={level} debug={debug} />
-      <PathLights player={player} />
-      <Compass player={player} level={level} />
+      <FreerunScenePlay
+        app={app}
+        key={resetKey}
+        dimension={8}
+        resetScene={resetScene}
+        debug={debug}
+      />
       <button
         style={{ position: "absolute", right: 16, bottom: 16 }}
         onClick={() => setDebug((bool) => !bool)}
@@ -44,20 +31,4 @@ export function FreerunScene({ app }: PropsType) {
       </button>
     </>
   );
-}
-
-function createRooms(): Room[] {
-  return [
-    new Room(0, 0, [1, 0, 0, 1]),
-    new Room(1, 0, [1, 0, 1, 0]),
-    new Room(2, 0, [1, 1, 0, 0]),
-
-    new Room(0, 1, [0, 0, 1, 1]),
-    new Room(1, 1, [1, 1, 1, 0]),
-    new Room(2, 1, [0, 1, 0, 1]),
-
-    new Room(0, 2, [1, 0, 1, 1]),
-    new Room(1, 2, [1, 0, 1, 0]),
-    new Room(2, 2, [0, 1, 1, 0]),
-  ];
 }

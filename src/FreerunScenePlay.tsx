@@ -1,18 +1,11 @@
 import * as React from "react";
 import * as PIXI from "pixi.js";
-import { ANTICIPATION_TIME, DIALOGUES } from "./consts";
+import { ANTICIPATION_TIME } from "./consts";
+import { ActionScreen, Button, Compass, PathLights } from "./components";
+import { generateRooms } from "./generators/algorithm";
 import { createPlayer } from "./createPlayer";
-import {
-  ActionScreen,
-  Button,
-  Compass,
-  Dialog,
-  PathLights,
-} from "./components";
 import { Level } from "./Level";
-import { Room } from "./Room";
 import { MainStageLayer } from "./MainStageLayer";
-import { useDialog } from "./useDialog";
 import { useGameLoop } from "./useGameLoop";
 import { useInstance } from "./useInstance";
 import { usePlayerKeyboard } from "./usePlayerKeyboard";
@@ -20,16 +13,20 @@ import { usePlayerStatus } from "./usePlayerStatus";
 
 type PropsType = Readonly<{
   app: PIXI.Application;
-  nextScene: () => void;
+  dimension: number;
   resetScene: () => void;
   debug: boolean;
 }>;
 
-export function StoryScene3({ app, nextScene, resetScene, debug }: PropsType) {
-  const level = useInstance(() => new Level(createRooms()));
+export function FreerunScenePlay({
+  app,
+  dimension,
+  resetScene,
+  debug,
+}: PropsType) {
+  const level = useInstance(() => new Level(generateRooms(dimension)));
   const player = useInstance(() => createPlayer(level));
   const playerStatus = usePlayerStatus({ player });
-  const [dialog, setDialog] = useDialog(DIALOGUES);
 
   usePlayerKeyboard({
     player,
@@ -56,9 +53,7 @@ export function StoryScene3({ app, nextScene, resetScene, debug }: PropsType) {
           break;
       }
     });
-
-    setDialog("goal");
-  }, [player, level, setDialog]);
+  }, [player, level]);
 
   return (
     <>
@@ -66,11 +61,10 @@ export function StoryScene3({ app, nextScene, resetScene, debug }: PropsType) {
         app={app}
         player={player}
         level={level}
-        levelRevealed={debug}
+        levelRevealed={debug || player.status === "won"}
       />
       <PathLights player={player} />
       <Compass player={player} level={level} />
-      {dialog !== null && <Dialog value={dialog} />}
       {playerStatus === "died" && (
         <ActionScreen
           title="you died"
@@ -82,33 +76,9 @@ export function StoryScene3({ app, nextScene, resetScene, debug }: PropsType) {
         <ActionScreen
           title="you won"
           titleColor="yellow"
-          actions={<Button onClick={nextScene}>continue</Button>}
+          actions={<Button onClick={resetScene}>continue</Button>}
         />
       )}
     </>
   );
-}
-
-function createRooms(): Room[] {
-  return [
-    new Room(0, 0, [1, 1, 0, 1], "evil"),
-    new Room(1, 0, [1, 0, 1, 1], "golden"),
-    new Room(2, 0, [1, 0, 1, 0]),
-    new Room(3, 0, [1, 1, 0, 0]),
-
-    new Room(0, 1, [0, 0, 0, 1]),
-    new Room(1, 1, [1, 0, 1, 0]),
-    new Room(2, 1, [1, 1, 1, 0], "start"),
-    new Room(3, 1, [0, 1, 0, 1]),
-
-    new Room(0, 2, [0, 1, 0, 1]),
-    new Room(1, 2, [1, 0, 1, 1], "evil"),
-    new Room(2, 2, [1, 0, 0, 0]),
-    new Room(3, 2, [0, 1, 0, 0]),
-
-    new Room(0, 3, [0, 0, 1, 1]),
-    new Room(1, 3, [1, 0, 1, 0]),
-    new Room(2, 3, [0, 1, 1, 0]),
-    new Room(3, 3, [0, 1, 1, 1], "evil"),
-  ];
 }

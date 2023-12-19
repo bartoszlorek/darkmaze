@@ -5,7 +5,7 @@ export enum WallState {
   closed = 1,
 }
 
-export type RoomType = "empty" | "evil" | "golden" | "passage";
+export type RoomType = "start" | "empty" | "evil" | "golden" | "passage";
 
 export class Room {
   public x: number;
@@ -35,12 +35,19 @@ export class Room {
     this.y = y;
     this.walls = walls;
     this.type = type;
+    this.evaluate();
+  }
 
-    const openWallsCount = walls.reduce((sum, state) => {
+  public evaluate() {
+    const openWallsCount = this.walls.reduce((sum, state) => {
       return sum + (state === WallState.open ? 1 : 0);
     }, 0);
 
     this.deadEnd = openWallsCount === 1;
+  }
+
+  public contains(x: number, y: number): boolean {
+    return !(this.x !== Math.round(x) || this.y !== Math.round(y));
   }
 
   public directionIndexFromAngle(facingAngle: number): DirectionIndex {
@@ -80,9 +87,5 @@ export class Room {
       default:
         return DirectionIndex.up;
     }
-  }
-
-  public contains(x: number, y: number): boolean {
-    return !(this.x !== Math.round(x) || this.y !== Math.round(y));
   }
 }

@@ -10,17 +10,17 @@ const lineStyleOptions = {
 
 export const drawLevel: DrawFunction<
   { level: Level; gridSize: number },
-  [debug: boolean]
+  [revealed: boolean]
 > = ({ parent, level, gridSize }) => {
   const g = new PIXI.Graphics();
   parent.addChild(g);
 
-  return (debug) => {
+  return (revealed) => {
     g.clear();
 
     for (let i = 0; i < level.rooms.length; i++) {
       const room = level.rooms[i];
-      if (!room.explored && !debug) {
+      if (!room.explored && !revealed) {
         continue;
       }
 

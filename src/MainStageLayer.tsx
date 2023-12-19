@@ -12,10 +12,15 @@ type PropsType = Readonly<{
   app: PIXI.Application;
   player: Player;
   level: Level;
-  debug: boolean;
+  levelRevealed: boolean;
 }>;
 
-export function MainStageLayer({ app, player, level, debug }: PropsType) {
+export function MainStageLayer({
+  app,
+  player,
+  level,
+  levelRevealed,
+}: PropsType) {
   return (
     <StageLayer
       app={app}
@@ -51,7 +56,7 @@ export function MainStageLayer({ app, player, level, debug }: PropsType) {
         };
       }}
       onUpdate={(_, ctx) => {
-        ctx.redrawLevel(debug);
+        ctx.redrawLevel(levelRevealed);
         ctx.redrawPlayer();
       }}
       onUnmount={(_, ctx) => {
