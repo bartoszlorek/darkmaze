@@ -70,7 +70,7 @@ export function StoryScene({ app }: PropsType) {
         style={{ position: "absolute", right: 16, bottom: 16 }}
         onClick={() => setDebug((bool) => !bool)}
       >
-        debug: {debug ? "off" : "on"}
+        debug {debug ? "[on]" : "[off]"}
       </button>
     </>
   );
