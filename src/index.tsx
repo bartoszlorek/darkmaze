@@ -1,5 +1,6 @@
 import * as PIXI from "pixi.js";
 import { createRoot } from "react-dom/client";
+import { HashRouter } from "react-router-dom";
 import { MainScene } from "./MainScene";
 
 const view = document.getElementById("view") as HTMLCanvasElement;
@@ -12,4 +13,8 @@ const app = new PIXI.Application({
   view,
 });
 
-createRoot(root).render(<MainScene app={app} />);
+createRoot(root).render(
+  <HashRouter>
+    <MainScene app={app} />
+  </HashRouter>
+);

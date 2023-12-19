@@ -2,12 +2,9 @@ import * as React from "react";
 import * as PIXI from "pixi.js";
 import { useNavigate } from "react-router-dom";
 import { SceneManager } from "./components";
-import { Keyboard } from "./engine";
 import { StoryScene1 } from "./StoryScene1";
 import { StoryScene2 } from "./StoryScene2";
 import { StoryScene3 } from "./StoryScene3";
-
-type StoryKeys = "Escape";
 
 type PropsType = Readonly<{
   app: PIXI.Application;
@@ -29,20 +26,6 @@ export function StoryScene({ app }: PropsType) {
 
   const exitScene = React.useCallback(() => {
     navigate("/");
-  }, [navigate]);
-
-  React.useEffect(() => {
-    const keyboard = new Keyboard<StoryKeys>();
-
-    keyboard.on(["Escape"], (pressed) => {
-      if (pressed) {
-        navigate("/");
-      }
-    });
-
-    return () => {
-      keyboard.destroy();
-    };
   }, [navigate]);
 
   return (
