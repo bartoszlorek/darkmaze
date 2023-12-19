@@ -15,11 +15,9 @@ import { Room, WallState } from "./Room";
 
 export const PLAYER_MOVE_SPEED = 0.06; // pixels
 export const PLAYER_MOVE_FOLLOWING_AXIS = 0.1; // bias
-
 export const PLAYER_FACING_ANGLE = 45;
 export const PLAYER_TURN_SPEED = 5; // degrees
 export const PLAYER_TURN_ALIGNMENT = 0.05; // bias
-
 export const PLAYER_DEFAULT_STATUS: PlayerStatus = "idle";
 
 export type PlayerEvents = {

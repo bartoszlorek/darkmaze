@@ -1,5 +1,5 @@
 import * as React from "react";
-import { flooredModulo, angleBetweenPoints } from "../utils";
+import { flooredModulo, angleBetweenPoints, floorNumber } from "../utils";
 import { CompassDirectionPoint } from "./CompassDirectionPoint";
 import { CompassEvilPoint } from "./CompassEvilPoint";
 import { CompassGoldenPoint } from "./CompassGoldenPoint";
@@ -7,6 +7,11 @@ import type { Level } from "../Level";
 import type { Player } from "../Player";
 import type { Room } from "../Room";
 import styles from "./Compass.module.scss";
+
+const COMPASS_STEP_DEGREES = 10;
+const FIELD_OF_VIEW = 200;
+const FIELD_OF_VIEW_SCALE = 360 / FIELD_OF_VIEW;
+const FIELD_OF_VIEW_OFFSET = (360 - FIELD_OF_VIEW) / 2;
 
 const directionsPoints = [
   { label: "N", angle: 0 },
@@ -40,12 +45,12 @@ export function Compass({ player, level }: PropsType) {
 
   React.useEffect(() => {
     const unsubscribeMove = player.subscribe("move", (payload) => {
-      setPlayerX(pixelateMove(payload.x));
-      setPlayerY(pixelateMove(payload.y));
+      setPlayerX(payload.x);
+      setPlayerY(payload.y);
     });
 
     const unsubscribeTurn = player.subscribe("turn", (payload) => {
-      setPlayerAngle(pixelateAngle(payload.angle));
+      setPlayerAngle(payload.angle);
     });
 
     const unsubscribeRoomEnter = level.subscribe("room_enter", ({ room }) => {
@@ -92,19 +97,8 @@ export function Compass({ player, level }: PropsType) {
   );
 }
 
-const FIELD_OF_VIEW = 200;
-const FIELD_OF_VIEW_SCALE = 360 / FIELD_OF_VIEW;
-const FIELD_OF_VIEW_OFFSET = (360 - FIELD_OF_VIEW) / 2;
-
 function getPointInViewValue(playerAngle: number, pointAngle: number) {
-  const radial = flooredModulo(pointAngle - playerAngle + 180, 360);
-  return ((radial - FIELD_OF_VIEW_OFFSET) * FIELD_OF_VIEW_SCALE) / 360;
-}
-
-function pixelateMove(value: number) {
-  return Math.round(value / 0.5) * 0.5;
-}
-
-function pixelateAngle(value: number) {
-  return Math.round(value / 15) * 15;
+  const circular = flooredModulo(pointAngle - playerAngle + 180, 360);
+  const stepped = floorNumber(circular, COMPASS_STEP_DEGREES);
+  return ((stepped - FIELD_OF_VIEW_OFFSET) * FIELD_OF_VIEW_SCALE) / 360;
 }
