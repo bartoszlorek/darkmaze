@@ -1,4 +1,4 @@
-import { DirectionIndex, FacingIndex, facingIndexFromAngle } from "./utils";
+import { DirectionIndex, FacingAngle } from "./utils";
 
 export enum WallState {
   open = 0,
@@ -43,39 +43,42 @@ export class Room {
     this.deadEnd = openWallsCount === 1;
   }
 
-  public directionIndexFromAngle(angle: number): DirectionIndex {
-    switch (facingIndexFromAngle(angle)) {
-      case FacingIndex.up:
+  public directionIndexFromAngle(facingAngle: number): DirectionIndex {
+    switch (facingAngle) {
+      case FacingAngle.up:
         return DirectionIndex.up;
 
-      case FacingIndex.down:
+      case FacingAngle.down:
         return DirectionIndex.down;
 
-      case FacingIndex.right:
+      case FacingAngle.right:
         return DirectionIndex.right;
 
-      case FacingIndex.left:
+      case FacingAngle.left:
         return DirectionIndex.left;
 
-      case FacingIndex.upRight:
+      case FacingAngle.upRight:
         return this.walls[DirectionIndex.up] === WallState.open
           ? DirectionIndex.up
           : DirectionIndex.right;
 
-      case FacingIndex.downRight:
+      case FacingAngle.downRight:
         return this.walls[DirectionIndex.down] === WallState.open
           ? DirectionIndex.down
           : DirectionIndex.right;
 
-      case FacingIndex.upLeft:
+      case FacingAngle.upLeft:
         return this.walls[DirectionIndex.up] === WallState.open
           ? DirectionIndex.up
           : DirectionIndex.left;
 
-      case FacingIndex.downLeft:
+      case FacingAngle.downLeft:
         return this.walls[DirectionIndex.down] === WallState.open
           ? DirectionIndex.down
           : DirectionIndex.left;
+
+      default:
+        return DirectionIndex.up;
     }
   }
 
