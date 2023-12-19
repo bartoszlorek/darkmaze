@@ -219,8 +219,8 @@ export class Player extends EventEmitter<PlayerEvents> {
   }
 
   protected applyPathSense(currentRoom: Room) {
-    const angleLeft = this.angle - 90;
-    const angleRight = this.angle + 90;
+    const angleLeft = this.facingAngle - 90;
+    const angleRight = this.facingAngle + 90;
     const directionIndexLeft = directionIndexFromAngle(angleLeft);
     const directionIndexRight = directionIndexFromAngle(angleRight);
 
