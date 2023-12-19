@@ -4,8 +4,9 @@ export type DrawFunctionArgs<T extends Record<string, unknown>> = T & {
   parent: PIXI.Container;
 };
 
-export type DrawFunction<T extends Record<string, unknown>> = (
-  args: DrawFunctionArgs<T>
-) => RedrawFunction;
+export type DrawFunction<
+  T extends Record<string, unknown>,
+  P extends unknown[] = []
+> = (args: DrawFunctionArgs<T>) => RedrawFunction<P>;
 
-export type RedrawFunction = () => void;
+export type RedrawFunction<P extends unknown[]> = (...args: P) => void;

@@ -15,6 +15,7 @@ type PropsType = Readonly<{
 
 export function StoryScene({ app }: PropsType) {
   const navigate = useNavigate();
+  const [debug, setDebug] = React.useState(false);
   const [sceneIndex, setSceneIndex] = React.useState(0);
   const [resetKey, setResetKey] = React.useState(0);
 
@@ -45,14 +46,32 @@ export function StoryScene({ app }: PropsType) {
   }, [navigate]);
 
   return (
-    <SceneManager
-      resetKey={resetKey}
-      sceneIndex={sceneIndex}
-      scenes={[
-        <StoryScene1 app={app} nextScene={nextScene} />,
-        <StoryScene2 app={app} nextScene={nextScene} resetScene={resetScene} />,
-        <StoryScene3 app={app} nextScene={exitScene} resetScene={resetScene} />,
-      ]}
-    />
+    <>
+      <SceneManager
+        resetKey={resetKey}
+        sceneIndex={sceneIndex}
+        scenes={[
+          <StoryScene1 app={app} nextScene={nextScene} debug={debug} />,
+          <StoryScene2
+            app={app}
+            nextScene={nextScene}
+            resetScene={resetScene}
+            debug={debug}
+          />,
+          <StoryScene3
+            app={app}
+            nextScene={exitScene}
+            resetScene={resetScene}
+            debug={debug}
+          />,
+        ]}
+      />
+      <button
+        style={{ position: "absolute", right: 16, bottom: 16 }}
+        onClick={() => setDebug((bool) => !bool)}
+      >
+        debug: {debug ? "off" : "on"}
+      </button>
+    </>
   );
 }

@@ -14,9 +14,10 @@ import { ANTICIPATION_TIME } from "./consts";
 type PropsType = Readonly<{
   app: PIXI.Application;
   nextScene: () => void;
+  debug: boolean;
 }>;
 
-export function StoryScene1({ app, nextScene }: PropsType) {
+export function StoryScene1({ app, nextScene, debug }: PropsType) {
   const player = useInstance(() => new Player(1, 1, 0));
   const level = useInstance(() => new Level(createRooms()));
   const playerStatus = usePlayerStatus({ player });
@@ -43,7 +44,7 @@ export function StoryScene1({ app, nextScene }: PropsType) {
 
   return (
     <>
-      <MainStageLayer app={app} player={player} level={level} />
+      <MainStageLayer app={app} player={player} level={level} debug={debug} />
       <PathLights player={player} />
       <Compass player={player} level={level} />
     </>

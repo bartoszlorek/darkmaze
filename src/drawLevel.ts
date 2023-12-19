@@ -8,19 +8,19 @@ const lineStyleOptions = {
   cap: PIXI.LINE_CAP.SQUARE,
 };
 
-export const drawLevel: DrawFunction<{
-  level: Level;
-  gridSize: number;
-}> = ({ parent, level, gridSize }) => {
+export const drawLevel: DrawFunction<
+  { level: Level; gridSize: number },
+  [debug: boolean]
+> = ({ parent, level, gridSize }) => {
   const g = new PIXI.Graphics();
   parent.addChild(g);
 
-  return () => {
+  return (debug) => {
     g.clear();
 
     for (let i = 0; i < level.rooms.length; i++) {
       const room = level.rooms[i];
-      if (!room.explored) {
+      if (!room.explored && !debug) {
         continue;
       }
 

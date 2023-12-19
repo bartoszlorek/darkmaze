@@ -15,9 +15,10 @@ type PropsType = Readonly<{
   app: PIXI.Application;
   nextScene: () => void;
   resetScene: () => void;
+  debug: boolean;
 }>;
 
-export function StoryScene2({ app, nextScene, resetScene }: PropsType) {
+export function StoryScene2({ app, nextScene, resetScene, debug }: PropsType) {
   const player = useInstance(() => new Player(1, 1, 0));
   const level = useInstance(() => new Level(createRooms()));
   const playerStatus = usePlayerStatus({ player });
@@ -56,7 +57,7 @@ export function StoryScene2({ app, nextScene, resetScene }: PropsType) {
 
   return (
     <>
-      <MainStageLayer app={app} player={player} level={level} />
+      <MainStageLayer app={app} player={player} level={level} debug={debug} />
       <PathLights player={player} />
       <Compass player={player} level={level} />
       {playerStatus === "died" && (
