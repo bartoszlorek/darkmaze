@@ -136,4 +136,10 @@ export class Level extends EventEmitter<LevelEvents> {
       room !== null ? predicate(room) : false
     ) as Room[];
   }
+
+  public someAdjacentRooms(room: Room, predicate: (room: Room) => boolean) {
+    return this.getAdjacentRooms(room).some((room) =>
+      room !== null ? predicate(room) : false
+    );
+  }
 }
