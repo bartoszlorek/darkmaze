@@ -1,6 +1,9 @@
 import * as React from "react";
-import type { Player } from "../Player";
+import { debounce } from "../utils";
+import type { Player, PlayerEvents } from "../Player";
 import styles from "./PathLights.module.scss";
+
+const PATH_LIGHTS_DELAY = 250;
 
 type PropsType = Readonly<{
   player: Player;
@@ -11,13 +14,18 @@ export function PathLights({ player }: PropsType) {
   const [opacityRight, setOpacityRight] = React.useState(0);
 
   React.useEffect(() => {
-    const unsubscribe = player.subscribe("pathSense", (payload) => {
+    const [handler, cancelHandler] = debounce<
+      [payload: PlayerEvents["pathSense"]]
+    >((payload) => {
       setOpacityLeft(payload.left);
       setOpacityRight(payload.right);
-    });
+    }, PATH_LIGHTS_DELAY);
+
+    const unsubscribe = player.subscribe("pathSense", handler);
 
     return () => {
       unsubscribe();
+      cancelHandler();
     };
   }, [player]);
 
