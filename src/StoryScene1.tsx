@@ -14,11 +14,11 @@ import { usePlayerStatus } from "./usePlayerStatus";
 
 type PropsType = Readonly<{
   app: PIXI.Application;
-  nextScene: () => void;
   debug: boolean;
+  nextScene: () => void;
 }>;
 
-export function StoryScene1({ app, nextScene, debug }: PropsType) {
+export function StoryScene1({ app, debug, nextScene }: PropsType) {
   const level = useInstance(() => new Level(createRooms()));
   const player = useInstance(() => createPlayer(level));
   const playerStatus = usePlayerStatus({ player });

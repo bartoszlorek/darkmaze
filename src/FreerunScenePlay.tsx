@@ -2,7 +2,7 @@ import * as React from "react";
 import * as PIXI from "pixi.js";
 import { ANTICIPATION_TIME } from "./consts";
 import { ActionScreen, Button, Compass, PathLights } from "./components";
-import { generateRooms } from "./generators/algorithm";
+import { generateRooms } from "./generators";
 import { createPlayer } from "./createPlayer";
 import { Level } from "./Level";
 import { MainStageLayer } from "./MainStageLayer";
@@ -13,18 +13,20 @@ import { usePlayerStatus } from "./usePlayerStatus";
 
 type PropsType = Readonly<{
   app: PIXI.Application;
-  dimension: number;
-  resetScene: () => void;
   debug: boolean;
+  dimension: number;
+  seed: string;
+  resetScene: () => void;
 }>;
 
 export function FreerunScenePlay({
   app,
-  dimension,
-  resetScene,
   debug,
+  dimension,
+  seed,
+  resetScene,
 }: PropsType) {
-  const level = useInstance(() => new Level(generateRooms(dimension)));
+  const level = useInstance(() => new Level(generateRooms(dimension, seed)));
   const player = useInstance(() => createPlayer(level));
   const playerStatus = usePlayerStatus({ player });
 

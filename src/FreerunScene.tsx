@@ -18,10 +18,11 @@ export function FreerunScene({ app }: PropsType) {
     <>
       <FreerunScenePlay
         app={app}
-        key={resetKey}
-        dimension={8}
-        resetScene={resetScene}
         debug={debug}
+        dimension={8}
+        seed="hello_world"
+        resetScene={resetScene}
+        key={resetKey}
       />
       <button
         style={{ position: "absolute", right: 16, bottom: 16 }}

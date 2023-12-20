@@ -1,46 +1,44 @@
-import { arrayRemove, arrayRandomItem } from "../utils";
+import { arrayRandomItem } from "../utils";
 import { Room } from "../Room";
-
-export function generateRooms(dimension: number): Room[] {
-  let retriesLimit = 100;
-  let deadEndCount = 0;
-  let rooms: Room[] = [];
-
-  while (deadEndCount < 3) {
-    rooms = generateEmptyRooms(dimension);
-    deadEndCount = rooms.reduce((sum, room) => {
-      return sum + Number(room.deadEnd);
-    }, 0);
-
-    if (--retriesLimit === 0) {
-      throw new Error("rooms generation has reached the limit");
-    }
-  }
-
-  const deadEndRooms = rooms.filter((room) => room.deadEnd);
-
-  // find the golden room
-  const goldenRoom = arrayRandomItem(deadEndRooms) as Room;
-  goldenRoom.type = "golden";
-  arrayRemove(deadEndRooms, goldenRoom);
-
-  // find the starting room
-  const startRoom = arrayRandomItem(deadEndRooms) as Room;
-  startRoom.type = "start";
-  arrayRemove(deadEndRooms, startRoom);
-
-  // set the remaining rooms as evil
-  for (let i = 0; i < deadEndRooms.length; i++) {
-    deadEndRooms[i].type = "evil";
-  }
-
-  return rooms;
-}
 
 const roomKey = (x: number, y: number) => `${x}-${y}`;
 
+export function generateEmptyRoomsRetry({
+  dimension,
+  requiredDeadEndCount,
+  retriesLimit = 100,
+}: {
+  dimension: number;
+  requiredDeadEndCount: number;
+  retriesLimit?: number;
+}): Room[] {
+  let retries = 0;
+
+  while (retries <= retriesLimit) {
+    const rooms = generateEmptyRooms({
+      dimension,
+    });
+
+    const deadEndCount = rooms.reduce((sum, room) => {
+      return sum + Number(room.deadEnd);
+    }, 0);
+
+    if (deadEndCount >= requiredDeadEndCount) {
+      return rooms;
+    }
+
+    retries += 1;
+  }
+
+  throw new Error("rooms generation has reached the limit");
+}
+
 // https://en.wikipedia.org/wiki/Maze_generation_algorithm#Recursive_implementation
-export function generateEmptyRooms(dimension: number): Room[] {
+export function generateEmptyRooms({
+  dimension,
+}: {
+  dimension: number;
+}): Room[] {
   const visitedRooms = new Set<Room>();
   const roomsMap = new Map<string, Room>();
 

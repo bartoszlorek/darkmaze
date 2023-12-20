@@ -34,18 +34,18 @@ export function StoryScene({ app }: PropsType) {
         resetKey={resetKey}
         sceneIndex={sceneIndex}
         scenes={[
-          <StoryScene1 app={app} nextScene={nextScene} debug={debug} />,
+          <StoryScene1 app={app} debug={debug} nextScene={nextScene} />,
           <StoryScene2
             app={app}
+            debug={debug}
             nextScene={nextScene}
             resetScene={resetScene}
-            debug={debug}
           />,
           <StoryScene3
             app={app}
+            debug={debug}
             nextScene={exitScene}
             resetScene={resetScene}
-            debug={debug}
           />,
         ]}
       />
