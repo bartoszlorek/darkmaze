@@ -10,7 +10,7 @@ import {
   PathLights,
 } from "./components";
 import { Level } from "./Level";
-import { Room } from "./Room";
+import { Room, isEvil } from "./Room";
 import { MainStageLayer } from "./MainStageLayer";
 import { useDialog } from "./useDialog";
 import { useGameLoop } from "./useGameLoop";
@@ -56,7 +56,7 @@ export function StoryScene2({ app, nextScene, resetScene, debug }: PropsType) {
           break;
 
         default: {
-          if (level.someAdjacentRooms(room, (a) => a.type === "evil")) {
+          if (level.someAdjacentConnectedRooms(room, isEvil)) {
             setDialog("evil");
           }
         }

@@ -7,6 +7,8 @@ export enum WallState {
 
 export type RoomType = "start" | "empty" | "evil" | "golden" | "passage";
 
+export const isEvil = (room: Room) => room.type === "evil";
+
 export class Room {
   public x: number;
   public y: number;

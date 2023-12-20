@@ -3,6 +3,7 @@ import { flooredModulo, angleBetweenPoints, floorNumber } from "../utils";
 import { CompassDirectionPoint } from "./CompassDirectionPoint";
 import { CompassEvilPoint } from "./CompassEvilPoint";
 import { CompassGoldenPoint } from "./CompassGoldenPoint";
+import { isEvil } from "../Room";
 import type { Level } from "../Level";
 import type { Player } from "../Player";
 import type { Room } from "../Room";
@@ -54,9 +55,7 @@ export function Compass({ player, level }: PropsType) {
     });
 
     const unsubscribeRoomEnter = level.subscribe("room_enter", ({ room }) => {
-      setNearbyEvilRooms(
-        level.filterAdjacentRooms(room, (a) => a.type === "evil")
-      );
+      setNearbyEvilRooms(level.filterAdjacentConnectedRooms(room, isEvil));
     });
 
     return () => {

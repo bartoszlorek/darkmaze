@@ -1,14 +1,24 @@
 import { EventEmitter } from "./engine";
+import { DirectionIndex } from "./utils";
 import { Player } from "./Player";
-import { Room } from "./Room";
+import { Room, WallState } from "./Room";
 
 type Maybe<T> = T | null;
+
+export type RoomPredicate = (room: Room) => boolean;
 
 // prettier-ignore
 export type AdjacentRooms = [
   Maybe<Room>, Maybe<Room>, Maybe<Room>,
   Maybe<Room>, Maybe<Room>, Maybe<Room>,
   Maybe<Room>, Maybe<Room>, Maybe<Room>
+];
+
+// prettier-ignore
+export type AdjacentConnectedRooms = [
+               Maybe<Room>,
+  Maybe<Room>, Maybe<Room>, Maybe<Room>,
+               Maybe<Room>
 ];
 
 export type LevelEvents = {
@@ -30,6 +40,13 @@ export class Level extends EventEmitter<LevelEvents> {
     null, null, null,
     null, null, null,
     null, null, null
+  ];
+
+  // prettier-ignore
+  private _adjacentConnectedRooms: AdjacentConnectedRooms = [
+          null,
+    null, null, null,
+          null,
   ];
 
   constructor(rooms: Room[]) {
@@ -131,14 +148,55 @@ export class Level extends EventEmitter<LevelEvents> {
     return this._adjacentRooms;
   }
 
-  public filterAdjacentRooms(room: Room, predicate: (room: Room) => boolean) {
+  public getAdjacentConnectedRooms(room: Room) {
+    const x = room.x;
+    const y = room.y;
+
+    this._adjacentConnectedRooms[0] =
+      room.walls[DirectionIndex.up] === WallState.open
+        ? this.getRoom(x, y - 1) || null
+        : null;
+
+    this._adjacentConnectedRooms[1] =
+      room.walls[DirectionIndex.left] === WallState.open
+        ? this.getRoom(x - 1, y) || null
+        : null;
+
+    this._adjacentConnectedRooms[2] = room;
+
+    this._adjacentConnectedRooms[3] =
+      room.walls[DirectionIndex.right] === WallState.open
+        ? this.getRoom(x + 1, y) || null
+        : null;
+
+    this._adjacentConnectedRooms[4] =
+      room.walls[DirectionIndex.down] === WallState.open
+        ? this.getRoom(x, y + 1) || null
+        : null;
+
+    return this._adjacentConnectedRooms;
+  }
+
+  public filterAdjacentRooms(room: Room, predicate: RoomPredicate) {
     return this.getAdjacentRooms(room).filter((room) =>
       room !== null ? predicate(room) : false
     ) as Room[];
   }
 
-  public someAdjacentRooms(room: Room, predicate: (room: Room) => boolean) {
+  public someAdjacentRooms(room: Room, predicate: RoomPredicate) {
     return this.getAdjacentRooms(room).some((room) =>
+      room !== null ? predicate(room) : false
+    );
+  }
+
+  public filterAdjacentConnectedRooms(room: Room, predicate: RoomPredicate) {
+    return this.getAdjacentConnectedRooms(room).filter((room) =>
+      room !== null ? predicate(room) : false
+    ) as Room[];
+  }
+
+  public someAdjacentConnectedRooms(room: Room, predicate: RoomPredicate) {
+    return this.getAdjacentConnectedRooms(room).some((room) =>
       room !== null ? predicate(room) : false
     );
   }
