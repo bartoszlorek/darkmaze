@@ -1,5 +1,10 @@
 import * as React from "react";
 import * as PIXI from "pixi.js";
+import { useNavigate } from "react-router-dom";
+import { useDebug } from "./useDebug";
+import { useMenu } from "./useMenu";
+import { useSanitizedParams } from "./useSanitizedParams";
+import { Button, MenuScreen, SceneManager } from "./components";
 import { FreerunScenePlay } from "./FreerunScenePlay";
 
 type PropsType = Readonly<{
@@ -7,29 +12,43 @@ type PropsType = Readonly<{
 }>;
 
 export function FreerunScene({ app }: PropsType) {
-  const [debug, setDebug] = React.useState(false);
+  const navigate = useNavigate();
   const [resetKey, setResetKey] = React.useState(0);
+  const { seed, dimension } = useSanitizedParams();
+  const { debug, debugButton } = useDebug();
+  const openMenu = useMenu();
 
   const resetScene = React.useCallback(() => {
     setResetKey((n) => n + 1);
   }, []);
 
+  const quitScene = React.useCallback(() => {
+    navigate("/freerun");
+  }, [navigate]);
+
   return (
     <>
-      <FreerunScenePlay
-        app={app}
-        debug={debug}
-        dimension={8}
-        seed="apple"
-        resetScene={resetScene}
-        key={resetKey}
+      <SceneManager
+        resetKey={`${resetKey}/${seed}/${dimension}`}
+        sceneIndex={0}
+        scenes={[
+          <FreerunScenePlay
+            app={app}
+            debug={debug}
+            seed={seed}
+            dimension={dimension}
+            resetScene={resetScene}
+            quitScene={quitScene}
+          />,
+        ]}
       />
-      <button
-        style={{ position: "absolute", right: 16, bottom: 16 }}
-        onClick={() => setDebug((bool) => !bool)}
-      >
-        debug {debug ? "[on]" : "[off]"}
-      </button>
+      {openMenu && (
+        <MenuScreen>
+          <Button onClick={resetScene}>restart</Button>
+          <Button onClick={quitScene}>quit</Button>
+        </MenuScreen>
+      )}
+      {debugButton}
     </>
   );
 }

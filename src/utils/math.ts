@@ -55,6 +55,10 @@ export function angleBetweenPoints(
   return (Math.atan2(deltaY, deltaX) * 180) / Math.PI + 90;
 }
 
+export function clamp(value: number, min: number, max: number) {
+  return Math.min(Math.max(value, min), max);
+}
+
 export enum DirectionIndex {
   up = 0,
   right = 1,

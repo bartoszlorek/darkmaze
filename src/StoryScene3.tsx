@@ -73,12 +73,12 @@ export function StoryScene3({ app, debug, nextScene, resetScene }: PropsType) {
       {dialog !== null && <Dialog value={dialog} />}
       {playerStatus === "died" && (
         <ActionScreen title="you died" titleColor="red">
-          <Button onClick={resetScene}>reset</Button>
+          <Button onClick={resetScene}>restart</Button>
         </ActionScreen>
       )}
       {playerStatus === "won" && (
         <ActionScreen title="you won" titleColor="yellow">
-          <Button onClick={nextScene}>continue</Button>
+          <Button onClick={nextScene}>main menu</Button>
         </ActionScreen>
       )}
     </>

@@ -17,6 +17,7 @@ type PropsType = Readonly<{
   dimension: number;
   seed: string;
   resetScene: () => void;
+  quitScene: () => void;
 }>;
 
 export function FreerunScenePlay({
@@ -25,6 +26,7 @@ export function FreerunScenePlay({
   dimension,
   seed,
   resetScene,
+  quitScene,
 }: PropsType) {
   const level = useInstance(() => new Level(generateRooms(dimension, seed)));
   const player = useInstance(() => createPlayer(level));
@@ -69,12 +71,12 @@ export function FreerunScenePlay({
       <Compass player={player} level={level} />
       {playerStatus === "died" && (
         <ActionScreen title="you died" titleColor="red">
-          <Button onClick={resetScene}>reset</Button>
+          <Button onClick={resetScene}>restart</Button>
         </ActionScreen>
       )}
       {playerStatus === "won" && (
         <ActionScreen title="you won" titleColor="yellow">
-          <Button onClick={resetScene}>continue</Button>
+          <Button onClick={quitScene}>main menu</Button>
         </ActionScreen>
       )}
     </>

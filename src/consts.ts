@@ -7,3 +7,6 @@ export const DIALOGUES = {
   evil: "What was that?! I feel someone's presence.",
   goal: "I feel that my GOAL is very close, I just have to survive until the end.",
 };
+
+export const MIN_DIMENSION = 4;
+export const MAX_DIMENSION = 32;

@@ -1,7 +1,9 @@
 import * as React from "react";
 import * as PIXI from "pixi.js";
 import { useNavigate } from "react-router-dom";
-import { SceneManager } from "./components";
+import { useDebug } from "./useDebug";
+import { useMenu } from "./useMenu";
+import { Button, MenuScreen, SceneManager } from "./components";
 import { StoryScene1 } from "./StoryScene1";
 import { StoryScene2 } from "./StoryScene2";
 import { StoryScene3 } from "./StoryScene3";
@@ -12,9 +14,10 @@ type PropsType = Readonly<{
 
 export function StoryScene({ app }: PropsType) {
   const navigate = useNavigate();
-  const [debug, setDebug] = React.useState(false);
-  const [sceneIndex, setSceneIndex] = React.useState(0);
   const [resetKey, setResetKey] = React.useState(0);
+  const [sceneIndex, setSceneIndex] = React.useState(0);
+  const { debug, debugButton } = useDebug();
+  const openMenu = useMenu();
 
   const nextScene = React.useCallback(() => {
     setSceneIndex((n) => n + 1);
@@ -49,12 +52,13 @@ export function StoryScene({ app }: PropsType) {
           />,
         ]}
       />
-      <button
-        style={{ position: "absolute", right: 16, bottom: 16 }}
-        onClick={() => setDebug((bool) => !bool)}
-      >
-        debug {debug ? "[on]" : "[off]"}
-      </button>
+      {openMenu && (
+        <MenuScreen>
+          <Button onClick={resetScene}>restart</Button>
+          <Button onClick={() => navigate("/")}>main menu</Button>
+        </MenuScreen>
+      )}
+      {debugButton}
     </>
   );
 }
