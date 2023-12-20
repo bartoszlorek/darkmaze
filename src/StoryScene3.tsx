@@ -72,18 +72,14 @@ export function StoryScene3({ app, debug, nextScene, resetScene }: PropsType) {
       <Compass player={player} level={level} />
       {dialog !== null && <Dialog value={dialog} />}
       {playerStatus === "died" && (
-        <ActionScreen
-          title="you died"
-          titleColor="red"
-          actions={<Button onClick={resetScene}>reset</Button>}
-        />
+        <ActionScreen title="you died" titleColor="red">
+          <Button onClick={resetScene}>reset</Button>
+        </ActionScreen>
       )}
       {playerStatus === "won" && (
-        <ActionScreen
-          title="you won"
-          titleColor="yellow"
-          actions={<Button onClick={nextScene}>continue</Button>}
-        />
+        <ActionScreen title="you won" titleColor="yellow">
+          <Button onClick={nextScene}>continue</Button>
+        </ActionScreen>
       )}
     </>
   );

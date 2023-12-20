@@ -8,14 +8,9 @@ export function TitleScene() {
   const handleFreerunClick = () => navigate("/freerun");
 
   return (
-    <ActionScreen
-      title="darkmaze"
-      actions={
-        <>
-          <Button onClick={handleStoryClick}>story</Button>
-          <Button onClick={handleFreerunClick}>freerun</Button>
-        </>
-      }
-    />
+    <ActionScreen title="darkmaze">
+      <Button onClick={handleStoryClick}>story</Button>
+      <Button onClick={handleFreerunClick}>freerun</Button>
+    </ActionScreen>
   );
 }

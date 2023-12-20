@@ -1,17 +1,18 @@
 import * as React from "react";
 import cx from "classnames";
+import { MenuScreen } from "./MenuScreen";
 import styles from "./ActionScreen.module.scss";
 
 type PropsType = Readonly<{
   title: string;
   titleColor?: "red" | "yellow" | "white";
-  actions: React.ReactNode;
+  children: React.ReactNode;
 }>;
 
 export function ActionScreen({
   title,
   titleColor = "white",
-  actions,
+  children,
 }: PropsType) {
   const titleClass = cx(styles.title, {
     [styles.titleColorRed]: titleColor === "red",
@@ -20,9 +21,9 @@ export function ActionScreen({
   });
 
   return (
-    <div className={styles.container}>
+    <MenuScreen>
       <h1 className={titleClass}>{title}</h1>
-      {actions}
-    </div>
+      {children}
+    </MenuScreen>
   );
 }

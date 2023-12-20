@@ -76,11 +76,9 @@ export function StoryScene2({ app, debug, nextScene, resetScene }: PropsType) {
       <Compass player={player} level={level} />
       {dialog !== null && <Dialog value={dialog} />}
       {playerStatus === "died" && (
-        <ActionScreen
-          title="you died"
-          titleColor="red"
-          actions={<Button onClick={resetScene}>reset</Button>}
-        />
+        <ActionScreen title="you died" titleColor="red">
+          <Button onClick={resetScene}>reset</Button>
+        </ActionScreen>
       )}
     </>
   );

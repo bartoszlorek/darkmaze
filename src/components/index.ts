@@ -5,5 +5,6 @@ export * from "./CompassDirectionPoint";
 export * from "./CompassEvilPoint";
 export * from "./CompassGoldenPoint";
 export * from "./Dialog";
+export * from "./MenuScreen";
 export * from "./PathLights";
 export * from "./SceneManager";

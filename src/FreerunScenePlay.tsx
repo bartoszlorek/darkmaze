@@ -68,18 +68,14 @@ export function FreerunScenePlay({
       <PathLights player={player} />
       <Compass player={player} level={level} />
       {playerStatus === "died" && (
-        <ActionScreen
-          title="you died"
-          titleColor="red"
-          actions={<Button onClick={resetScene}>reset</Button>}
-        />
+        <ActionScreen title="you died" titleColor="red">
+          <Button onClick={resetScene}>reset</Button>
+        </ActionScreen>
       )}
       {playerStatus === "won" && (
-        <ActionScreen
-          title="you won"
-          titleColor="yellow"
-          actions={<Button onClick={resetScene}>continue</Button>}
-        />
+        <ActionScreen title="you won" titleColor="yellow">
+          <Button onClick={resetScene}>continue</Button>
+        </ActionScreen>
       )}
     </>
   );
