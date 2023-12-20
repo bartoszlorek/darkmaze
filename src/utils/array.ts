@@ -8,6 +8,9 @@ export function arrayRemove<T>(array: T[], item: T) {
   }
 }
 
-export function arrayRandomItem<T>(array: T[]): T | undefined {
-  return array[Math.floor(Math.random() * array.length)];
+export function arrayRandomItem<T>(
+  array: T[],
+  rand: number = Math.random()
+): T | undefined {
+  return array[Math.floor(rand * array.length)];
 }

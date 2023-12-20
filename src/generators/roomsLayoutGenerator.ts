@@ -3,42 +3,18 @@ import { Room } from "../Room";
 
 const roomKey = (x: number, y: number) => `${x}-${y}`;
 
-export function generateEmptyRoomsRetry({
+/**
+ * All generated rooms are empty without a gameplay logic.
+ * @see https://en.wikipedia.org/wiki/Maze_generation_algorithm#Recursive_implementation
+ */
+export function generateRoomsLayout({
   dimension,
-  requiredDeadEndCount,
-  retriesLimit = 100,
+  randomNumber,
 }: {
   dimension: number;
-  requiredDeadEndCount: number;
-  retriesLimit?: number;
+  randomNumber: () => number;
 }): Room[] {
-  let retries = 0;
-
-  while (retries <= retriesLimit) {
-    const rooms = generateEmptyRooms({
-      dimension,
-    });
-
-    const deadEndCount = rooms.reduce((sum, room) => {
-      return sum + Number(room.deadEnd);
-    }, 0);
-
-    if (deadEndCount >= requiredDeadEndCount) {
-      return rooms;
-    }
-
-    retries += 1;
-  }
-
-  throw new Error("rooms generation has reached the limit");
-}
-
-// https://en.wikipedia.org/wiki/Maze_generation_algorithm#Recursive_implementation
-export function generateEmptyRooms({
-  dimension,
-}: {
-  dimension: number;
-}): Room[] {
+  const backtracking = [];
   const visitedRooms = new Set<Room>();
   const roomsMap = new Map<string, Room>();
 
@@ -49,22 +25,22 @@ export function generateEmptyRooms({
     }
   }
 
-  const backtracking = [];
   let currentRoom = roomsMap.get(roomKey(0, 0)) as Room;
-  let visited = 1;
-
-  while (visited < roomsMap.size) {
+  while (visitedRooms.size < roomsMap.size) {
     visitedRooms.add(currentRoom);
 
-    const nextRoom = getUnvisitedNeighbor(currentRoom, roomsMap, visitedRooms);
+    const nextRoom = arrayRandomItem(
+      getUnvisitedNeighbors(currentRoom, roomsMap, visitedRooms),
+      randomNumber()
+    );
+
     if (nextRoom) {
       removeWallBetween(currentRoom, nextRoom);
       backtracking.push(currentRoom);
       visitedRooms.add(nextRoom);
 
-      // try the next room
+      // starts from the next room
       currentRoom = nextRoom;
-      visited += 1;
     } else if (backtracking.length > 0) {
       currentRoom = backtracking.pop() as Room;
     }
@@ -78,7 +54,7 @@ export function generateEmptyRooms({
   return rooms;
 }
 
-function getUnvisitedNeighbor(
+function getUnvisitedNeighbors(
   room: Room,
   roomsMap: Map<string, Room>,
   visitedRooms: Set<Room>
@@ -102,7 +78,7 @@ function getUnvisitedNeighbor(
     neighbors.push(left);
   }
 
-  return arrayRandomItem(neighbors);
+  return neighbors;
 }
 
 function removeWallBetween(a: Room, b: Room) {

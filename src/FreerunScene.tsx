@@ -20,7 +20,7 @@ export function FreerunScene({ app }: PropsType) {
         app={app}
         debug={debug}
         dimension={8}
-        seed="hello_world"
+        seed="apple"
         resetScene={resetScene}
         key={resetKey}
       />
