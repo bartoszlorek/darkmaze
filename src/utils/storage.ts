@@ -1,4 +1,8 @@
-export function accessLocalStorage<T extends Record<string, unknown>>(
+// https://www.w3schools.com/js/js_json_datatypes.asp
+type JSONValue = string | number | boolean | JSONObject | JSONValue[] | null;
+type JSONObject = { [key: string]: JSONValue };
+
+export function accessLocalStorage<T extends Record<string, JSONValue>>(
   key: string
 ) {
   function getValue(): Partial<T> {

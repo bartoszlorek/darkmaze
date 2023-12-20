@@ -16,7 +16,7 @@ export function StoryScene({ app }: PropsType) {
   const navigate = useNavigate();
   const [resetKey, setResetKey] = React.useState(0);
   const [sceneIndex, setSceneIndex] = React.useState(0);
-  const { debug, debugButton } = useDebug();
+  const debug = useDebug();
   const openMenu = useMenu();
 
   const nextScene = React.useCallback(() => {
@@ -58,7 +58,6 @@ export function StoryScene({ app }: PropsType) {
           <Button onClick={() => navigate("/")}>main menu</Button>
         </MenuScreen>
       )}
-      {debugButton}
     </>
   );
 }

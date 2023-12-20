@@ -15,7 +15,7 @@ export function FreerunScene({ app }: PropsType) {
   const navigate = useNavigate();
   const [resetKey, setResetKey] = React.useState(0);
   const { seed, dimension } = useSanitizedParams();
-  const { debug, debugButton } = useDebug();
+  const debug = useDebug();
   const openMenu = useMenu();
 
   const resetScene = React.useCallback(() => {
@@ -48,7 +48,6 @@ export function FreerunScene({ app }: PropsType) {
           <Button onClick={quitScene}>quit</Button>
         </MenuScreen>
       )}
-      {debugButton}
     </>
   );
 }

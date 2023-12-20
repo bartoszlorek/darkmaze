@@ -1,22 +1,15 @@
 import * as React from "react";
+import { accessLocalStorage } from "./utils";
 
-const style = {
-  position: "absolute",
-  right: 16,
-  bottom: 16,
-} as const;
+type StorageType = Readonly<{
+  debug: boolean;
+}>;
 
 export function useDebug() {
-  const [debug, setDebug] = React.useState(false);
+  const debug = React.useMemo(() => {
+    const storage = accessLocalStorage<StorageType>("darkmaze");
+    return storage.getValue().debug ?? false;
+  }, []);
 
-  const debugButton = (
-    <button style={style} onClick={() => setDebug((bool) => !bool)}>
-      debug {debug ? "[on]" : "[off]"}
-    </button>
-  );
-
-  return {
-    debugButton,
-    debug,
-  };
+  return debug;
 }
