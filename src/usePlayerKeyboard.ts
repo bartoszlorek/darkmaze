@@ -18,7 +18,9 @@ type PropsType = Readonly<{
 
 export function usePlayerKeyboard({ player, playerStatus }: PropsType) {
   const shouldBindKeyboard =
-    playerStatus === "idle" || playerStatus === "running";
+    playerStatus === "idle" ||
+    playerStatus === "running" ||
+    playerStatus === "turning";
 
   React.useEffect(() => {
     if (!shouldBindKeyboard) {

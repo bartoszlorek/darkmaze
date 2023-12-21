@@ -1,10 +1,10 @@
 import * as React from "react";
 import * as PIXI from "pixi.js";
-import type { LoadedTextures } from "./assets";
+import type { LoadedSpritesheets } from "./assets";
 
 export interface AppContextValue {
   app: PIXI.Application;
-  textures: LoadedTextures;
+  sprites: LoadedSpritesheets;
 }
 
 type PropsType = Readonly<{

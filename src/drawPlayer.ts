@@ -1,19 +1,77 @@
 import * as PIXI from "pixi.js";
-import type { DrawFunction } from "./helpers";
-import type { Player } from "./core";
+import { DrawFunction, FacingAngle } from "./helpers";
+import type { LoadedSpritesheets } from "./assets";
+import type { Player, PlayerStatus } from "./core";
 
 export const drawPlayer: DrawFunction<{
   player: Player;
   gridSize: number;
-}> = ({ parent, player, gridSize }) => {
-  const sprite = PIXI.Sprite.from("https://pixijs.com/assets/bunny.png");
+  sprites: LoadedSpritesheets;
+}> = ({ parent, player, gridSize, sprites }) => {
+  const anim = new PIXI.AnimatedSprite(sprites.player.animations.right);
+  anim.anchor.set(0.5);
+  anim.animationSpeed = 0.1666;
+  parent.addChild(anim);
 
-  sprite.anchor.set(0.5);
-  parent.addChild(sprite);
-
+  let lastFacingAngle: number;
+  let lastPlayerStatus: PlayerStatus;
   return () => {
-    sprite.x = player.x * gridSize + gridSize / 2;
-    sprite.y = player.y * gridSize + gridSize / 2;
-    sprite.angle = player.facingAngle;
+    anim.x = player.x * gridSize + gridSize / 2;
+    anim.y = player.y * gridSize + gridSize / 2;
+
+    if (
+      lastFacingAngle !== player.facingAngle ||
+      lastPlayerStatus !== player.status
+    ) {
+      switch (player.status) {
+        case "running":
+        case "turning":
+          switch (player.facingAngle) {
+            case FacingAngle.upLeft:
+              anim.textures = sprites.player.animations.upLeft;
+              break;
+
+            case FacingAngle.up:
+              anim.textures = sprites.player.animations.up;
+              break;
+
+            case FacingAngle.upRight:
+              anim.textures = sprites.player.animations.upRight;
+              break;
+
+            case FacingAngle.left:
+              anim.textures = sprites.player.animations.left;
+              break;
+
+            case FacingAngle.right:
+              anim.textures = sprites.player.animations.right;
+              break;
+
+            case FacingAngle.downLeft:
+              anim.textures = sprites.player.animations.downLeft;
+              break;
+
+            case FacingAngle.down:
+              anim.textures = sprites.player.animations.down;
+              break;
+
+            case FacingAngle.downRight:
+              anim.textures = sprites.player.animations.downRight;
+              break;
+          }
+
+          if (player.status === "running") {
+            anim.gotoAndPlay(0);
+          }
+          break;
+
+        default:
+          anim.gotoAndStop(0);
+          break;
+      }
+    }
+
+    lastFacingAngle = player.facingAngle;
+    lastPlayerStatus = player.status;
   };
 };

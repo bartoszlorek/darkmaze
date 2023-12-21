@@ -15,7 +15,7 @@ type PropsType = Readonly<{
 }>;
 
 export function MainStageLayer({ player, level, levelRevealed }: PropsType) {
-  const { app, textures } = useAppContext();
+  const { app, sprites } = useAppContext();
 
   return (
     <StageLayer
@@ -41,7 +41,7 @@ export function MainStageLayer({ player, level, levelRevealed }: PropsType) {
           parent,
           player,
           gridSize: GRID_SIZE,
-          textures,
+          sprites,
         });
 
         layer.addChild(parent);

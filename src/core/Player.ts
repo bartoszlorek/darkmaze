@@ -30,6 +30,7 @@ export type PlayerEvents = {
 export type PlayerStatus =
   | "idle"
   | "running"
+  | "turning"
   | "entering"
   | "exiting"
   | "paused"
@@ -92,9 +93,13 @@ export class Player extends EventEmitter<PlayerEvents> {
   }
 
   public update(deltaTime: number, currentRoom: Room) {
-    // the player status switches between idle and running
+    // the player status switches between idle, running, and turning
     // automatically, other statuses must be handled manually
-    if (this.status === "idle" || this.status === "running") {
+    if (
+      this.status === "idle" ||
+      this.status === "running" ||
+      this.status === "turning"
+    ) {
       this.applyMovement(deltaTime, currentRoom);
       this.applyPathSense(currentRoom);
     }
@@ -209,8 +214,10 @@ export class Player extends EventEmitter<PlayerEvents> {
       this.emit("turn", this._events.turn);
     }
 
-    if (didSomeMove || didSomeTurn) {
+    if (didSomeMove) {
       this.setStatus("running");
+    } else if (didSomeTurn) {
+      this.setStatus("turning");
     } else {
       this.setStatus("idle");
     }

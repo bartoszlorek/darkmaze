@@ -9,10 +9,21 @@ module.exports = (_, argv) => ({
   entry: "./src/index.tsx",
   output: {
     filename: "scripts.js",
-    path: path.resolve(__dirname, "dist"),
+    path: path.join(__dirname, "dist"),
     clean: true,
   },
   devtool: false,
+  devServer: {
+    static: [
+      {
+        directory: path.join(__dirname, "public"),
+      },
+      {
+        directory: path.join(__dirname, "src/assets"),
+        publicPath: "/assets",
+      },
+    ],
+  },
   module: {
     rules: [
       {
@@ -61,7 +72,10 @@ module.exports = (_, argv) => ({
   },
   plugins: [
     new CopyWebpackPlugin({
-      patterns: [{ from: "public" }],
+      patterns: [
+        { from: "public" },
+        { from: "src/assets/*.png", to: "assets/[name][ext]" },
+      ],
     }),
     new MiniCssExtractPlugin({
       filename: "styles.css",
