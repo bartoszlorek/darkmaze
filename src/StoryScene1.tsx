@@ -1,10 +1,10 @@
 import * as React from "react";
-import * as PIXI from "pixi.js";
 import { ANTICIPATION_TIME, DIALOGUES } from "./consts";
 import { Compass, Dialog, PathLights } from "./components";
 import { Level, Room } from "./core";
 import { createPlayer } from "./createPlayer";
 import { MainStageLayer } from "./MainStageLayer";
+import { useAppContext } from "./context";
 import { useDialog } from "./useDialog";
 import { useGameLoop } from "./useGameLoop";
 import { useInstance } from "./useInstance";
@@ -12,12 +12,12 @@ import { usePlayerKeyboard } from "./usePlayerKeyboard";
 import { usePlayerStatus } from "./usePlayerStatus";
 
 type PropsType = Readonly<{
-  app: PIXI.Application;
   debug: boolean;
   nextScene: () => void;
 }>;
 
-export function StoryScene1({ app, debug, nextScene }: PropsType) {
+export function StoryScene1({ debug, nextScene }: PropsType) {
+  const { app } = useAppContext();
   const level = useInstance(() => new Level(createRooms()));
   const player = useInstance(() => createPlayer(level));
   const playerStatus = usePlayerStatus({ player });
@@ -47,12 +47,7 @@ export function StoryScene1({ app, debug, nextScene }: PropsType) {
 
   return (
     <>
-      <MainStageLayer
-        app={app}
-        player={player}
-        level={level}
-        levelRevealed={debug}
-      />
+      <MainStageLayer player={player} level={level} levelRevealed={debug} />
       <PathLights player={player} />
       <Compass player={player} level={level} />
       {dialog !== null && <Dialog value={dialog} />}

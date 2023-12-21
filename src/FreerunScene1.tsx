@@ -1,18 +1,17 @@
 import * as React from "react";
-import * as PIXI from "pixi.js";
 import { ANTICIPATION_TIME } from "./consts";
 import { ActionScreen, Button, Compass, PathLights } from "./components";
 import { Level } from "./core";
 import { generateRooms } from "./generators";
 import { createPlayer } from "./createPlayer";
 import { MainStageLayer } from "./MainStageLayer";
+import { useAppContext } from "./context";
 import { useGameLoop } from "./useGameLoop";
 import { useInstance } from "./useInstance";
 import { usePlayerKeyboard } from "./usePlayerKeyboard";
 import { usePlayerStatus } from "./usePlayerStatus";
 
 type PropsType = Readonly<{
-  app: PIXI.Application;
   debug: boolean;
   dimension: number;
   seed: string;
@@ -21,13 +20,13 @@ type PropsType = Readonly<{
 }>;
 
 export function FreerunScene1({
-  app,
   debug,
   dimension,
   seed,
   resetScene,
   quitScene,
 }: PropsType) {
+  const { app } = useAppContext();
   const level = useInstance(() => new Level(generateRooms(dimension, seed)));
   const player = useInstance(() => createPlayer(level));
   const playerStatus = usePlayerStatus({ player });
@@ -62,7 +61,6 @@ export function FreerunScene1({
   return (
     <>
       <MainStageLayer
-        app={app}
         player={player}
         level={level}
         levelRevealed={debug || player.status === "won"}

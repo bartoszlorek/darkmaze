@@ -2,24 +2,21 @@ import * as React from "react";
 import * as PIXI from "pixi.js";
 import { StageLayer } from "./components";
 import { Level, Player } from "./core";
+import { useAppContext } from "./context";
 import { subscribeResize } from "./helpers";
 import { drawLevel } from "./drawLevel";
 import { drawPlayer } from "./drawPlayer";
 import { GRID_SIZE } from "./consts";
 
 type PropsType = Readonly<{
-  app: PIXI.Application;
   player: Player;
   level: Level;
   levelRevealed: boolean;
 }>;
 
-export function MainStageLayer({
-  app,
-  player,
-  level,
-  levelRevealed,
-}: PropsType) {
+export function MainStageLayer({ player, level, levelRevealed }: PropsType) {
+  const { app, textures } = useAppContext();
+
   return (
     <StageLayer
       app={app}
@@ -44,6 +41,7 @@ export function MainStageLayer({
           parent,
           player,
           gridSize: GRID_SIZE,
+          textures,
         });
 
         layer.addChild(parent);

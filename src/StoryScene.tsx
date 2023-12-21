@@ -1,5 +1,4 @@
 import * as React from "react";
-import * as PIXI from "pixi.js";
 import { useNavigate } from "react-router-dom";
 import { useDebug } from "./useDebug";
 import { useMenu } from "./useMenu";
@@ -8,11 +7,7 @@ import { StoryScene1 } from "./StoryScene1";
 import { StoryScene2 } from "./StoryScene2";
 import { StoryScene3 } from "./StoryScene3";
 
-type PropsType = Readonly<{
-  app: PIXI.Application;
-}>;
-
-export function StoryScene({ app }: PropsType) {
+export function StoryScene() {
   const navigate = useNavigate();
   const [resetKey, setResetKey] = React.useState(0);
   const [sceneIndex, setSceneIndex] = React.useState(0);
@@ -37,15 +32,13 @@ export function StoryScene({ app }: PropsType) {
         resetKey={resetKey}
         sceneIndex={sceneIndex}
         scenes={[
-          <StoryScene1 app={app} debug={debug} nextScene={nextScene} />,
+          <StoryScene1 debug={debug} nextScene={nextScene} />,
           <StoryScene2
-            app={app}
             debug={debug}
             nextScene={nextScene}
             resetScene={resetScene}
           />,
           <StoryScene3
-            app={app}
             debug={debug}
             nextScene={exitScene}
             resetScene={resetScene}

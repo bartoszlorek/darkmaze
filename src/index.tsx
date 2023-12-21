@@ -1,6 +1,8 @@
 import * as PIXI from "pixi.js";
 import { createRoot } from "react-dom/client";
 import { HashRouter } from "react-router-dom";
+import { definedAssets } from "./assets";
+import { AppContextProvider } from "./context";
 import { MainScene } from "./MainScene";
 
 const view = document.getElementById("view") as HTMLCanvasElement;
@@ -13,8 +15,12 @@ const app = new PIXI.Application({
   view,
 });
 
-createRoot(root).render(
-  <HashRouter>
-    <MainScene app={app} />
-  </HashRouter>
-);
+PIXI.Assets.load(definedAssets).then((textures) => {
+  createRoot(root).render(
+    <HashRouter>
+      <AppContextProvider value={{ app, textures }}>
+        <MainScene />
+      </AppContextProvider>
+    </HashRouter>
+  );
+});
