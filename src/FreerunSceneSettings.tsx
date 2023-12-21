@@ -1,9 +1,8 @@
 import * as React from "react";
 import { useNavigate } from "react-router-dom";
 import { MIN_DIMENSION, MAX_DIMENSION } from "./consts";
-import { accessLocalStorage } from "./utils";
+import { accessLocalStorage, generateRandomSeed } from "./utils";
 import { Button, Input, MenuScreen } from "./components";
-import { generateRandomSeed } from "./generators";
 
 type StorageType = Readonly<{
   seed: string;

@@ -13,6 +13,10 @@ export function floorNumber(value: number, precision: number) {
   return Math.floor(value / precision) * precision;
 }
 
+export function clamp(value: number, min: number, max: number) {
+  return Math.min(Math.max(value, min), max);
+}
+
 /**
  * The definition of floored division modulo.
  * https://en.wikipedia.org/wiki/Modulo
@@ -53,10 +57,6 @@ export function angleBetweenPoints(
   const deltaX = pointX - originX;
   const deltaY = pointY - originY;
   return (Math.atan2(deltaY, deltaX) * 180) / Math.PI + 90;
-}
-
-export function clamp(value: number, min: number, max: number) {
-  return Math.min(Math.max(value, min), max);
 }
 
 export enum DirectionIndex {

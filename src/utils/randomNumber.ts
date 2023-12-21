@@ -8,7 +8,7 @@ export function createRandomNumber(seed: string) {
  * @see https://en.wikipedia.org/wiki/Hash_function
  * @see https://stackoverflow.com/questions/521295/seeding-the-random-number-generator-in-javascript
  */
-export function cyrb128(seed: string): [number, number, number, number] {
+function cyrb128(seed: string): [number, number, number, number] {
   let h1 = 1779033703;
   let h2 = 3144134277;
   let h3 = 1013904242;
@@ -35,7 +35,7 @@ export function cyrb128(seed: string): [number, number, number, number] {
  * Simple Fast Counter
  * @see https://en.wikipedia.org/wiki/Counter-based_random_number_generator
  */
-export function sfc32(a: number, b: number, c: number, d: number) {
+function sfc32(a: number, b: number, c: number, d: number) {
   return () => {
     a |= 0;
     b |= 0;

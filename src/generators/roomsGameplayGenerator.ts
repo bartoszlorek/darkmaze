@@ -1,6 +1,5 @@
 import { Room } from "../Room";
-import { arrayRemove, arrayRandomItem } from "../utils";
-import { createRandomNumber } from "./randomNumberGenerator";
+import { arrayRemove, arrayRandomItem, createRandomNumber } from "../utils";
 import { generateRoomsLayout } from "./roomsLayoutGenerator";
 
 const RETRIES_LIMIT = 100;
