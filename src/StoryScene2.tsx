@@ -9,8 +9,7 @@ import {
   Dialog,
   PathLights,
 } from "./components";
-import { Level } from "./Level";
-import { Room, isEvil } from "./Room";
+import { Level, Room, isEvil } from "./core";
 import { MainStageLayer } from "./MainStageLayer";
 import { useDialog } from "./useDialog";
 import { useGameLoop } from "./useGameLoop";

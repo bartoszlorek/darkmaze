@@ -1,6 +1,6 @@
 import * as PIXI from "pixi.js";
-import type { DrawFunction } from "./utils";
-import type { Player } from "./Player";
+import type { DrawFunction } from "./helpers";
+import type { Player } from "./core";
 
 export const drawPlayer: DrawFunction<{
   player: Player;

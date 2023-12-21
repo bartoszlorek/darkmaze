@@ -2,9 +2,9 @@ import * as React from "react";
 import * as PIXI from "pixi.js";
 import { ANTICIPATION_TIME } from "./consts";
 import { ActionScreen, Button, Compass, PathLights } from "./components";
+import { Level } from "./core";
 import { generateRooms } from "./generators";
 import { createPlayer } from "./createPlayer";
-import { Level } from "./Level";
 import { MainStageLayer } from "./MainStageLayer";
 import { useGameLoop } from "./useGameLoop";
 import { useInstance } from "./useInstance";
@@ -20,7 +20,7 @@ type PropsType = Readonly<{
   quitScene: () => void;
 }>;
 
-export function FreerunScenePlay({
+export function FreerunScene1({
   app,
   debug,
   dimension,

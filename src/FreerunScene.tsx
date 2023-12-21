@@ -1,11 +1,11 @@
 import * as React from "react";
 import * as PIXI from "pixi.js";
 import { useNavigate } from "react-router-dom";
+import { Button, MenuScreen, SceneManager } from "./components";
+import { FreerunScene1 } from "./FreerunScene1";
 import { useDebug } from "./useDebug";
 import { useMenu } from "./useMenu";
 import { useSanitizedParams } from "./useSanitizedParams";
-import { Button, MenuScreen, SceneManager } from "./components";
-import { FreerunScenePlay } from "./FreerunScenePlay";
 
 type PropsType = Readonly<{
   app: PIXI.Application;
@@ -32,7 +32,7 @@ export function FreerunScene({ app }: PropsType) {
         resetKey={`${resetKey}/${seed}/${dimension}`}
         sceneIndex={0}
         scenes={[
-          <FreerunScenePlay
+          <FreerunScene1
             app={app}
             debug={debug}
             seed={seed}

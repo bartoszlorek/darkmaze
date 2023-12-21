@@ -1,5 +1,5 @@
 import * as React from "react";
-import { accessLocalStorage } from "./utils";
+import { accessLocalStorage } from "./helpers";
 
 type StorageType = Readonly<{
   debug: boolean;

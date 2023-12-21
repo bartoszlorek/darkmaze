@@ -1,5 +1,4 @@
-import { Level } from "./Level";
-import { Player } from "./Player";
+import { Level, Player } from "./core";
 
 export function createPlayer(level: Level): Player {
   const startingRoom = level.rooms.find((a) => a.type === "start");

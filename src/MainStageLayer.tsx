@@ -1,11 +1,10 @@
 import * as React from "react";
 import * as PIXI from "pixi.js";
-import { StageLayer } from "./engine";
-import { subscribeResize } from "./utils";
+import { StageLayer } from "./components";
+import { Level, Player } from "./core";
+import { subscribeResize } from "./helpers";
 import { drawLevel } from "./drawLevel";
 import { drawPlayer } from "./drawPlayer";
-import { Level } from "./Level";
-import { Player } from "./Player";
 import { GRID_SIZE } from "./consts";
 
 type PropsType = Readonly<{

@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Keyboard } from "./engine";
+import { Keyboard } from "./core";
 
 type MenuKeys = "Escape";
 

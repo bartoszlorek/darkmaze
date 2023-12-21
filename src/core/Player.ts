@@ -9,8 +9,8 @@ import {
   DirectionAngle,
   angleFromDirectionIndex,
   directionIndexFromAngle,
-} from "./utils";
-import { EventEmitter } from "./engine";
+} from "../helpers";
+import { EventEmitter } from "./EventEmitter";
 import { Room, WallState } from "./Room";
 
 export const PLAYER_MOVE_SPEED = 0.06; // pixels

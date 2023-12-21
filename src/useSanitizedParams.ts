@@ -1,7 +1,7 @@
 import validator from "validator";
 import { useParams } from "react-router-dom";
 import { MIN_DIMENSION, MAX_DIMENSION } from "./consts";
-import { clamp } from "./utils";
+import { clamp } from "./helpers";
 
 type ParamsType = Readonly<{
   seed: string;

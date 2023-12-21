@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Player, PlayerStatus, PLAYER_DEFAULT_STATUS } from "./Player";
+import { Player, PlayerStatus, PLAYER_DEFAULT_STATUS } from "./core";
 
 type PropsType = Readonly<{
   player: Player;

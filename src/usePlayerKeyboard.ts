@@ -1,6 +1,5 @@
 import * as React from "react";
-import { Keyboard } from "./engine";
-import type { Player, PlayerStatus } from "./Player";
+import { Keyboard, Player, PlayerStatus } from "./core";
 
 type PlayerMovementKeys =
   | "ArrowUp"

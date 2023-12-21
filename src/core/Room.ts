@@ -1,4 +1,4 @@
-import { DirectionIndex, FacingAngle } from "./utils";
+import { DirectionIndex, FacingAngle } from "../helpers";
 
 export enum WallState {
   open = 0,

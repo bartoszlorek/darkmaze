@@ -1,5 +1,5 @@
-import { EventEmitter } from "./engine";
-import { DirectionIndex } from "./utils";
+import { EventEmitter } from "./EventEmitter";
+import { DirectionIndex } from "../helpers";
 import { Player } from "./Player";
 import { Room, WallState } from "./Room";
 

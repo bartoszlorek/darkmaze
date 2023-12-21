@@ -1,5 +1,5 @@
-import { arrayRandomItem } from "../utils";
-import { Room } from "../Room";
+import { arrayRandomItem } from "../helpers";
+import { Room } from "../core";
 
 const roomKey = (x: number, y: number) => `${x}-${y}`;
 

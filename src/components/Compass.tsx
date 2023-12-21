@@ -1,12 +1,9 @@
 import * as React from "react";
-import { flooredModulo, angleBetweenPoints, floorNumber } from "../utils";
+import { flooredModulo, angleBetweenPoints, floorNumber } from "../helpers";
 import { CompassDirectionPoint } from "./CompassDirectionPoint";
 import { CompassEvilPoint } from "./CompassEvilPoint";
 import { CompassGoldenPoint } from "./CompassGoldenPoint";
-import { isEvil } from "../Room";
-import type { Level } from "../Level";
-import type { Player } from "../Player";
-import type { Room } from "../Room";
+import { Level, Player, Room, isEvil } from "../core";
 import styles from "./Compass.module.scss";
 
 const COMPASS_STEP_DEGREES = 10;

@@ -1,6 +1,6 @@
 import * as React from "react";
-import { debounce } from "../utils";
-import type { Player, PlayerEvents } from "../Player";
+import { debounce } from "../helpers";
+import type { Player, PlayerEvents } from "../core";
 import styles from "./PathLights.module.scss";
 
 const PATH_LIGHTS_DELAY = 250;
