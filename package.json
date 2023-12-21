@@ -8,7 +8,8 @@
   "scripts": {
     "watch": "webpack serve",
     "build": "webpack --mode production",
-    "lint": "eslint --ext .ts --ext .tsx ."
+    "lint": "eslint --ext .ts --ext .tsx .",
+    "prepare-sprite-sheets": "node scripts/prepareSpriteSheets.js"
   },
   "dependencies": {
     "pixi.js": "^7.3.2",
