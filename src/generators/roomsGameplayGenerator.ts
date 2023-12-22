@@ -1,6 +1,7 @@
-import { Room } from "../core";
+import { Room, Level } from "../core";
 import { arrayRemove, arrayRandomItem, createRandomNumber } from "../helpers";
 import { generateRoomsLayout } from "./roomsLayoutGenerator";
+import { breadthFirstSearch } from "./breadthFirstSearch";
 
 const RETRIES_LIMIT = 100;
 const REQUIRED_DEAD_ENDS = 3;
@@ -22,15 +23,19 @@ export function generateRooms(dimension: number, seed: string): Room[] {
     retries += 1;
   }
 
-  // find the golden room
-  const goldenRoom = arrayRandomItem(deadEndRooms, randomNumber()) as Room;
-  goldenRoom.type = "golden";
-  arrayRemove(deadEndRooms, goldenRoom);
-
   // find the starting room
   const startRoom = arrayRandomItem(deadEndRooms, randomNumber()) as Room;
   startRoom.type = "start";
   arrayRemove(deadEndRooms, startRoom);
+
+  // find the farthest room from the starting one
+  const tempLevel = new Level(rooms);
+  const bfs = breadthFirstSearch(tempLevel, startRoom);
+
+  // find the golden room
+  const goldenRoom = bfs[bfs.length - 1];
+  goldenRoom.type = "golden";
+  arrayRemove(deadEndRooms, goldenRoom);
 
   // set the remaining rooms as evil
   for (let i = 0; i < deadEndRooms.length; i++) {
