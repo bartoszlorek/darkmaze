@@ -13,7 +13,7 @@ import {
 import { EventEmitter } from "./EventEmitter";
 import { Room, WallState } from "./Room";
 
-export const PLAYER_MOVE_SPEED = 0.06; // pixels
+export const PLAYER_MOVE_SPEED = 0.05; // pixels
 export const PLAYER_MOVE_FOLLOWING_AXIS = 0.1; // bias
 export const PLAYER_FACING_ANGLE = 45;
 export const PLAYER_TURN_SPEED = 5; // degrees
@@ -199,7 +199,7 @@ export class Player extends EventEmitter<PlayerEvents> {
       }
     }
 
-    if (!didSomeMove && this.turnDirection !== 0) {
+    if (this.turnDirection !== 0) {
       const velocity = this.turnDirection * PLAYER_TURN_SPEED * deltaTime;
 
       this.angle = normalizeAngle(this.angle + velocity);
