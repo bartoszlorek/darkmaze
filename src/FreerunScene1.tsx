@@ -1,8 +1,7 @@
 import * as React from "react";
 import { ANTICIPATION_TIME } from "./consts";
 import { ActionScreen, Button, Compass, PathLights } from "./components";
-import { Level } from "./core";
-import { generateRooms } from "./generators";
+import { generateLevel } from "./generators";
 import { createPlayer } from "./createPlayer";
 import { MainStageLayer } from "./MainStageLayer";
 import { useAppContext } from "./context";
@@ -27,7 +26,7 @@ export function FreerunScene1({
   quitScene,
 }: PropsType) {
   const { app } = useAppContext();
-  const level = useInstance(() => new Level(generateRooms(dimension, seed)));
+  const level = useInstance(() => generateLevel(dimension, seed));
   const player = useInstance(() => createPlayer(level));
   const playerStatus = usePlayerStatus({ player });
 

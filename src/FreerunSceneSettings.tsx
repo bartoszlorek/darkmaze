@@ -51,8 +51,6 @@ export function FreerunSceneSettings() {
     navigate("/");
   };
 
-  console.log({ dimension, seed });
-
   return (
     <MenuScreen>
       <Input

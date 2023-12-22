@@ -4,7 +4,7 @@ import { Room } from "../core";
 const roomKey = (x: number, y: number) => `${x}-${y}`;
 
 /**
- * All generated rooms are empty without a gameplay logic.
+ * All generated rooms are empty.
  * @see https://en.wikipedia.org/wiki/Maze_generation_algorithm#Recursive_implementation
  */
 export function generateRoomsLayout({
@@ -39,7 +39,6 @@ export function generateRoomsLayout({
       backtracking.push(currentRoom);
       visitedRooms.add(nextRoom);
 
-      // starts from the next room
       currentRoom = nextRoom;
     } else if (backtracking.length > 0) {
       currentRoom = backtracking.pop() as Room;

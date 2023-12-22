@@ -1,2 +1,2 @@
-export * from "./roomsGameplayGenerator";
-export * from "./roomsLayoutGenerator";
+export * from "./generateLevel";
+export * from "./generateRoomsLayout";
