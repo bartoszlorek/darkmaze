@@ -86,7 +86,7 @@ export enum FacingAngle {
 
 export const directionAngles: DirectionAngle[] = [0, 90, 180, 270];
 export function angleFromDirectionIndex(index: DirectionIndex): DirectionAngle {
-  return directionAngles[index];
+  return directionAngles[index] ?? DirectionAngle.up;
 }
 
 export function directionIndexFromAngle(angle: number): DirectionIndex {

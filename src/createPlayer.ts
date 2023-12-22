@@ -1,4 +1,5 @@
-import { Level, Player } from "./core";
+import { Level, Player, WallState } from "./core";
+import { angleFromDirectionIndex } from "./helpers";
 
 export function createPlayer(level: Level): Player {
   const startingRoom = level.rooms.find((a) => a.type === "start");
@@ -6,7 +7,9 @@ export function createPlayer(level: Level): Player {
     throw new Error("there is no start room for the player");
   }
 
-  // TODO: change the player's angle depending
-  // on the entrance to the DeadEnd room
-  return new Player(startingRoom.x, startingRoom.y, 0);
+  const openWallAngle = angleFromDirectionIndex(
+    startingRoom.walls.findIndex((a) => a === WallState.open)
+  );
+
+  return new Player(startingRoom.x, startingRoom.y, openWallAngle);
 }
