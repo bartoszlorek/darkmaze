@@ -1,7 +1,8 @@
 const fs = require("fs");
 const path = require("path");
 
-const assetsPath = "./src/assets";
+const [, , assetsPath, scale = "1"] = process.argv;
+
 fs.readdir(assetsPath, (err, files) => {
   if (err) {
     throw new Error(err);
@@ -20,6 +21,7 @@ fs.readdir(assetsPath, (err, files) => {
 
       const parsedData = JSON.parse(rawData);
       const outputData = buildAnimations(parsedData);
+      outputData.meta.scale = scale;
 
       fs.writeFile(filepath, JSON.stringify(outputData), "utf8", (err) => {
         if (err) {

@@ -24,8 +24,8 @@ export function MainStageLayer({ player, level, levelRevealed }: PropsType) {
         const parent = new PIXI.Container();
         const centerParent = () => {
           const halfSize = (level.dimension * GRID_SIZE) / 2;
-          parent.x = window.innerWidth / 2 - halfSize;
-          parent.y = window.innerHeight / 2 - halfSize;
+          parent.x = Math.floor(window.innerWidth / 2 - halfSize);
+          parent.y = Math.floor(window.innerHeight / 2 - halfSize);
         };
 
         const unsubscribeResize = subscribeResize(centerParent);

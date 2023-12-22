@@ -9,7 +9,7 @@
     "watch": "webpack serve",
     "build": "webpack --mode production",
     "lint": "eslint --ext .ts --ext .tsx .",
-    "prepare-sprite-sheets": "node scripts/prepareSpriteSheets.js"
+    "prepare-sprite-sheets": "node scripts/prepareSpriteSheets.js ./src/assets 0.5"
   },
   "dependencies": {
     "pixi.js": "^7.3.2",
