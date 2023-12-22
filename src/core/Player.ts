@@ -60,12 +60,15 @@ export class Player extends EventEmitter<PlayerEvents> {
     status: { value: PLAYER_DEFAULT_STATUS },
   };
 
+  protected previousFacingAngle: number;
+
   constructor(x: number, y: number, angle: number) {
     super();
     this.x = x;
     this.y = y;
     this.angle = angle;
     this.facingAngle = floorNumber(angle, PLAYER_FACING_ANGLE);
+    this.previousFacingAngle = this.facingAngle;
   }
 
   public moveForward() {
@@ -113,13 +116,17 @@ export class Player extends EventEmitter<PlayerEvents> {
     const xBefore = this.x;
     const yBefore = this.y;
     const angleBefore = this.angle;
+    const facingAngleBefore = this.facingAngle;
 
     if (this.moveDirection !== 0) {
       const isMovingForward = this.moveDirection > 0;
       const directionIndex = currentRoom.directionIndexFromAngle(
         isMovingForward
           ? this.facingAngle
-          : normalizeAngle(this.facingAngle + 180)
+          : normalizeAngle(this.facingAngle + 180),
+        isMovingForward
+          ? this.previousFacingAngle
+          : normalizeAngle(this.previousFacingAngle + 180)
       );
 
       switch (directionIndex) {
@@ -206,6 +213,10 @@ export class Player extends EventEmitter<PlayerEvents> {
         this.facingAngle,
         PLAYER_TURN_ALIGNMENT
       );
+    }
+
+    if (this.facingAngle !== facingAngleBefore) {
+      this.previousFacingAngle = facingAngleBefore;
     }
 
     didSomeTurn = this.angle !== angleBefore;

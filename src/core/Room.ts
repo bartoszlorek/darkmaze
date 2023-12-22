@@ -52,8 +52,11 @@ export class Room {
     return !(this.x !== Math.round(x) || this.y !== Math.round(y));
   }
 
-  public directionIndexFromAngle(facingAngle: number): DirectionIndex {
-    switch (facingAngle) {
+  public directionIndexFromAngle(
+    currentFacingAngle: number,
+    previousFacingAngle: number
+  ): DirectionIndex {
+    switch (currentFacingAngle) {
       case FacingAngle.up:
         return DirectionIndex.up;
 
@@ -67,24 +70,52 @@ export class Room {
         return DirectionIndex.left;
 
       case FacingAngle.upRight:
-        return this.walls[DirectionIndex.up] === WallState.open
-          ? DirectionIndex.up
-          : DirectionIndex.right;
+        // the change from the up to upRight indicates intent to turn right
+        if (previousFacingAngle === DirectionIndex.up) {
+          return this.walls[DirectionIndex.right] === WallState.open
+            ? DirectionIndex.right
+            : DirectionIndex.up;
+        } else {
+          return this.walls[DirectionIndex.up] === WallState.open
+            ? DirectionIndex.up
+            : DirectionIndex.right;
+        }
 
       case FacingAngle.downRight:
-        return this.walls[DirectionIndex.down] === WallState.open
-          ? DirectionIndex.down
-          : DirectionIndex.right;
+        // the change from the down to downRight indicates intent to turn right
+        if (previousFacingAngle === DirectionIndex.down) {
+          return this.walls[DirectionIndex.right] === WallState.open
+            ? DirectionIndex.right
+            : DirectionIndex.down;
+        } else {
+          return this.walls[DirectionIndex.down] === WallState.open
+            ? DirectionIndex.down
+            : DirectionIndex.right;
+        }
 
       case FacingAngle.upLeft:
-        return this.walls[DirectionIndex.up] === WallState.open
-          ? DirectionIndex.up
-          : DirectionIndex.left;
+        // the change from the up to upLeft indicates intent to turn left
+        if (previousFacingAngle === DirectionIndex.up) {
+          return this.walls[DirectionIndex.left] === WallState.open
+            ? DirectionIndex.left
+            : DirectionIndex.up;
+        } else {
+          return this.walls[DirectionIndex.up] === WallState.open
+            ? DirectionIndex.up
+            : DirectionIndex.left;
+        }
 
       case FacingAngle.downLeft:
-        return this.walls[DirectionIndex.down] === WallState.open
-          ? DirectionIndex.down
-          : DirectionIndex.left;
+        // the change from the down to downLeft indicates intent to turn left
+        if (previousFacingAngle === DirectionIndex.down) {
+          return this.walls[DirectionIndex.left] === WallState.open
+            ? DirectionIndex.left
+            : DirectionIndex.down;
+        } else {
+          return this.walls[DirectionIndex.down] === WallState.open
+            ? DirectionIndex.down
+            : DirectionIndex.left;
+        }
 
       default:
         return DirectionIndex.up;
