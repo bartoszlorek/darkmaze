@@ -23,51 +23,42 @@ export const drawPlayer: DrawFunction<{
       lastFacingAngle !== player.facingAngle ||
       lastPlayerStatus !== player.status
     ) {
-      switch (player.status) {
-        case "running":
-        case "turning":
-          switch (player.facingAngle) {
-            case FacingAngle.upLeft:
-              anim.textures = sprites.player.animations.upLeft;
-              break;
-
-            case FacingAngle.up:
-              anim.textures = sprites.player.animations.up;
-              break;
-
-            case FacingAngle.upRight:
-              anim.textures = sprites.player.animations.upRight;
-              break;
-
-            case FacingAngle.left:
-              anim.textures = sprites.player.animations.left;
-              break;
-
-            case FacingAngle.right:
-              anim.textures = sprites.player.animations.right;
-              break;
-
-            case FacingAngle.downLeft:
-              anim.textures = sprites.player.animations.downLeft;
-              break;
-
-            case FacingAngle.down:
-              anim.textures = sprites.player.animations.down;
-              break;
-
-            case FacingAngle.downRight:
-              anim.textures = sprites.player.animations.downRight;
-              break;
-          }
-
-          if (player.status === "running") {
-            anim.gotoAndPlay(0);
-          }
+      switch (player.facingAngle) {
+        case FacingAngle.upLeft:
+          anim.textures = sprites.player.animations.upLeft;
           break;
 
-        default:
-          anim.gotoAndStop(0);
+        case FacingAngle.up:
+          anim.textures = sprites.player.animations.up;
           break;
+
+        case FacingAngle.upRight:
+          anim.textures = sprites.player.animations.upRight;
+          break;
+
+        case FacingAngle.left:
+          anim.textures = sprites.player.animations.left;
+          break;
+
+        case FacingAngle.right:
+          anim.textures = sprites.player.animations.right;
+          break;
+
+        case FacingAngle.downLeft:
+          anim.textures = sprites.player.animations.downLeft;
+          break;
+
+        case FacingAngle.down:
+          anim.textures = sprites.player.animations.down;
+          break;
+
+        case FacingAngle.downRight:
+          anim.textures = sprites.player.animations.downRight;
+          break;
+      }
+
+      if (player.status === "running") {
+        anim.gotoAndPlay(0);
       }
     }
 
