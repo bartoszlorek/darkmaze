@@ -8,14 +8,15 @@ import { useSanitizedParams } from "./useSanitizedParams";
 
 export function FreerunScene() {
   const navigate = useNavigate();
+  const [isMenuOpen, closeMenu] = useMenu();
   const [resetKey, setResetKey] = React.useState(0);
   const { seed, dimension } = useSanitizedParams();
   const debug = useDebug();
-  const openMenu = useMenu();
 
   const resetScene = React.useCallback(() => {
     setResetKey((n) => n + 1);
-  }, []);
+    closeMenu();
+  }, [closeMenu]);
 
   const quitScene = React.useCallback(() => {
     navigate("/freerun");
@@ -36,7 +37,7 @@ export function FreerunScene() {
           />,
         ]}
       />
-      {openMenu && (
+      {isMenuOpen && (
         <MenuScreen>
           <Button onClick={resetScene}>restart</Button>
           <Button onClick={quitScene}>quit</Button>

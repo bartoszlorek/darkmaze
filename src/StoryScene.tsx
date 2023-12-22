@@ -9,10 +9,10 @@ import { StoryScene3 } from "./StoryScene3";
 
 export function StoryScene() {
   const navigate = useNavigate();
+  const [isMenuOpen, closeMenu] = useMenu();
   const [resetKey, setResetKey] = React.useState(0);
   const [sceneIndex, setSceneIndex] = React.useState(0);
   const debug = useDebug();
-  const openMenu = useMenu();
 
   const nextScene = React.useCallback(() => {
     setSceneIndex((n) => n + 1);
@@ -20,7 +20,8 @@ export function StoryScene() {
 
   const resetScene = React.useCallback(() => {
     setResetKey((n) => n + 1);
-  }, []);
+    closeMenu();
+  }, [closeMenu]);
 
   const exitScene = React.useCallback(() => {
     navigate("/");
@@ -45,7 +46,7 @@ export function StoryScene() {
           />,
         ]}
       />
-      {openMenu && (
+      {isMenuOpen && (
         <MenuScreen>
           <Button onClick={resetScene}>restart</Button>
           <Button onClick={() => navigate("/")}>main menu</Button>

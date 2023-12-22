@@ -3,8 +3,9 @@ import { Keyboard } from "./core";
 
 type MenuKeys = "Escape";
 
-export function useMenu() {
+export function useMenu(): [boolean, () => void] {
   const [open, setOpen] = React.useState(false);
+  const close = React.useCallback(() => setOpen(false), []);
 
   React.useEffect(() => {
     const keyboard = new Keyboard<MenuKeys>();
@@ -18,5 +19,5 @@ export function useMenu() {
     };
   }, []);
 
-  return open;
+  return [open, close];
 }
