@@ -27,7 +27,7 @@ export function FreerunScene1({
 }: PropsType) {
   const { app } = useAppContext();
   const level = useInstance(() => generateLevel(dimension, seed));
-  const player = useInstance(() => createPlayer(level));
+  const player = useInstance(() => createPlayer(level, true));
   const playerStatus = usePlayerStatus({ player });
 
   usePlayerKeyboard({
@@ -64,7 +64,7 @@ export function FreerunScene1({
         level={level}
         levelRevealed={debug || player.status === "won"}
       />
-      <PathLights player={player} />
+      <PathLights player={player} level={level} />
       <Compass player={player} level={level} />
       {playerStatus === "died" && (
         <ActionScreen title="you died" titleColor="red">

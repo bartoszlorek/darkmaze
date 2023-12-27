@@ -8,7 +8,7 @@
   margin-left: -8px;
   animation-name: ping;
   animation-duration: 500ms;
-  animation-timing-function: cubic-bezier(0.3, 0, 1, 0.8);
+  animation-timing-function: steps(2, end);
   animation-iteration-count: infinite;
 }
 

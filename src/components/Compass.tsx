@@ -1,15 +1,10 @@
 import * as React from "react";
-import { flooredModulo, angleBetweenPoints, floorNumber } from "../helpers";
+import { getPointInView, angleBetweenPoints, floorNumber } from "../helpers";
 import { CompassDirectionPoint } from "./CompassDirectionPoint";
 import { CompassEvilPoint } from "./CompassEvilPoint";
 import { CompassGoldenPoint } from "./CompassGoldenPoint";
 import { Level, Player, Room, isEvil } from "../core";
 import styles from "./Compass.module.scss";
-
-const COMPASS_STEP_DEGREES = 10;
-const FIELD_OF_VIEW = 200;
-const FIELD_OF_VIEW_SCALE = 360 / FIELD_OF_VIEW;
-const FIELD_OF_VIEW_OFFSET = (360 - FIELD_OF_VIEW) / 2;
 
 const directionsPoints = [
   { label: "N", angle: 0 },
@@ -68,13 +63,13 @@ export function Compass({ player, level }: PropsType) {
         <CompassDirectionPoint
           key={point.label}
           label={point.label}
-          value={getPointInViewValue(playerAngle, point.angle)}
+          value={getCompassPointInView(playerAngle, point.angle)}
         />
       ))}
       {goldenRooms.map((room, i) => (
         <CompassGoldenPoint
           key={i}
-          value={getPointInViewValue(
+          value={getCompassPointInView(
             playerAngle,
             angleBetweenPoints(playerX, playerY, room.x, room.y)
           )}
@@ -83,7 +78,7 @@ export function Compass({ player, level }: PropsType) {
       {nearbyEvilRooms.map((room, i) => (
         <CompassEvilPoint
           key={i}
-          value={getPointInViewValue(
+          value={getCompassPointInView(
             playerAngle,
             angleBetweenPoints(playerX, playerY, room.x, room.y)
           )}
@@ -93,8 +88,6 @@ export function Compass({ player, level }: PropsType) {
   );
 }
 
-function getPointInViewValue(playerAngle: number, pointAngle: number) {
-  const circular = flooredModulo(pointAngle - playerAngle + 180, 360);
-  const stepped = floorNumber(circular, COMPASS_STEP_DEGREES);
-  return ((stepped - FIELD_OF_VIEW_OFFSET) * FIELD_OF_VIEW_SCALE) / 360;
+function getCompassPointInView(a: number, b: number) {
+  return getPointInView(floorNumber(a, 10), floorNumber(b, 10), 200);
 }

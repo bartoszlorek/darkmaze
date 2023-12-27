@@ -26,7 +26,7 @@ type PropsType = Readonly<{
 export function StoryScene2({ debug, nextScene, resetScene }: PropsType) {
   const { app } = useAppContext();
   const level = useInstance(() => new Level(createRooms()));
-  const player = useInstance(() => createPlayer(level));
+  const player = useInstance(() => createPlayer(level, false));
   const playerStatus = usePlayerStatus({ player });
   const [dialog, setDialog] = useDialog(DIALOGUES);
 
@@ -66,7 +66,7 @@ export function StoryScene2({ debug, nextScene, resetScene }: PropsType) {
   return (
     <>
       <MainStageLayer player={player} level={level} levelRevealed={debug} />
-      <PathLights player={player} />
+      <PathLights player={player} level={level} />
       <Compass player={player} level={level} />
       {dialog !== null && <Dialog value={dialog} />}
       {playerStatus === "died" && (

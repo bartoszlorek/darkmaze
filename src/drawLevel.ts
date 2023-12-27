@@ -4,7 +4,7 @@ import type { Level } from "./core";
 
 const lineStyleOptions = {
   width: 4,
-  color: 0x646365,
+  color: 0x2a173b,
   cap: PIXI.LINE_CAP.SQUARE,
 };
 
@@ -12,56 +12,62 @@ export const drawLevel: DrawFunction<
   { level: Level; gridSize: number },
   [revealed: boolean]
 > = ({ parent, level, gridSize }) => {
-  const g = new PIXI.Graphics();
-  parent.addChild(g);
+  const back = new PIXI.Graphics();
+  const front = new PIXI.Graphics();
+  parent.addChild(back);
+  parent.addChild(front);
 
   return (revealed) => {
-    g.clear();
+    front.clear();
 
     for (let i = 0; i < level.rooms.length; i++) {
       const room = level.rooms[i];
-      if (!room.explored && !revealed) {
-        continue;
-      }
-
       const left = room.x * gridSize;
       const top = room.y * gridSize;
       const right = left + gridSize;
       const bottom = top + gridSize;
 
-      g.lineStyle(lineStyleOptions);
+      if (room.visited) {
+        drawVisited(back, left, top, gridSize);
+      }
+
+      if (!room.explored && !revealed) {
+        continue;
+      }
+
+      front.lineStyle(lineStyleOptions);
 
       if (room.walls[0]) {
-        g.moveTo(left, top);
-        g.lineTo(right, top);
+        front.moveTo(left, top);
+        front.lineTo(right, top);
       }
 
       if (room.walls[1]) {
-        g.moveTo(right, top);
-        g.lineTo(right, bottom);
+        front.moveTo(right, top);
+        front.lineTo(right, bottom);
       }
 
       if (room.walls[2]) {
-        g.moveTo(left, bottom);
-        g.lineTo(right, bottom);
+        front.moveTo(left, bottom);
+        front.lineTo(right, bottom);
       }
 
       if (room.walls[3]) {
-        g.moveTo(left, bottom);
-        g.lineTo(left, top);
+        front.moveTo(left, bottom);
+        front.lineTo(left, top);
       }
 
       switch (room.type) {
         case "evil":
-          drawEvil(g, left, top, gridSize);
+          drawEvil(front, left, top, gridSize);
           break;
 
         case "golden":
-          drawGolden(g, left, top, gridSize);
+          drawGolden(front, left, top, gridSize);
           break;
 
         case "passage":
-          drawPassage(g, left, top, gridSize);
+          drawPassage(front, left, top, gridSize);
           break;
       }
     }
@@ -84,7 +90,11 @@ function drawGolden(g: PIXI.Graphics, x: number, y: number, size: number) {
 
 function drawPassage(g: PIXI.Graphics, x: number, y: number, size: number) {
   g.lineStyle(0)
-    .beginFill(0x646365)
+    .beginFill(0x2a173b)
     .drawRect(x + size * 0.25, y + size * 0.25, size / 2, size / 2)
     .endFill();
+}
+
+function drawVisited(g: PIXI.Graphics, x: number, y: number, size: number) {
+  g.lineStyle(0).beginFill(0x3f2c5f).drawRect(x, y, size, size).endFill();
 }

@@ -88,6 +88,8 @@ export class Level extends EventEmitter<LevelEvents> {
     }
 
     const currentRoom = this.getCurrentRoom(player);
+    currentRoom.visited = true;
+
     this.emit("room_enter", {
       room: currentRoom,
     });
