@@ -47,7 +47,7 @@ export function Compass({ player, level }: PropsType) {
     });
 
     const unsubscribeRoomEnter = level.subscribe("room_enter", ({ room }) => {
-      setNearbyEvilRooms(level.filterAdjacentConnectedRooms(room, isEvil));
+      setNearbyEvilRooms(level.filterConnectedRooms(room, isEvil));
     });
 
     return () => {

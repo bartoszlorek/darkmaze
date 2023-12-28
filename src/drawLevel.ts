@@ -31,8 +31,20 @@ export const drawLevel: DrawFunction<
         drawVisited(back, left, top, gridSize);
       }
 
-      if (!room.explored && !revealed) {
-        continue;
+      if (!revealed) {
+        if (room.type === "start") {
+          if (room.visitedNeighbors < 1) {
+            continue;
+          }
+        } else if (room.deadEnd) {
+          if (!room.visited) {
+            continue;
+          }
+        } else {
+          if (room.visitedNeighbors < 2) {
+            continue;
+          }
+        }
       }
 
       front.lineStyle(lineStyleOptions);

@@ -16,17 +16,16 @@ export class Room {
   public type: RoomType;
 
   /**
-   * the rooms exploration reveals the shape
-   * of the level as player moves between rooms
-   */
-  public explored: boolean = false;
-  public visited: boolean = false;
-
-  /**
    * the room has only one open wall,
    * which is the entrance
    */
   public deadEnd: boolean = false;
+
+  /**
+   * exploration mechanics
+   */
+  public visited: boolean = false;
+  public visitedNeighbors: number = 0;
 
   constructor(
     x: number,

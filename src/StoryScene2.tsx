@@ -55,7 +55,7 @@ export function StoryScene2({ debug, nextScene, resetScene }: PropsType) {
           break;
 
         default: {
-          if (level.someAdjacentConnectedRooms(room, isEvil)) {
+          if (level.someConnectedRooms(room, isEvil)) {
             setDialog("evil");
           }
         }

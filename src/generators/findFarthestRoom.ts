@@ -14,10 +14,8 @@ export function findFarthestRoom(level: Level, initialRoom: Room) {
     if (!visitedRooms.has(current)) {
       visitedRooms.add(current);
 
-      for (const neighbor of level.getAdjacentConnectedRooms(current)) {
-        if (neighbor && neighbor !== current) {
-          queue.push(neighbor);
-        }
+      for (const neighbor of level.getConnectedRooms(current)) {
+        if (neighbor) queue.push(neighbor);
       }
     }
   }
