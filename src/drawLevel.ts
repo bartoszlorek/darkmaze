@@ -56,7 +56,7 @@ export const drawLevel: DrawFunction<
         textRefs[i].text = room.visitedConnectedRooms;
       }
 
-      if (room.visited) {
+      if (room.visited || revealed) {
         drawVisited(back, left, top, gridSize);
       }
 
