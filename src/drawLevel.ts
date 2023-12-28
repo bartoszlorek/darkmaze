@@ -33,8 +33,8 @@ export const drawLevel: DrawFunction<
 
   const textRefs: PIXI.Text[] = [];
   if (
-    debug === DEBUG_MODE.VISITED_ADJACENT ||
-    debug === DEBUG_MODE.VISITED_CONNECTED
+    debug === DEBUG_MODE.VISITED_CONNECTED ||
+    debug === DEBUG_MODE.VISITED_NEIGHBORS
   ) {
     for (const room of level.rooms) {
       const text = new PIXI.Text(0, textStyleOptions);
@@ -55,10 +55,11 @@ export const drawLevel: DrawFunction<
       const right = left + gridSize;
       const bottom = top + gridSize;
 
-      if (debug === DEBUG_MODE.VISITED_ADJACENT) {
-        textRefs[i].text = room.visitedAdjacentRooms;
-      } else if (debug === DEBUG_MODE.VISITED_CONNECTED) {
+      if (debug === DEBUG_MODE.VISITED_CONNECTED) {
         textRefs[i].text = room.visitedConnectedRooms;
+      } else if (debug === DEBUG_MODE.VISITED_NEIGHBORS) {
+        const textValue = `${room.visitedHorizontalNeighborRooms}:${room.visitedVerticalNeighborRooms}`;
+        textRefs[i].text = textValue;
       }
 
       if (room.visited) {
@@ -66,17 +67,23 @@ export const drawLevel: DrawFunction<
       }
 
       if (!revealed && debug !== DEBUG_MODE.ROOMS_LAYOUT) {
-        if (room.type === "start") {
-          if (room.visitedConnectedRooms < 1) {
-            continue;
-          }
-        } else if (room.deadEnd) {
-          if (!room.visited) {
-            continue;
-          }
-        } else {
-          if (room.visitedConnectedRooms < 2) {
-            continue;
+        const isBetweenVisitedNeighbors =
+          room.visitedHorizontalNeighborRooms > 1 ||
+          room.visitedVerticalNeighborRooms > 1;
+
+        if (!isBetweenVisitedNeighbors) {
+          if (room.type === "start") {
+            if (room.visitedConnectedRooms < 1) {
+              continue;
+            }
+          } else if (room.deadEnd) {
+            if (!room.visited) {
+              continue;
+            }
+          } else {
+            if (room.visitedConnectedRooms < 2) {
+              continue;
+            }
           }
         }
       }

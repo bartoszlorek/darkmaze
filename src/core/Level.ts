@@ -1,5 +1,4 @@
 import { EventEmitter } from "./EventEmitter";
-import { DirectionIndex } from "../helpers";
 import { Player } from "./Player";
 import { Room, WallState } from "./Room";
 
@@ -7,18 +6,7 @@ type Maybe<T> = T | null;
 
 export type RoomPredicate = (room: Room) => boolean;
 
-export type AdjacentRooms = [
-  up: Maybe<Room>,
-  upRight: Maybe<Room>,
-  right: Maybe<Room>,
-  downRight: Maybe<Room>,
-  down: Maybe<Room>,
-  downLeft: Maybe<Room>,
-  left: Maybe<Room>,
-  upLeft: Maybe<Room>
-];
-
-export type ConnectedRooms = [
+export type RoomCluster = [
   up: Maybe<Room>,
   right: Maybe<Room>,
   down: Maybe<Room>,
@@ -38,17 +26,8 @@ export class Level extends EventEmitter<LevelEvents> {
   protected lastVisitedRoom: Room | null = null;
 
   // pre-allocated memory
-  // prettier-ignore
-  private _adjacentRooms: AdjacentRooms = [
-    null, null, null, null,
-    null, null, null, null,
-  ];
-
-  // pre-allocated memory
-  // prettier-ignore
-  private _connectedRooms: ConnectedRooms = [
-    null, null, null, null
-  ];
+  private _connectedRooms: RoomCluster = [null, null, null, null];
+  private _neighborRooms: RoomCluster = [null, null, null, null];
 
   constructor(rooms: Room[]) {
     super();
@@ -60,15 +39,6 @@ export class Level extends EventEmitter<LevelEvents> {
     for (const room of rooms) {
       const roomKey = this.getRoomKey(room.x, room.y);
       this.roomsIndexedMap.set(roomKey, room);
-    }
-
-    // count adjacent rooms
-    for (const room of rooms) {
-      let count = 0;
-      for (const adjacent of this.getAdjacentRooms(room)) {
-        if (adjacent) count += 1;
-      }
-      room.adjacentRoomsCount = count;
     }
   }
 
@@ -101,12 +71,15 @@ export class Level extends EventEmitter<LevelEvents> {
     if (!currentRoom.visited) {
       currentRoom.visited = true;
 
-      for (const room of this.getAdjacentRooms(currentRoom)) {
-        if (room) room.visitedAdjacentRooms += 1;
-      }
       for (const room of this.getConnectedRooms(currentRoom)) {
         if (room) room.visitedConnectedRooms += 1;
       }
+
+      const neighbors = this.getNeighborRooms(currentRoom);
+      if (neighbors[0]) neighbors[0].visitedVerticalNeighborRooms += 1;
+      if (neighbors[1]) neighbors[1].visitedHorizontalNeighborRooms += 1;
+      if (neighbors[2]) neighbors[2].visitedVerticalNeighborRooms += 1;
+      if (neighbors[3]) neighbors[3].visitedHorizontalNeighborRooms += 1;
     }
 
     this.emit("room_enter", {
@@ -127,24 +100,16 @@ export class Level extends EventEmitter<LevelEvents> {
     return currentRoom;
   }
 
-  public getAdjacentRooms(room: Room) {
+  public getNeighborRooms(room: Room) {
     const x = room.x;
     const y = room.y;
-    const left = x - 1;
-    const right = x + 1;
-    const up = y - 1;
-    const down = y + 1;
 
-    this._adjacentRooms[0] = this.getRoom(x, up) || null;
-    this._adjacentRooms[1] = this.getRoom(right, up) || null;
-    this._adjacentRooms[2] = this.getRoom(right, y) || null;
-    this._adjacentRooms[3] = this.getRoom(right, down) || null;
-    this._adjacentRooms[4] = this.getRoom(x, down) || null;
-    this._adjacentRooms[5] = this.getRoom(left, down) || null;
-    this._adjacentRooms[6] = this.getRoom(left, y) || null;
-    this._adjacentRooms[7] = this.getRoom(left, up) || null;
+    this._neighborRooms[0] = this.getRoom(x, y - 1) || null;
+    this._neighborRooms[1] = this.getRoom(x + 1, y) || null;
+    this._neighborRooms[2] = this.getRoom(x, y + 1) || null;
+    this._neighborRooms[3] = this.getRoom(x - 1, y) || null;
 
-    return this._adjacentRooms;
+    return this._neighborRooms;
   }
 
   public getConnectedRooms(room: Room) {
@@ -152,24 +117,16 @@ export class Level extends EventEmitter<LevelEvents> {
     const y = room.y;
 
     this._connectedRooms[0] =
-      room.walls[DirectionIndex.up] === WallState.open
-        ? this.getRoom(x, y - 1) || null
-        : null;
+      (room.walls[0] === WallState.open && this.getRoom(x, y - 1)) || null;
 
     this._connectedRooms[1] =
-      room.walls[DirectionIndex.right] === WallState.open
-        ? this.getRoom(x + 1, y) || null
-        : null;
+      (room.walls[1] === WallState.open && this.getRoom(x + 1, y)) || null;
 
     this._connectedRooms[2] =
-      room.walls[DirectionIndex.down] === WallState.open
-        ? this.getRoom(x, y + 1) || null
-        : null;
+      (room.walls[2] === WallState.open && this.getRoom(x, y + 1)) || null;
 
     this._connectedRooms[3] =
-      room.walls[DirectionIndex.left] === WallState.open
-        ? this.getRoom(x - 1, y) || null
-        : null;
+      (room.walls[3] === WallState.open && this.getRoom(x - 1, y)) || null;
 
     return this._connectedRooms;
   }
