@@ -11,7 +11,6 @@ import { usePlayerKeyboard } from "./usePlayerKeyboard";
 import { usePlayerStatus } from "./usePlayerStatus";
 
 type PropsType = Readonly<{
-  debug: boolean;
   dimension: number;
   seed: string;
   resetScene: () => void;
@@ -19,7 +18,6 @@ type PropsType = Readonly<{
 }>;
 
 export function FreerunScene1({
-  debug,
   dimension,
   seed,
   resetScene,
@@ -62,7 +60,7 @@ export function FreerunScene1({
       <MainStageLayer
         player={player}
         level={level}
-        levelRevealed={debug || player.status === "won"}
+        levelRevealed={player.status === "won"}
       />
       <PathLights player={player} level={level} />
       <Compass player={player} level={level} />

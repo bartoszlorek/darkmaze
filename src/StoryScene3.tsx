@@ -18,12 +18,11 @@ import { usePlayerKeyboard } from "./usePlayerKeyboard";
 import { usePlayerStatus } from "./usePlayerStatus";
 
 type PropsType = Readonly<{
-  debug: boolean;
   nextScene: () => void;
   resetScene: () => void;
 }>;
 
-export function StoryScene3({ debug, nextScene, resetScene }: PropsType) {
+export function StoryScene3({ nextScene, resetScene }: PropsType) {
   const { app } = useAppContext();
   const level = useInstance(() => new Level(createRooms()));
   const player = useInstance(() => createPlayer(level, false));
@@ -61,7 +60,11 @@ export function StoryScene3({ debug, nextScene, resetScene }: PropsType) {
 
   return (
     <>
-      <MainStageLayer player={player} level={level} levelRevealed={debug} />
+      <MainStageLayer
+        player={player}
+        level={level}
+        levelRevealed={player.status === "won"}
+      />
       <PathLights player={player} level={level} />
       <Compass player={player} level={level} />
       {dialog !== null && <Dialog value={dialog} />}

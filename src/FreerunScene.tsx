@@ -2,7 +2,6 @@ import * as React from "react";
 import { useNavigate } from "react-router-dom";
 import { Button, MenuScreen, SceneManager } from "./components";
 import { FreerunScene1 } from "./FreerunScene1";
-import { useDebug } from "./useDebug";
 import { useMenu } from "./useMenu";
 import { useSanitizedParams } from "./useSanitizedParams";
 
@@ -11,7 +10,6 @@ export function FreerunScene() {
   const [isMenuOpen, closeMenu] = useMenu();
   const [resetKey, setResetKey] = React.useState(0);
   const { seed, dimension } = useSanitizedParams();
-  const debug = useDebug();
 
   const resetScene = React.useCallback(() => {
     setResetKey((n) => n + 1);
@@ -29,7 +27,6 @@ export function FreerunScene() {
         sceneIndex={0}
         scenes={[
           <FreerunScene1
-            debug={debug}
             seed={seed}
             dimension={dimension}
             resetScene={resetScene}

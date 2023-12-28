@@ -1,6 +1,5 @@
 import * as React from "react";
 import { useNavigate } from "react-router-dom";
-import { useDebug } from "./useDebug";
 import { useMenu } from "./useMenu";
 import { Button, MenuScreen, SceneManager } from "./components";
 import { StoryScene1 } from "./StoryScene1";
@@ -12,7 +11,6 @@ export function StoryScene() {
   const [isMenuOpen, closeMenu] = useMenu();
   const [resetKey, setResetKey] = React.useState(0);
   const [sceneIndex, setSceneIndex] = React.useState(0);
-  const debug = useDebug();
 
   const nextScene = React.useCallback(() => {
     setSceneIndex((n) => n + 1);
@@ -33,17 +31,9 @@ export function StoryScene() {
         resetKey={resetKey}
         sceneIndex={sceneIndex}
         scenes={[
-          <StoryScene1 debug={debug} nextScene={nextScene} />,
-          <StoryScene2
-            debug={debug}
-            nextScene={nextScene}
-            resetScene={resetScene}
-          />,
-          <StoryScene3
-            debug={debug}
-            nextScene={exitScene}
-            resetScene={resetScene}
-          />,
+          <StoryScene1 nextScene={nextScene} />,
+          <StoryScene2 nextScene={nextScene} resetScene={resetScene} />,
+          <StoryScene3 nextScene={exitScene} resetScene={resetScene} />,
         ]}
       />
       {isMenuOpen && (

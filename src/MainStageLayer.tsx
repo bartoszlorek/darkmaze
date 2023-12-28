@@ -11,11 +11,15 @@ import { GRID_SIZE } from "./consts";
 type PropsType = Readonly<{
   player: Player;
   level: Level;
-  levelRevealed: boolean;
+  levelRevealed?: boolean;
 }>;
 
-export function MainStageLayer({ player, level, levelRevealed }: PropsType) {
-  const { app, sprites } = useAppContext();
+export function MainStageLayer({
+  player,
+  level,
+  levelRevealed = false,
+}: PropsType) {
+  const { app, sprites, debug } = useAppContext();
 
   return (
     <StageLayer
@@ -35,6 +39,7 @@ export function MainStageLayer({ player, level, levelRevealed }: PropsType) {
           parent,
           level,
           gridSize: GRID_SIZE,
+          debug,
         });
 
         const redrawPlayer = drawPlayer({

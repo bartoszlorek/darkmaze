@@ -2,6 +2,7 @@ import * as PIXI from "pixi.js";
 import { createRoot } from "react-dom/client";
 import { HashRouter } from "react-router-dom";
 import { loadSpritesheets } from "./assets";
+import { getDebugMode } from "./debug";
 import { AppContextProvider } from "./context";
 import { MainScene } from "./MainScene";
 
@@ -15,10 +16,12 @@ const app = new PIXI.Application({
   view,
 });
 
+const debug = getDebugMode();
+
 loadSpritesheets().then((sprites) => {
   createRoot(root).render(
     <HashRouter>
-      <AppContextProvider value={{ app, sprites }}>
+      <AppContextProvider value={{ app, sprites, debug }}>
         <MainScene />
       </AppContextProvider>
     </HashRouter>

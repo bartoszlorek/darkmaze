@@ -1,4 +1,5 @@
 import * as PIXI from "pixi.js";
+import { DEBUG_MODE } from "./debug";
 import type { DrawFunction } from "./helpers";
 import type { Level } from "./core";
 
@@ -8,14 +9,38 @@ const lineStyleOptions = {
   cap: PIXI.LINE_CAP.SQUARE,
 };
 
+const textStyleOptions = {
+  fontFamily: "Arial",
+  fontSize: 16,
+  fill: 0xffffff,
+  align: "center",
+} as const;
+
 export const drawLevel: DrawFunction<
-  { level: Level; gridSize: number },
+  {
+    level: Level;
+    gridSize: number;
+    debug: DEBUG_MODE;
+  },
   [revealed: boolean]
-> = ({ parent, level, gridSize }) => {
+> = ({ parent, level, gridSize, debug }) => {
   const back = new PIXI.Graphics();
   const front = new PIXI.Graphics();
+  const texts = new PIXI.Container();
   parent.addChild(back);
   parent.addChild(front);
+  parent.addChild(texts);
+
+  const textRefs: PIXI.Text[] = [];
+  if (debug === DEBUG_MODE.visited) {
+    for (const room of level.rooms) {
+      const text = new PIXI.Text(room.visitedNeighbors, textStyleOptions);
+      text.x = room.x * gridSize + gridSize / 2;
+      text.y = room.y * gridSize + gridSize / 2;
+      texts.addChild(text);
+      textRefs.push(text);
+    }
+  }
 
   return (revealed) => {
     front.clear();
@@ -27,11 +52,15 @@ export const drawLevel: DrawFunction<
       const right = left + gridSize;
       const bottom = top + gridSize;
 
+      if (debug === DEBUG_MODE.visited) {
+        textRefs[i].text = room.visitedNeighbors;
+      }
+
       if (room.visited) {
         drawVisited(back, left, top, gridSize);
       }
 
-      if (!revealed) {
+      if (!revealed && debug !== DEBUG_MODE.layout) {
         if (room.type === "start") {
           if (room.visitedNeighbors < 1) {
             continue;
