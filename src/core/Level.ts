@@ -74,12 +74,6 @@ export class Level extends EventEmitter<LevelEvents> {
       for (const room of this.getConnectedRooms(currentRoom)) {
         if (room) room.visitedConnectedRooms += 1;
       }
-
-      const neighbors = this.getNeighborRooms(currentRoom);
-      if (neighbors[0]) neighbors[0].visitedVerticalNeighborRooms += 1;
-      if (neighbors[1]) neighbors[1].visitedHorizontalNeighborRooms += 1;
-      if (neighbors[2]) neighbors[2].visitedVerticalNeighborRooms += 1;
-      if (neighbors[3]) neighbors[3].visitedHorizontalNeighborRooms += 1;
     }
 
     this.emit("room_enter", {

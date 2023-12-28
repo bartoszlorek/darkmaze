@@ -26,8 +26,6 @@ export class Room {
    */
   public visited: boolean = false;
   public visitedConnectedRooms: number = 0;
-  public visitedHorizontalNeighborRooms: number = 0;
-  public visitedVerticalNeighborRooms: number = 0;
 
   constructor(
     x: number,

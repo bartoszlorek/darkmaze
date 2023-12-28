@@ -32,10 +32,7 @@ export const drawLevel: DrawFunction<
   parent.addChild(texts);
 
   const textRefs: PIXI.Text[] = [];
-  if (
-    debug === DEBUG_MODE.VISITED_CONNECTED ||
-    debug === DEBUG_MODE.VISITED_NEIGHBORS
-  ) {
+  if (debug === DEBUG_MODE.VISITED_CONNECTED) {
     for (const room of level.rooms) {
       const text = new PIXI.Text(0, textStyleOptions);
       text.x = room.x * gridSize + gridSize / 2;
@@ -57,9 +54,6 @@ export const drawLevel: DrawFunction<
 
       if (debug === DEBUG_MODE.VISITED_CONNECTED) {
         textRefs[i].text = room.visitedConnectedRooms;
-      } else if (debug === DEBUG_MODE.VISITED_NEIGHBORS) {
-        const textValue = `${room.visitedHorizontalNeighborRooms}:${room.visitedVerticalNeighborRooms}`;
-        textRefs[i].text = textValue;
       }
 
       if (room.visited) {
@@ -67,29 +61,19 @@ export const drawLevel: DrawFunction<
       }
 
       if (!revealed && debug !== DEBUG_MODE.ROOMS_LAYOUT) {
-        const isBetweenVisitedNeighbors =
-          room.visitedHorizontalNeighborRooms > 1 ||
-          room.visitedVerticalNeighborRooms > 1;
-
-        if (!isBetweenVisitedNeighbors) {
-          if (room.type === "start") {
-            if (room.visitedConnectedRooms < 1) {
-              continue;
-            }
-          } else if (room.deadEnd) {
-            if (!room.visited) {
-              continue;
-            }
-          } else {
-            if (room.visitedConnectedRooms < 2) {
-              continue;
-            }
+        if (room.type === "start") {
+          if (room.visitedConnectedRooms < 1) {
+            continue;
+          }
+        } else if (room.deadEnd) {
+          if (!room.visited) {
+            continue;
+          }
+        } else {
+          if (room.visitedConnectedRooms < 2) {
+            continue;
           }
         }
-      }
-
-      if (!room.visited) {
-        drawVisited(back, left, top, gridSize);
       }
 
       front.lineStyle(lineStyleOptions);
@@ -153,5 +137,5 @@ function drawPassage(g: PIXI.Graphics, x: number, y: number, size: number) {
 }
 
 function drawVisited(g: PIXI.Graphics, x: number, y: number, size: number) {
-  g.lineStyle(0).beginFill(0x3f2c5f).drawRect(x, y, size, size).endFill();
+  g.lineStyle(0).beginFill(0x443f7b).drawRect(x, y, size, size).endFill();
 }
