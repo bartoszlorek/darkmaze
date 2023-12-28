@@ -1,7 +1,8 @@
 export enum DEBUG_MODE {
-  none = 0,
-  layout = 1,
-  visited = 2,
+  NONE = 0,
+  ROOMS_LAYOUT = 1,
+  VISITED_ADJACENT = 2,
+  VISITED_CONNECTED = 3,
 }
 
 export function getDebugMode(): DEBUG_MODE {
@@ -16,5 +17,5 @@ export function getDebugMode(): DEBUG_MODE {
     }
   }
 
-  return DEBUG_MODE.none;
+  return DEBUG_MODE.NONE;
 }

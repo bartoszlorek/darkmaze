@@ -25,7 +25,9 @@ export class Room {
    * exploration mechanics
    */
   public visited: boolean = false;
-  public visitedNeighbors: number = 0;
+  public visitedConnectedRooms: number = 0;
+  public visitedAdjacentRooms: number = 0;
+  public adjacentRoomsCount: number = 0;
 
   constructor(
     x: number,
@@ -41,10 +43,10 @@ export class Room {
   }
 
   public evaluate() {
-    const openWallsCount = this.walls.reduce((sum, state) => {
-      return sum + (state === WallState.open ? 1 : 0);
-    }, 0);
-
+    let openWallsCount = 0;
+    for (const wall of this.walls) {
+      if (wall === WallState.open) openWallsCount += 1;
+    }
     this.deadEnd = openWallsCount === 1;
   }
 

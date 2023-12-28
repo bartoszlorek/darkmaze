@@ -38,8 +38,8 @@ export function generateLevel(dimension: number, seed: string): Level {
   arrayRemove(deadEndRooms, goldenRoom);
 
   // 3. set the remaining rooms as evil
-  for (let i = 0; i < deadEndRooms.length; i++) {
-    deadEndRooms[i].type = "evil";
+  for (const room of deadEndRooms) {
+    room.type = "evil";
   }
 
   return level;

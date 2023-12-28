@@ -32,9 +32,12 @@ export const drawLevel: DrawFunction<
   parent.addChild(texts);
 
   const textRefs: PIXI.Text[] = [];
-  if (debug === DEBUG_MODE.visited) {
+  if (
+    debug === DEBUG_MODE.VISITED_ADJACENT ||
+    debug === DEBUG_MODE.VISITED_CONNECTED
+  ) {
     for (const room of level.rooms) {
-      const text = new PIXI.Text(room.visitedNeighbors, textStyleOptions);
+      const text = new PIXI.Text(0, textStyleOptions);
       text.x = room.x * gridSize + gridSize / 2;
       text.y = room.y * gridSize + gridSize / 2;
       texts.addChild(text);
@@ -52,17 +55,19 @@ export const drawLevel: DrawFunction<
       const right = left + gridSize;
       const bottom = top + gridSize;
 
-      if (debug === DEBUG_MODE.visited) {
-        textRefs[i].text = room.visitedNeighbors;
+      if (debug === DEBUG_MODE.VISITED_ADJACENT) {
+        textRefs[i].text = room.visitedAdjacentRooms;
+      } else if (debug === DEBUG_MODE.VISITED_CONNECTED) {
+        textRefs[i].text = room.visitedConnectedRooms;
       }
 
       if (room.visited) {
         drawVisited(back, left, top, gridSize);
       }
 
-      if (!revealed && debug !== DEBUG_MODE.layout) {
+      if (!revealed && debug !== DEBUG_MODE.ROOMS_LAYOUT) {
         if (room.type === "start") {
-          if (room.visitedNeighbors < 1) {
+          if (room.visitedConnectedRooms < 1) {
             continue;
           }
         } else if (room.deadEnd) {
@@ -70,10 +75,14 @@ export const drawLevel: DrawFunction<
             continue;
           }
         } else {
-          if (room.visitedNeighbors < 2) {
+          if (room.visitedConnectedRooms < 2) {
             continue;
           }
         }
+      }
+
+      if (!room.visited) {
+        drawVisited(back, left, top, gridSize);
       }
 
       front.lineStyle(lineStyleOptions);
