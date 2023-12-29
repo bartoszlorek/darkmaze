@@ -26,6 +26,7 @@ export class Room {
    */
   public visited: boolean = false;
   public visitedConnectedRooms: number = 0;
+  public explored: boolean = false;
 
   constructor(
     x: number,
@@ -37,15 +38,35 @@ export class Room {
     this.y = y;
     this.walls = walls;
     this.type = type;
-    this.evaluate();
+    this.setDeadEnd();
   }
 
-  public evaluate() {
-    let openWallsCount = 0;
+  public setDeadEnd() {
+    let entrances = 0;
     for (const wall of this.walls) {
-      if (wall === WallState.open) openWallsCount += 1;
+      if (wall === WallState.open) {
+        entrances += 1;
+      }
     }
-    this.deadEnd = openWallsCount === 1;
+    this.deadEnd = entrances === 1;
+    return this;
+  }
+
+  public setVisited() {
+    this.visited = true;
+    if (this.deadEnd && this.type !== "start") {
+      this.explored = true;
+    }
+    return this;
+  }
+
+  public setVisitedConnectedRooms() {
+    this.visitedConnectedRooms += 1;
+    const threshold = this.type === "start" ? 1 : 2;
+    if (this.visitedConnectedRooms >= threshold) {
+      this.explored = true;
+    }
+    return this;
   }
 
   public contains(x: number, y: number): boolean {

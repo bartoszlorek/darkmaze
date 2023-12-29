@@ -69,10 +69,10 @@ export class Level extends EventEmitter<LevelEvents> {
 
     const currentRoom = this.getCurrentRoom(player);
     if (!currentRoom.visited) {
-      currentRoom.visited = true;
+      currentRoom.setVisited();
 
-      for (const room of this.getConnectedRooms(currentRoom)) {
-        if (room) room.visitedConnectedRooms += 1;
+      for (const otherRoom of this.getConnectedRooms(currentRoom)) {
+        otherRoom?.setVisitedConnectedRooms();
       }
     }
 
@@ -80,15 +80,11 @@ export class Level extends EventEmitter<LevelEvents> {
       room: currentRoom,
     });
 
-    // for the first time
-    if (this.lastVisitedRoom === null) {
-      this.lastVisitedRoom = currentRoom;
-      return currentRoom;
+    if (this.lastVisitedRoom !== null) {
+      this.emit("room_leave", {
+        room: this.lastVisitedRoom,
+      });
     }
-
-    this.emit("room_leave", {
-      room: this.lastVisitedRoom,
-    });
 
     this.lastVisitedRoom = currentRoom;
     return currentRoom;

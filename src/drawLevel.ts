@@ -44,6 +44,7 @@ export const drawLevel: DrawFunction<
 
   return (revealed) => {
     front.clear();
+    const renderAll = revealed || debug === DEBUG_MODE.ROOMS_LAYOUT;
 
     for (let i = 0; i < level.rooms.length; i++) {
       const room = level.rooms[i];
@@ -56,24 +57,12 @@ export const drawLevel: DrawFunction<
         textRefs[i].text = room.visitedConnectedRooms;
       }
 
-      if (room.visited || revealed) {
+      if (room.visited || renderAll) {
         drawVisited(back, left, top, gridSize);
       }
 
-      if (!revealed && debug !== DEBUG_MODE.ROOMS_LAYOUT) {
-        if (room.type === "start") {
-          if (room.visitedConnectedRooms < 1) {
-            continue;
-          }
-        } else if (room.deadEnd) {
-          if (!room.visited) {
-            continue;
-          }
-        } else {
-          if (room.visitedConnectedRooms < 2) {
-            continue;
-          }
-        }
+      if (!room.explored && !renderAll) {
+        continue;
       }
 
       front.lineStyle(lineStyleOptions);
