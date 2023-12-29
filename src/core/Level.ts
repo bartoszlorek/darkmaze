@@ -69,7 +69,7 @@ export class Level extends EventEmitter<LevelEvents> {
 
     const currentRoom = this.getCurrentRoom(player);
     if (!currentRoom.visited) {
-      currentRoom.setVisited();
+      currentRoom.setVisited(this.lastVisitedRoom);
 
       for (const otherRoom of this.getConnectedRooms(currentRoom)) {
         otherRoom?.incrementVisitedConnectedRooms();

@@ -39,6 +39,7 @@ export function MainStageLayer({
           parent,
           level,
           gridSize: GRID_SIZE,
+          sprites,
           debug,
         });
 

@@ -7,12 +7,35 @@ export enum WallState {
 
 export type RoomType = "start" | "empty" | "evil" | "golden" | "passage";
 
+// wall state permutations
+// for (let i = 0; i <= ~(-1 << 4); i++) {
+//   console.log(i.toString(2).padStart(4, "0"));
+// }
+export type RoomSignature =
+  | "0000"
+  | "0001"
+  | "0010"
+  | "0011"
+  | "0100"
+  | "0101"
+  | "0110"
+  | "0111"
+  | "1000"
+  | "1001"
+  | "1010"
+  | "1011"
+  | "1100"
+  | "1101"
+  | "1110"
+  | "1111";
+
 export const isEvil = (room: Room) => room.type === "evil";
 
 export class Room {
   public x: number;
   public y: number;
   public walls: [WallState, WallState, WallState, WallState];
+  public signature: RoomSignature = "0000";
   public type: RoomType;
 
   /**
@@ -26,6 +49,7 @@ export class Room {
    */
   public visited: boolean = false;
   public visitedConnectedRooms: number = 0;
+  public visitedDirection: DirectionIndex | null = null;
   public explored: boolean = false;
 
   constructor(
@@ -38,35 +62,62 @@ export class Room {
     this.y = y;
     this.walls = walls;
     this.type = type;
-    this.setDeadEnd();
+    this.parse();
   }
 
-  public setDeadEnd() {
+  public parse() {
     let entrances = 0;
+    let signature = "";
+
     for (const wall of this.walls) {
       if (wall === WallState.open) {
         entrances += 1;
+        signature += "0";
+      } else {
+        signature += "1";
       }
     }
     this.deadEnd = entrances === 1;
-    return this;
+    this.signature = signature as RoomSignature;
   }
 
-  public setVisited() {
+  public setVisited(previousRoom: Room | null) {
     this.visited = true;
+
+    if (previousRoom) {
+      switch (true) {
+        case previousRoom.x < this.x:
+          this.visitedDirection = DirectionIndex.right;
+          break;
+
+        case previousRoom.x > this.x:
+          this.visitedDirection = DirectionIndex.left;
+          break;
+
+        case previousRoom.y < this.y:
+          this.visitedDirection = DirectionIndex.down;
+          break;
+
+        case previousRoom.y > this.y:
+          this.visitedDirection = DirectionIndex.up;
+          break;
+      }
+    } else {
+      this.visitedDirection = null;
+    }
+
     if (this.deadEnd && this.type !== "start") {
       this.explored = true;
     }
-    return this;
   }
 
   public incrementVisitedConnectedRooms() {
     this.visitedConnectedRooms += 1;
+
     const threshold = this.type === "start" ? 1 : 2;
     if (this.visitedConnectedRooms >= threshold) {
       this.explored = true;
     }
-    return this;
   }
 
   public contains(x: number, y: number): boolean {

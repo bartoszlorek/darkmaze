@@ -20,7 +20,10 @@ fs.readdir(assetsPath, (err, files) => {
       }
 
       const parsedData = JSON.parse(rawData);
-      const outputData = buildAnimations(parsedData);
+      const outputData = buildAnimationsFromFrameTags(
+        buildFramesFromSlices(parsedData)
+      );
+
       outputData.meta.scale = scale;
 
       fs.writeFile(filepath, JSON.stringify(outputData), "utf8", (err) => {
@@ -34,14 +37,10 @@ fs.readdir(assetsPath, (err, files) => {
   });
 });
 
-function buildAnimations(parsedData) {
-  const { frameTags } = parsedData.meta;
-  if (!frameTags) {
-    throw new Error("missing frame tags");
-  }
-
+function buildAnimationsFromFrameTags(parsedData) {
   const animations = {};
-  frameTags.forEach((tag) => {
+
+  parsedData.meta.frameTags.forEach((tag) => {
     animations[tag.name] = Array.from(
       { length: tag.to - tag.from + 1 },
       (_, i) => `${tag.name}${i}`
@@ -49,4 +48,27 @@ function buildAnimations(parsedData) {
   });
 
   return { ...parsedData, animations };
+}
+
+function buildFramesFromSlices(parsedData) {
+  const frames = {};
+
+  parsedData.meta.slices?.forEach((slice) => {
+    frames[slice.name] = {
+      frame: slice.keys[0].bounds,
+      rotated: false,
+      trimmed: false,
+      spriteSourceSize: { x: 0, y: 0, w: 24, h: 24 },
+      sourceSize: { w: 24, h: 24 },
+      duration: 100,
+    };
+  });
+
+  return {
+    ...parsedData,
+    frames: {
+      ...parsedData.frames,
+      ...frames,
+    },
+  };
 }

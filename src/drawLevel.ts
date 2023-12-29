@@ -1,13 +1,8 @@
 import * as PIXI from "pixi.js";
 import { DEBUG_MODE } from "./debug";
+import { LoadedSpritesheets } from "./assets";
 import type { DrawFunction } from "./helpers";
-import type { Level } from "./core";
-
-const lineStyleOptions = {
-  width: 4,
-  color: 0x2a173b,
-  cap: PIXI.LINE_CAP.SQUARE,
-};
+import type { Level, Room } from "./core";
 
 const textStyleOptions = {
   fontFamily: "Arial",
@@ -20,111 +15,97 @@ export const drawLevel: DrawFunction<
   {
     level: Level;
     gridSize: number;
+    sprites: LoadedSpritesheets;
     debug: DEBUG_MODE;
   },
   [revealed: boolean]
-> = ({ parent, level, gridSize, debug }) => {
-  const back = new PIXI.Graphics();
-  const front = new PIXI.Graphics();
-  const texts = new PIXI.Container();
-  parent.addChild(back);
-  parent.addChild(front);
-  parent.addChild(texts);
+> = ({ parent, level, gridSize, sprites, debug }) => {
+  const roomsLayer = new PIXI.Container();
+  const debugLayer = new PIXI.Container();
+  parent.addChild(roomsLayer);
+  parent.addChild(debugLayer);
 
-  const textRefs: PIXI.Text[] = [];
+  const debugTexts: PIXI.Text[] = [];
   if (debug === DEBUG_MODE.VISITED_CONNECTED) {
     for (const room of level.rooms) {
-      const text = new PIXI.Text(0, textStyleOptions);
-      text.x = room.x * gridSize + gridSize / 2;
-      text.y = room.y * gridSize + gridSize / 2;
-      texts.addChild(text);
-      textRefs.push(text);
+      const debugText = new PIXI.Text(0, textStyleOptions);
+      debugText.x = room.x * gridSize + gridSize / 2;
+      debugText.y = room.y * gridSize + gridSize / 2;
+      debugTexts.push(debugText);
+      debugLayer.addChild(debugText);
     }
   }
 
-  return (revealed) => {
-    front.clear();
-    const renderAll = revealed || debug === DEBUG_MODE.ROOMS_LAYOUT;
+  const renderers: RoomRenderer[] = [];
+  for (const room of level.rooms) {
+    const renderer = new RoomRenderer(room);
+    renderer.x = room.x * gridSize;
+    renderer.y = room.y * gridSize;
+    renderers.push(renderer);
+    roomsLayer.addChild(renderer);
+  }
 
+  return (revealed) => {
     for (let i = 0; i < level.rooms.length; i++) {
       const room = level.rooms[i];
-      const left = room.x * gridSize;
-      const top = room.y * gridSize;
-      const right = left + gridSize;
-      const bottom = top + gridSize;
 
       if (debug === DEBUG_MODE.VISITED_CONNECTED) {
-        textRefs[i].text = room.visitedConnectedRooms;
+        debugTexts[i].text = room.visitedConnectedRooms;
       }
 
-      if (room.visited || renderAll) {
-        drawVisited(back, left, top, gridSize);
-      }
-
-      if (!room.explored && !renderAll) {
-        continue;
-      }
-
-      front.lineStyle(lineStyleOptions);
-
-      if (room.walls[0]) {
-        front.moveTo(left, top);
-        front.lineTo(right, top);
-      }
-
-      if (room.walls[1]) {
-        front.moveTo(right, top);
-        front.lineTo(right, bottom);
-      }
-
-      if (room.walls[2]) {
-        front.moveTo(left, bottom);
-        front.lineTo(right, bottom);
-      }
-
-      if (room.walls[3]) {
-        front.moveTo(left, bottom);
-        front.lineTo(left, top);
-      }
-
-      switch (room.type) {
-        case "evil":
-          drawEvil(front, left, top, gridSize);
-          break;
-
-        case "golden":
-          drawGolden(front, left, top, gridSize);
-          break;
-
-        case "passage":
-          drawPassage(front, left, top, gridSize);
-          break;
-      }
+      renderers[i].renderRoom(
+        sprites,
+        revealed || debug === DEBUG_MODE.ROOMS_LAYOUT
+      );
     }
   };
 };
 
-function drawEvil(g: PIXI.Graphics, x: number, y: number, size: number) {
-  g.lineStyle(0)
-    .beginFill(0xb45252)
-    .drawCircle(x + size / 2, y + size / 2, size * 0.25)
-    .endFill();
-}
+class RoomRenderer extends PIXI.Sprite {
+  protected room: Room;
+  protected state: "initial" | "visited" | "explored" = "initial";
 
-function drawGolden(g: PIXI.Graphics, x: number, y: number, size: number) {
-  g.lineStyle(0)
-    .beginFill(0xede19e)
-    .drawCircle(x + size / 2, y + size / 2, size * 0.25)
-    .endFill();
-}
+  constructor(room: Room) {
+    super();
+    this.room = room;
+    this.visible = false;
+  }
 
-function drawPassage(g: PIXI.Graphics, x: number, y: number, size: number) {
-  g.lineStyle(0)
-    .beginFill(0x2a173b)
-    .drawRect(x + size * 0.25, y + size * 0.25, size / 2, size / 2)
-    .endFill();
-}
+  renderRoom(sprites: LoadedSpritesheets, renderAll: boolean) {
+    const { textures } = sprites.world;
 
-function drawVisited(g: PIXI.Graphics, x: number, y: number, size: number) {
-  g.lineStyle(0).beginFill(0x443f7b).drawRect(x, y, size, size).endFill();
+    if (this.room.explored || renderAll) {
+      if (this.state !== "explored") {
+        this.state = "explored";
+        this.texture = textures[`room_${this.room.signature}`];
+        this.visible = true;
+
+        this.removeChildren();
+        switch (this.room.type) {
+          case "evil":
+            this.addChild(new PIXI.Sprite(textures.room_evil));
+            break;
+
+          case "golden":
+            this.addChild(new PIXI.Sprite(textures.room_golden));
+            break;
+
+          case "passage":
+            this.addChild(new PIXI.Sprite(textures.room_passage));
+            break;
+        }
+      }
+    } else if (this.room.visited) {
+      if (this.state !== "visited") {
+        this.state = "visited";
+        this.visible = true;
+
+        if (this.room.visitedDirection !== null) {
+          this.texture = textures[`room_visited_${this.room.visitedDirection}`];
+        } else {
+          this.texture = textures.room_visited;
+        }
+      }
+    }
+  }
 }

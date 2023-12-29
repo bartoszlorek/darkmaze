@@ -47,7 +47,7 @@ export function generateRoomsLayout({
 
   const rooms = Array.from(roomsMap.values());
   for (const room of rooms) {
-    room.setDeadEnd();
+    room.parse();
   }
 
   return rooms;
