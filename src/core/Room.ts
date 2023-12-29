@@ -60,7 +60,7 @@ export class Room {
     return this;
   }
 
-  public setVisitedConnectedRooms() {
+  public incrementVisitedConnectedRooms() {
     this.visitedConnectedRooms += 1;
     const threshold = this.type === "start" ? 1 : 2;
     if (this.visitedConnectedRooms >= threshold) {

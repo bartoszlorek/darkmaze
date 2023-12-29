@@ -72,7 +72,7 @@ export class Level extends EventEmitter<LevelEvents> {
       currentRoom.setVisited();
 
       for (const otherRoom of this.getConnectedRooms(currentRoom)) {
-        otherRoom?.setVisitedConnectedRooms();
+        otherRoom?.incrementVisitedConnectedRooms();
       }
     }
 
