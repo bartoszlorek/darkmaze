@@ -1,15 +1,9 @@
 import * as PIXI from "pixi.js";
 import { DEBUG_MODE } from "./debug";
 import { LoadedSpritesheets } from "./assets";
-import type { DrawFunction } from "./helpers";
+import { DrawFunction, ScalarField } from "./helpers";
+import { createDebugger } from "./debugger";
 import type { Level, Room } from "./core";
-
-const textStyleOptions = {
-  fontFamily: "Arial",
-  fontSize: 16,
-  fill: 0xffffff,
-  align: "center",
-} as const;
 
 export const drawLevel: DrawFunction<
   {
@@ -20,21 +14,27 @@ export const drawLevel: DrawFunction<
   },
   [revealed: boolean]
 > = ({ parent, level, gridSize, sprites, debug }) => {
+  const [debugLayer, print] = createDebugger();
   const roomsLayer = new PIXI.Container();
-  const debugLayer = new PIXI.Container();
+  const outerLayer = new PIXI.Container();
+
   parent.addChild(roomsLayer);
+  parent.addChild(outerLayer);
   parent.addChild(debugLayer);
 
-  const debugTexts: PIXI.Text[] = [];
-  if (debug === DEBUG_MODE.VISITED_CONNECTED) {
-    for (const room of level.rooms) {
-      const debugText = new PIXI.Text(0, textStyleOptions);
-      debugText.x = room.x * gridSize + gridSize / 2;
-      debugText.y = room.y * gridSize + gridSize / 2;
-      debugTexts.push(debugText);
-      debugLayer.addChild(debugText);
-    }
-  }
+  const outerMargin = 1;
+  const outerSize = gridSize / 2;
+  const outerWidth = level.dimension * 2 + outerMargin * 2;
+  const outerField = new ScalarField(outerWidth, outerWidth);
+  const outerSprites: PIXI.Sprite[] = [];
+
+  outerField.forEachValue((_, x, y) => {
+    const outer = new PIXI.Sprite();
+    outer.x = x * outerSize;
+    outer.y = y * outerSize;
+    outerSprites.push(outer);
+    outerLayer.addChild(outer);
+  });
 
   const renderers: RoomRenderer[] = [];
   for (const room of level.rooms) {
@@ -45,18 +45,53 @@ export const drawLevel: DrawFunction<
     roomsLayer.addChild(renderer);
   }
 
+  level.subscribe("room_explore", ({ room }) => {
+    const x = room.x * 2 + outerMargin;
+    const y = room.y * 2 + outerMargin;
+    outerField.setValue(x, y, 1);
+    outerField.setValue(x + 1, y, 1);
+    outerField.setValue(x, y + 1, 1);
+    outerField.setValue(x + 1, y + 1, 1);
+    outerField.parseVectors();
+  });
+
   return (revealed) => {
     for (let i = 0; i < level.rooms.length; i++) {
       const room = level.rooms[i];
 
       if (debug === DEBUG_MODE.VISITED_CONNECTED) {
-        debugTexts[i].text = room.visitedConnectedRooms;
+        print(
+          room.visitedConnectedRooms,
+          room.x * gridSize + gridSize / 2,
+          room.y * gridSize + gridSize / 2
+        );
       }
 
       renderers[i].renderRoom(
         sprites,
         revealed || debug === DEBUG_MODE.ROOMS_LAYOUT
       );
+    }
+
+    for (let i = 0; i < outerField.values.length; i++) {
+      const value = outerField.vectors[i];
+      const vector = outerField.vectors[i];
+      // TODO: render proper texture
+      // outerSprites[i].texture = ...
+    }
+
+    if (debug === DEBUG_MODE.OUTER) {
+      outerField.forEachValue((_, x, y, i) => {
+        const vector = outerField.vectors[i];
+        const factor = outerField.values[i] ? 0 : 1;
+
+        print(
+          `${vector[0] * factor},${vector[1] * factor}`,
+          x * outerSize - outerSize,
+          y * outerSize - outerSize,
+          10
+        );
+      });
     }
   };
 };

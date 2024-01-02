@@ -54,12 +54,14 @@ function buildFramesFromSlices(parsedData) {
   const frames = {};
 
   parsedData.meta.slices?.forEach((slice) => {
+    const frame = slice.keys[0].bounds;
+
     frames[slice.name] = {
-      frame: slice.keys[0].bounds,
+      frame,
       rotated: false,
       trimmed: false,
-      spriteSourceSize: { x: 0, y: 0, w: 24, h: 24 },
-      sourceSize: { w: 24, h: 24 },
+      spriteSourceSize: { x: 0, y: 0, w: frame.w, h: frame.h },
+      sourceSize: { w: frame.w, h: frame.h },
       duration: 100,
     };
   });
