@@ -16,6 +16,7 @@ export type RoomCluster = [
 export type LevelEvents = {
   room_enter: { room: Room };
   room_leave: { room: Room };
+  room_explore: { room: Room };
 };
 
 export class Level extends EventEmitter<LevelEvents> {
@@ -26,8 +27,15 @@ export class Level extends EventEmitter<LevelEvents> {
   protected lastVisitedRoom: Room | null = null;
 
   // pre-allocated memory
-  private _connectedRooms: RoomCluster = [null, null, null, null];
-  private _neighborRooms: RoomCluster = [null, null, null, null];
+  // prettier-ignore
+  private _connectedRooms: RoomCluster = [
+    null, null, null, null
+  ];
+
+  // prettier-ignore
+  private _neighborRooms: RoomCluster = [
+    null, null, null, null
+  ];
 
   constructor(rooms: Room[]) {
     super();
@@ -68,17 +76,33 @@ export class Level extends EventEmitter<LevelEvents> {
     }
 
     const currentRoom = this.getCurrentRoom(player);
-    if (!currentRoom.visited) {
-      currentRoom.setVisited(this.lastVisitedRoom);
-
-      for (const otherRoom of this.getConnectedRooms(currentRoom)) {
-        otherRoom?.incrementVisitedConnectedRooms();
-      }
-    }
-
     this.emit("room_enter", {
       room: currentRoom,
     });
+
+    if (!currentRoom.visited) {
+      const exploredBefore = currentRoom.explored;
+      currentRoom.setVisited(this.lastVisitedRoom);
+
+      if (exploredBefore !== currentRoom.explored) {
+        this.emit("room_explore", {
+          room: currentRoom,
+        });
+      }
+
+      for (const otherRoom of this.getConnectedRooms(currentRoom)) {
+        if (otherRoom) {
+          const exploredBefore = otherRoom.explored;
+          otherRoom.incrementVisitedConnectedRooms();
+
+          if (exploredBefore !== otherRoom.explored) {
+            this.emit("room_explore", {
+              room: otherRoom,
+            });
+          }
+        }
+      }
+    }
 
     if (this.lastVisitedRoom !== null) {
       this.emit("room_leave", {
