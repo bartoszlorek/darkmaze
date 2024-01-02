@@ -18,8 +18,8 @@ export const drawLevel: DrawFunction<
   const roomsLayer = new PIXI.Container();
   const outerLayer = new PIXI.Container();
 
-  parent.addChild(roomsLayer);
   parent.addChild(outerLayer);
+  parent.addChild(roomsLayer);
   parent.addChild(debugLayer);
 
   const outerMargin = 1;
@@ -30,8 +30,9 @@ export const drawLevel: DrawFunction<
 
   outerField.forEachValue((_, x, y) => {
     const outer = new PIXI.Sprite();
-    outer.x = x * outerSize;
-    outer.y = y * outerSize;
+    outer.x = x * outerSize - outerSize;
+    outer.y = y * outerSize - outerSize;
+    outer.visible = false;
     outerSprites.push(outer);
     outerLayer.addChild(outer);
   });
@@ -74,10 +75,50 @@ export const drawLevel: DrawFunction<
     }
 
     for (let i = 0; i < outerField.values.length; i++) {
-      const value = outerField.vectors[i];
+      const value = outerField.values[i];
       const vector = outerField.vectors[i];
-      // TODO: render proper texture
-      // outerSprites[i].texture = ...
+
+      if (value === 1 || (!vector[0] && !vector[1])) {
+        outerSprites[i].visible = false;
+        continue;
+      }
+
+      outerSprites[i].visible = true;
+      if (vector[0] && vector[1]) {
+        const inner = Math.abs(vector[0]) === 1;
+
+        if (vector[1] < 0) {
+          if (vector[0] < 0) {
+            outerSprites[i].texture = inner
+              ? sprites.world.textures.room_inner_1
+              : sprites.world.textures.room_outer_7;
+          } else {
+            outerSprites[i].texture = inner
+              ? sprites.world.textures.room_inner_2
+              : sprites.world.textures.room_outer_1;
+          }
+        } else {
+          if (vector[0] < 0) {
+            outerSprites[i].texture = inner
+              ? sprites.world.textures.room_inner_0
+              : sprites.world.textures.room_outer_5;
+          } else {
+            outerSprites[i].texture = inner
+              ? sprites.world.textures.room_inner_3
+              : sprites.world.textures.room_outer_3;
+          }
+        }
+      } else {
+        if (vector[1] < 0) {
+          outerSprites[i].texture = sprites.world.textures.room_outer_0;
+        } else if (vector[1] > 0) {
+          outerSprites[i].texture = sprites.world.textures.room_outer_4;
+        } else if (vector[0] < 0) {
+          outerSprites[i].texture = sprites.world.textures.room_outer_6;
+        } else if (vector[0] > 0) {
+          outerSprites[i].texture = sprites.world.textures.room_outer_2;
+        }
+      }
     }
 
     if (debug === DEBUG_MODE.OUTER) {
