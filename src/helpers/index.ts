@@ -2,6 +2,7 @@ export * from "./array";
 export * from "./debounce";
 export * from "./draw";
 export * from "./fieldOfView";
+export * from "./fields";
 export * from "./math";
 export * from "./randomNumber";
 export * from "./randomSeed";
