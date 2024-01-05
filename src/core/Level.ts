@@ -1,8 +1,7 @@
 import { EventEmitter } from "./EventEmitter";
 import { Player } from "./Player";
 import { Room, WallState } from "./Room";
-
-type Maybe<T> = T | null;
+import type { Maybe } from "../helpers";
 
 export type RoomPredicate = (room: Room) => boolean;
 

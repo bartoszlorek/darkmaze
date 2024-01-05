@@ -1,13 +1,7 @@
 import * as React from "react";
 import { ANTICIPATION_TIME, DIALOGUES } from "./consts";
 import { createPlayer } from "./createPlayer";
-import {
-  ActionScreen,
-  Button,
-  Compass,
-  Dialog,
-  PathLights,
-} from "./components";
+import { ActionScreen, Button, Compass, Dialog } from "./components";
 import { Level, Room } from "./core";
 import { MainStageLayer } from "./MainStageLayer";
 import { useAppContext } from "./context";
@@ -65,7 +59,6 @@ export function StoryScene3({ nextScene, resetScene }: PropsType) {
         level={level}
         levelRevealed={player.status === "won"}
       />
-      <PathLights player={player} level={level} />
       <Compass player={player} level={level} />
       {dialog !== null && <Dialog value={dialog} />}
       {playerStatus === "died" && (

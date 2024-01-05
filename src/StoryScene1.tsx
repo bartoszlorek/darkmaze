@@ -1,6 +1,6 @@
 import * as React from "react";
 import { ANTICIPATION_TIME, DIALOGUES } from "./consts";
-import { Compass, Dialog, PathLights } from "./components";
+import { Compass, Dialog } from "./components";
 import { Level, Room } from "./core";
 import { createPlayer } from "./createPlayer";
 import { MainStageLayer } from "./MainStageLayer";
@@ -47,7 +47,6 @@ export function StoryScene1({ nextScene }: PropsType) {
   return (
     <>
       <MainStageLayer player={player} level={level} />
-      <PathLights player={player} level={level} />
       <Compass player={player} level={level} />
       {dialog !== null && <Dialog value={dialog} />}
     </>

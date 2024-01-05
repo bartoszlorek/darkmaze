@@ -4,6 +4,7 @@ import { StageLayer } from "./components";
 import { Level, Player } from "./core";
 import { useAppContext } from "./context";
 import { subscribeResize } from "./helpers";
+import { drawDarkness } from "./drawDarkness";
 import { drawLevel } from "./drawLevel";
 import { drawPlayer } from "./drawPlayer";
 import { GRID_SIZE } from "./consts";
@@ -25,41 +26,54 @@ export function MainStageLayer({
     <StageLayer
       app={app}
       onMount={(layer) => {
-        const parent = new PIXI.Container();
-        const centerParent = () => {
+        const back = new PIXI.Container();
+        const middle = new PIXI.Container();
+        const front = new PIXI.Container();
+        layer.addChild(back);
+        layer.addChild(middle);
+        layer.addChild(front);
+
+        const centerView = () => {
           const halfSize = (level.dimension * GRID_SIZE) / 2;
-          parent.x = Math.floor(window.innerWidth / 2 - halfSize);
-          parent.y = Math.floor(window.innerHeight / 2 - halfSize);
+          front.x = back.x = Math.floor(window.innerWidth / 2 - halfSize);
+          front.y = back.y = Math.floor(window.innerHeight / 2 - halfSize);
         };
 
-        const unsubscribeResize = subscribeResize(centerParent);
-        centerParent();
+        const unsubscribeResize = subscribeResize(centerView);
+        centerView();
 
         const redrawLevel = drawLevel({
-          parent,
+          parent: back,
           level,
           gridSize: GRID_SIZE,
           sprites,
           debug,
         });
 
+        const redrawDarkness = drawDarkness({
+          parent: middle,
+          player,
+          level,
+          gridSize: GRID_SIZE,
+        });
+
         const redrawPlayer = drawPlayer({
-          parent,
+          parent: front,
           player,
           gridSize: GRID_SIZE,
           sprites,
         });
 
-        layer.addChild(parent);
-
         return {
           redrawLevel,
+          redrawDarkness,
           redrawPlayer,
           unsubscribeResize,
         };
       }}
       onUpdate={(_, ctx) => {
         ctx.redrawLevel(levelRevealed);
+        ctx.redrawDarkness();
         ctx.redrawPlayer();
       }}
       onUnmount={(_, ctx) => {

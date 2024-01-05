@@ -9,3 +9,4 @@ export * from "./randomSeed";
 export * from "./resize";
 export * from "./storage";
 export * from "./throttle";
+export * from "./types";

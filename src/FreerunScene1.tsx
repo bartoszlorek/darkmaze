@@ -1,6 +1,6 @@
 import * as React from "react";
 import { ANTICIPATION_TIME } from "./consts";
-import { ActionScreen, Button, Compass, PathLights } from "./components";
+import { ActionScreen, Button, Compass } from "./components";
 import { generateLevel } from "./generators";
 import { createPlayer } from "./createPlayer";
 import { MainStageLayer } from "./MainStageLayer";
@@ -62,7 +62,6 @@ export function FreerunScene1({
         level={level}
         levelRevealed={player.status === "won"}
       />
-      <PathLights player={player} level={level} />
       <Compass player={player} level={level} />
       {playerStatus === "died" && (
         <ActionScreen title="you died" titleColor="red">
