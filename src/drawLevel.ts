@@ -58,7 +58,7 @@ export const drawLevel: DrawFunction<
   const outline = new TilesOutline();
   level.subscribe("room_explore", ({ room }) => {
     outline.addTile(room.x, room.y);
-    outline.parse(gridSize);
+    outline.buildEdges(gridSize);
   });
 
   return () => {

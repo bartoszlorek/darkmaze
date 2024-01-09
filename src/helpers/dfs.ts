@@ -13,7 +13,6 @@ export function depthFirstSearchAll<T>(graph: Map<T, T[]>) {
     if (visited.has(startNode)) {
       continue;
     }
-
     const fragment = depthFirstSearch<T>(graph, startNode);
     for (const node of fragment) {
       visited.add(node);
@@ -35,13 +34,13 @@ export function depthFirstSearch<T>(graph: Map<T, T[]>, start: T) {
   const results = [];
 
   while (stack.length) {
-    const vertex = stack.pop() as T;
+    const node = stack.pop() as T;
 
-    if (!visited.has(vertex)) {
-      visited.add(vertex);
-      results.push(vertex);
+    if (!visited.has(node)) {
+      visited.add(node);
+      results.push(node);
 
-      for (const neighbor of graph.get(vertex) as T[]) {
+      for (const neighbor of graph.get(node) as T[]) {
         stack.push(neighbor);
       }
     }

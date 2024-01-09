@@ -5,10 +5,12 @@ export type Vertex = [x: number, y: number];
 export class Edge {
   public a: Vertex;
   public b: Vertex;
+  public vector: Vertex;
 
   constructor(a: Vertex, b: Vertex) {
     this.a = a;
     this.b = b;
+    this.vector = [Math.sign(b[0] - a[0]), Math.sign(b[1] - a[1])];
   }
 
   connects(other: Edge) {
@@ -31,7 +33,7 @@ export class TilesOutline {
     return this.tiles.get(`${x},${y}`);
   }
 
-  parse(size: number) {
+  buildEdges(size: number) {
     const edges: Edge[] = [];
     const graph = new Map<Edge, Edge[]>();
 
@@ -67,11 +69,30 @@ export class TilesOutline {
         if (i !== j && edges[i].connects(edges[j])) {
           connectedEdges.push(edges[j]);
         }
+      }
 
-        graph.set(edges[i], connectedEdges);
+      graph.set(edges[i], connectedEdges);
+    }
+
+    const cycles = depthFirstSearchAll(graph);
+    for (const cycle of cycles) {
+      if (!isClockwise(cycle)) {
+        cycle.reverse();
       }
     }
 
-    this.edges = depthFirstSearchAll(graph);
+    this.edges = cycles;
   }
+}
+
+/**
+ * @see https://github.com/mattdesl/is-clockwise
+ * @see https://stackoverflow.com/questions/1165647/how-to-determine-if-a-list-of-polygon-points-are-in-clockwise-order
+ */
+function isClockwise(edges: Edge[]) {
+  let sum = 0;
+  for (const edge of edges) {
+    sum += (edge.b[0] - edge.a[0]) * (edge.b[1] + edge.a[1]);
+  }
+  return sum > 0;
 }
