@@ -16,12 +16,12 @@ const app = new PIXI.Application({
   view,
 });
 
-const debug = getDebugMode();
+const debugMode = getDebugMode();
 
 loadSpritesheets().then((sprites) => {
   createRoot(root).render(
     <HashRouter>
-      <AppContextProvider value={{ app, sprites, debug }}>
+      <AppContextProvider value={{ app, sprites, debugMode }}>
         <MainScene />
       </AppContextProvider>
     </HashRouter>

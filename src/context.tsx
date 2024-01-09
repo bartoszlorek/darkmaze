@@ -6,7 +6,7 @@ import type { DEBUG_MODE } from "./debug";
 export interface AppContextValue {
   app: PIXI.Application;
   sprites: LoadedSpritesheets;
-  debug: DEBUG_MODE;
+  debugMode: DEBUG_MODE;
 }
 
 type PropsType = Readonly<{

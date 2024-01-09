@@ -5,11 +5,22 @@ import type { Maybe } from "../helpers";
 
 export type RoomPredicate = (room: Room) => boolean;
 
-export type RoomCluster = [
+export type ConnectedRooms = [
   up: Maybe<Room>,
   right: Maybe<Room>,
   down: Maybe<Room>,
   left: Maybe<Room>
+];
+
+export type NeighborRooms = [
+  up: Maybe<Room>,
+  upRight: Maybe<Room>,
+  right: Maybe<Room>,
+  downRight: Maybe<Room>,
+  down: Maybe<Room>,
+  downLeft: Maybe<Room>,
+  left: Maybe<Room>,
+  upLeft: Maybe<Room>
 ];
 
 export type LevelEvents = {
@@ -27,12 +38,13 @@ export class Level extends EventEmitter<LevelEvents> {
 
   // pre-allocated memory
   // prettier-ignore
-  private _connectedRooms: RoomCluster = [
+  private _connectedRooms: ConnectedRooms = [
     null, null, null, null
   ];
 
   // prettier-ignore
-  private _neighborRooms: RoomCluster = [
+  private _neighborRooms: NeighborRooms = [
+    null, null, null, null,
     null, null, null, null
   ];
 
@@ -118,9 +130,13 @@ export class Level extends EventEmitter<LevelEvents> {
     const y = room.y;
 
     this._neighborRooms[0] = this.getRoom(x, y - 1) || null;
-    this._neighborRooms[1] = this.getRoom(x + 1, y) || null;
-    this._neighborRooms[2] = this.getRoom(x, y + 1) || null;
-    this._neighborRooms[3] = this.getRoom(x - 1, y) || null;
+    this._neighborRooms[1] = this.getRoom(x + 1, y - 1) || null;
+    this._neighborRooms[2] = this.getRoom(x + 1, y) || null;
+    this._neighborRooms[3] = this.getRoom(x + 1, y + 1) || null;
+    this._neighborRooms[4] = this.getRoom(x, y + 1) || null;
+    this._neighborRooms[5] = this.getRoom(x - 1, y + 1) || null;
+    this._neighborRooms[6] = this.getRoom(x - 1, y) || null;
+    this._neighborRooms[7] = this.getRoom(x - 1, y - 1) || null;
 
     return this._neighborRooms;
   }

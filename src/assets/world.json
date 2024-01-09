@@ -136,14 +136,6 @@
       "sourceSize": { "w": 24, "h": 24 },
       "duration": 100
     },
-    "room_visited": {
-      "frame": { "x": 144, "y": 48, "w": 24, "h": 24 },
-      "rotated": false,
-      "trimmed": false,
-      "spriteSourceSize": { "x": 0, "y": 0, "w": 24, "h": 24 },
-      "sourceSize": { "w": 24, "h": 24 },
-      "duration": 100
-    },
     "room_evil": {
       "frame": { "x": 0, "y": 168, "w": 24, "h": 24 },
       "rotated": false,
@@ -200,7 +192,7 @@
       "sourceSize": { "w": 24, "h": 24 },
       "duration": 100
     },
-    "room_outer_0": {
+    "room_outer_0b": {
       "frame": { "x": 120, "y": 0, "w": 12, "h": 12 },
       "rotated": false,
       "trimmed": false,
@@ -216,7 +208,7 @@
       "sourceSize": { "w": 12, "h": 12 },
       "duration": 100
     },
-    "room_outer_2": {
+    "room_outer_2a": {
       "frame": { "x": 132, "y": 12, "w": 12, "h": 12 },
       "rotated": false,
       "trimmed": false,
@@ -232,7 +224,7 @@
       "sourceSize": { "w": 12, "h": 12 },
       "duration": 100
     },
-    "room_outer_4": {
+    "room_outer_4b": {
       "frame": { "x": 108, "y": 36, "w": 12, "h": 12 },
       "rotated": false,
       "trimmed": false,
@@ -248,7 +240,7 @@
       "sourceSize": { "w": 12, "h": 12 },
       "duration": 100
     },
-    "room_outer_6": {
+    "room_outer_6a": {
       "frame": { "x": 96, "y": 24, "w": 12, "h": 12 },
       "rotated": false,
       "trimmed": false,
@@ -290,6 +282,38 @@
     },
     "room_inner_3": {
       "frame": { "x": 108, "y": 12, "w": 12, "h": 12 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 12, "h": 12 },
+      "sourceSize": { "w": 12, "h": 12 },
+      "duration": 100
+    },
+    "room_outer_0a": {
+      "frame": { "x": 108, "y": 0, "w": 12, "h": 12 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 12, "h": 12 },
+      "sourceSize": { "w": 12, "h": 12 },
+      "duration": 100
+    },
+    "room_outer_2b": {
+      "frame": { "x": 132, "y": 24, "w": 12, "h": 12 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 12, "h": 12 },
+      "sourceSize": { "w": 12, "h": 12 },
+      "duration": 100
+    },
+    "room_outer_4a": {
+      "frame": { "x": 120, "y": 36, "w": 12, "h": 12 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 12, "h": 12 },
+      "sourceSize": { "w": 12, "h": 12 },
+      "duration": 100
+    },
+    "room_outer_6b": {
+      "frame": { "x": 96, "y": 12, "w": 12, "h": 12 },
       "rotated": false,
       "trimmed": false,
       "spriteSourceSize": { "x": 0, "y": 0, "w": 12, "h": 12 },
@@ -417,13 +441,6 @@
         ]
       },
       {
-        "name": "room_visited",
-        "color": "#0000ffff",
-        "keys": [
-          { "frame": 0, "bounds": { "x": 144, "y": 48, "w": 24, "h": 24 } }
-        ]
-      },
-      {
         "name": "room_evil",
         "color": "#0000ffff",
         "keys": [
@@ -473,7 +490,7 @@
         ]
       },
       {
-        "name": "room_outer_0",
+        "name": "room_outer_0b",
         "color": "#0000ffff",
         "keys": [
           { "frame": 0, "bounds": { "x": 120, "y": 0, "w": 12, "h": 12 } }
@@ -487,7 +504,7 @@
         ]
       },
       {
-        "name": "room_outer_2",
+        "name": "room_outer_2a",
         "color": "#0000ffff",
         "keys": [
           { "frame": 0, "bounds": { "x": 132, "y": 12, "w": 12, "h": 12 } }
@@ -501,7 +518,7 @@
         ]
       },
       {
-        "name": "room_outer_4",
+        "name": "room_outer_4b",
         "color": "#0000ffff",
         "keys": [
           { "frame": 0, "bounds": { "x": 108, "y": 36, "w": 12, "h": 12 } }
@@ -515,7 +532,7 @@
         ]
       },
       {
-        "name": "room_outer_6",
+        "name": "room_outer_6a",
         "color": "#0000ffff",
         "keys": [
           { "frame": 0, "bounds": { "x": 96, "y": 24, "w": 12, "h": 12 } }
@@ -554,6 +571,34 @@
         "color": "#0000ffff",
         "keys": [
           { "frame": 0, "bounds": { "x": 108, "y": 12, "w": 12, "h": 12 } }
+        ]
+      },
+      {
+        "name": "room_outer_0a",
+        "color": "#0000ffff",
+        "keys": [
+          { "frame": 0, "bounds": { "x": 108, "y": 0, "w": 12, "h": 12 } }
+        ]
+      },
+      {
+        "name": "room_outer_2b",
+        "color": "#0000ffff",
+        "keys": [
+          { "frame": 0, "bounds": { "x": 132, "y": 24, "w": 12, "h": 12 } }
+        ]
+      },
+      {
+        "name": "room_outer_4a",
+        "color": "#0000ffff",
+        "keys": [
+          { "frame": 0, "bounds": { "x": 120, "y": 36, "w": 12, "h": 12 } }
+        ]
+      },
+      {
+        "name": "room_outer_6b",
+        "color": "#0000ffff",
+        "keys": [
+          { "frame": 0, "bounds": { "x": 96, "y": 12, "w": 12, "h": 12 } }
         ]
       }
     ]

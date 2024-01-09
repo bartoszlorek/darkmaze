@@ -20,7 +20,7 @@ export function MainStageLayer({
   level,
   levelRevealed = false,
 }: PropsType) {
-  const { app, sprites, debug } = useAppContext();
+  const { app, sprites, debugMode } = useAppContext();
 
   return (
     <StageLayer
@@ -47,7 +47,7 @@ export function MainStageLayer({
           level,
           gridSize: GRID_SIZE,
           sprites,
-          debug,
+          debugMode,
         });
 
         const redrawDarkness = drawDarkness({

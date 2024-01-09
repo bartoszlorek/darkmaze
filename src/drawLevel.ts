@@ -1,187 +1,112 @@
 import * as PIXI from "pixi.js";
 import { DEBUG_MODE } from "./debug";
 import { LoadedSpritesheets } from "./assets";
-import { DrawFunction, ScalarField } from "./helpers";
+import { DrawFunction, TilesOutline } from "./helpers";
 import { createDebugger } from "./debugger";
 import type { Level, Room } from "./core";
+
+type RoomPartialSprites = Readonly<{
+  floor: PIXI.Sprite;
+  outer: PIXI.Container;
+  walls: PIXI.Sprite;
+  items: PIXI.Sprite;
+}>;
 
 export const drawLevel: DrawFunction<
   {
     level: Level;
     gridSize: number;
     sprites: LoadedSpritesheets;
-    debug: DEBUG_MODE;
+    debugMode: DEBUG_MODE;
   },
   [revealed: boolean]
-> = ({ parent, level, gridSize, sprites, debug }) => {
-  const [debugLayer, print] = createDebugger();
-  const roomsLayer = new PIXI.Container();
-  const outerLayer = new PIXI.Container();
-
-  parent.addChild(outerLayer);
-  parent.addChild(roomsLayer);
-  parent.addChild(debugLayer);
-
-  const outerMargin = 1;
+> = ({ parent, level, gridSize, sprites, debugMode }) => {
+  const { textures } = sprites.world;
   const outerSize = gridSize / 2;
-  const outerWidth = level.dimension * 2 + outerMargin * 2;
-  const outerField = new ScalarField(outerWidth, outerWidth);
-  const outerSprites: PIXI.Sprite[] = [];
 
-  outerField.forEachValue((_, x, y) => {
-    const outer = new PIXI.Sprite();
-    outer.x = x * outerSize - outerSize;
-    outer.y = y * outerSize - outerSize;
-    outer.visible = false;
-    outerSprites.push(outer);
-    outerLayer.addChild(outer);
-  });
+  const roomsLayer = new PIXI.Container();
+  const debug = createDebugger();
 
-  const renderers: RoomRenderer[] = [];
+  parent.addChild(roomsLayer);
+  parent.addChild(debug.layer);
+
+  const refs = new Map<Room, RoomPartialSprites>();
   for (const room of level.rooms) {
-    const renderer = new RoomRenderer(room);
-    renderer.x = room.x * gridSize;
-    renderer.y = room.y * gridSize;
-    renderers.push(renderer);
-    roomsLayer.addChild(renderer);
+    const root = new PIXI.Container();
+    root.x = room.x * gridSize;
+    root.y = room.y * gridSize;
+    roomsLayer.addChild(root);
+
+    // fills the root with partial sprites
+    const partials: RoomPartialSprites = {
+      floor: new PIXI.Sprite(),
+      outer: new PIXI.Container(),
+      walls: new PIXI.Sprite(),
+      items: new PIXI.Sprite(),
+    };
+
+    refs.set(room, partials);
+    root.addChild(partials.floor);
+    root.addChild(partials.outer);
+    root.addChild(partials.walls);
+    root.addChild(partials.items);
   }
 
+  const g = new PIXI.Graphics();
+  parent.addChild(g);
+
+  const outline = new TilesOutline();
   level.subscribe("room_explore", ({ room }) => {
-    const x = room.x * 2 + outerMargin;
-    const y = room.y * 2 + outerMargin;
-    outerField.setValue(x, y, 1);
-    outerField.setValue(x + 1, y, 1);
-    outerField.setValue(x, y + 1, 1);
-    outerField.setValue(x + 1, y + 1, 1);
-    outerField.parseVectors();
+    outline.addTile(room.x, room.y);
+    outline.parse(gridSize);
   });
 
-  return (revealed) => {
-    for (let i = 0; i < level.rooms.length; i++) {
-      const room = level.rooms[i];
-
-      if (debug === DEBUG_MODE.VISITED_CONNECTED) {
-        print(
+  return () => {
+    for (const room of level.rooms) {
+      if (debugMode === DEBUG_MODE.VISITED_CONNECTED) {
+        debug.print(
           room.visitedConnectedRooms,
           room.x * gridSize + gridSize / 2,
           room.y * gridSize + gridSize / 2
         );
       }
 
-      renderers[i].renderRoom(
-        sprites,
-        revealed || debug === DEBUG_MODE.ROOMS_LAYOUT
-      );
-    }
+      const { walls, items } = refs.get(room) as RoomPartialSprites;
+      if (room.explored) {
+        walls.texture = textures[`room_${room.signature}`];
 
-    for (let i = 0; i < outerField.values.length; i++) {
-      const value = outerField.values[i];
-      const vector = outerField.vectors[i];
-
-      if (value === 1 || (!vector[0] && !vector[1])) {
-        outerSprites[i].visible = false;
-        continue;
-      }
-
-      outerSprites[i].visible = true;
-      if (vector[0] && vector[1]) {
-        const inner = Math.abs(vector[0]) === 1;
-
-        if (vector[1] < 0) {
-          if (vector[0] < 0) {
-            outerSprites[i].texture = inner
-              ? sprites.world.textures.room_inner_1
-              : sprites.world.textures.room_outer_7;
-          } else {
-            outerSprites[i].texture = inner
-              ? sprites.world.textures.room_inner_2
-              : sprites.world.textures.room_outer_1;
-          }
-        } else {
-          if (vector[0] < 0) {
-            outerSprites[i].texture = inner
-              ? sprites.world.textures.room_inner_0
-              : sprites.world.textures.room_outer_5;
-          } else {
-            outerSprites[i].texture = inner
-              ? sprites.world.textures.room_inner_3
-              : sprites.world.textures.room_outer_3;
-          }
-        }
-      } else {
-        if (vector[1] < 0) {
-          outerSprites[i].texture = sprites.world.textures.room_outer_0;
-        } else if (vector[1] > 0) {
-          outerSprites[i].texture = sprites.world.textures.room_outer_4;
-        } else if (vector[0] < 0) {
-          outerSprites[i].texture = sprites.world.textures.room_outer_6;
-        } else if (vector[0] > 0) {
-          outerSprites[i].texture = sprites.world.textures.room_outer_2;
-        }
-      }
-    }
-
-    if (debug === DEBUG_MODE.OUTER) {
-      outerField.forEachValue((_, x, y, i) => {
-        const vector = outerField.vectors[i];
-        const factor = outerField.values[i] ? 0 : 1;
-
-        print(
-          `${vector[0] * factor},${vector[1] * factor}`,
-          x * outerSize - outerSize,
-          y * outerSize - outerSize,
-          10
-        );
-      });
-    }
-  };
-};
-
-class RoomRenderer extends PIXI.Sprite {
-  protected room: Room;
-  protected state: "initial" | "visited" | "explored" = "initial";
-
-  constructor(room: Room) {
-    super();
-    this.room = room;
-    this.visible = false;
-  }
-
-  renderRoom(sprites: LoadedSpritesheets, renderAll: boolean) {
-    const { textures } = sprites.world;
-
-    if (this.room.explored || renderAll) {
-      if (this.state !== "explored") {
-        this.state = "explored";
-        this.texture = textures[`room_${this.room.signature}`];
-        this.visible = true;
-
-        this.removeChildren();
-        switch (this.room.type) {
+        switch (room.type) {
           case "evil":
-            this.addChild(new PIXI.Sprite(textures.room_evil));
+            items.texture = textures.room_evil;
             break;
 
           case "golden":
-            this.addChild(new PIXI.Sprite(textures.room_golden));
+            items.texture = textures.room_golden;
             break;
 
           case "passage":
-            this.addChild(new PIXI.Sprite(textures.room_passage));
+            items.texture = textures.room_passage;
             break;
         }
       }
-    } else if (this.room.visited) {
-      if (this.state !== "visited") {
-        this.state = "visited";
-        this.visible = true;
+    }
 
-        if (this.room.visitedDirection !== null) {
-          this.texture = textures[`room_visited_${this.room.visitedDirection}`];
-        } else {
-          this.texture = textures.room_visited;
-        }
+    g.clear();
+    g.lineStyle(2, 0xfff);
+    for (const cycle of outline.edges) {
+      for (let i = 0; i < cycle.length; i++) {
+        const edge = cycle[i];
+        g.moveTo(edge.a[0], edge.a[1]);
+        g.lineTo(edge.b[0], edge.b[1]);
+
+        debug.print(
+          i,
+          (edge.a[0] + edge.b[0]) / 2,
+          (edge.a[1] + edge.b[1]) / 2
+        );
       }
     }
-  }
-}
+
+    debug.afterAll();
+  };
+};

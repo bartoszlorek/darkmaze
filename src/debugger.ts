@@ -5,20 +5,17 @@ const textStyleOptions = {
   fill: 0xffffff,
 } as const;
 
-type PrintFunction = (
-  value: string | number,
-  x: number,
-  y: number,
-  fontSize?: number
-) => void;
-
-type ReturnType = [container: PIXI.Container, print: PrintFunction];
-
-export function createDebugger(): ReturnType {
+export function createDebugger() {
   const container = new PIXI.Container();
   const refs = new Map<string, PIXI.Text>();
+  const used = new Set<string>();
 
-  const print: PrintFunction = (value, x, y, fontSize = 16) => {
+  const print = (
+    value: string | number,
+    x: number,
+    y: number,
+    fontSize: number = 16
+  ) => {
     const key = `${x}-${y}`;
 
     let element = refs.get(key);
@@ -34,7 +31,22 @@ export function createDebugger(): ReturnType {
 
     element.style.fontSize = fontSize;
     element.text = value;
+    used.add(key);
   };
 
-  return [container, print];
+  const afterAll = () => {
+    for (const [key, text] of refs.entries()) {
+      if (!used.has(key)) {
+        text.destroy();
+        refs.delete(key);
+      }
+    }
+    used.clear();
+  };
+
+  return {
+    layer: container,
+    print,
+    afterAll,
+  };
 }
