@@ -3,7 +3,6 @@ export * from "./debounce";
 export * from "./dfs";
 export * from "./draw";
 export * from "./fieldOfView";
-export * from "./fields";
 export * from "./math";
 export * from "./outline";
 export * from "./randomNumber";
