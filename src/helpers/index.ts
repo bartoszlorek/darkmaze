@@ -5,6 +5,7 @@ export * from "./draw";
 export * from "./fieldOfView";
 export * from "./math";
 export * from "./outline";
+export * from "./pooling";
 export * from "./randomNumber";
 export * from "./randomSeed";
 export * from "./resize";
