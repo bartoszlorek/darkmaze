@@ -49,8 +49,8 @@ export class Room {
    */
   public visited: boolean = false;
   public visitedConnectedRooms: number = 0;
-  public visitedDirection: DirectionIndex | null = null;
   public explored: boolean = false;
+  public exploredConnectedRooms: number = 0;
 
   constructor(
     x: number,
@@ -79,45 +79,6 @@ export class Room {
     }
     this.deadEnd = entrances === 1;
     this.signature = signature as RoomSignature;
-  }
-
-  public setVisited(previousRoom: Room | null) {
-    this.visited = true;
-
-    if (previousRoom) {
-      switch (true) {
-        case previousRoom.x < this.x:
-          this.visitedDirection = DirectionIndex.right;
-          break;
-
-        case previousRoom.x > this.x:
-          this.visitedDirection = DirectionIndex.left;
-          break;
-
-        case previousRoom.y < this.y:
-          this.visitedDirection = DirectionIndex.down;
-          break;
-
-        case previousRoom.y > this.y:
-          this.visitedDirection = DirectionIndex.up;
-          break;
-      }
-    } else {
-      this.visitedDirection = null;
-    }
-
-    if (this.deadEnd && this.type !== "start") {
-      this.explored = true;
-    }
-  }
-
-  public incrementVisitedConnectedRooms() {
-    this.visitedConnectedRooms += 1;
-
-    const threshold = this.type === "start" ? 1 : 2;
-    if (this.visitedConnectedRooms >= threshold) {
-      this.explored = true;
-    }
   }
 
   public contains(x: number, y: number): boolean {

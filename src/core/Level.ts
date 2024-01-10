@@ -12,17 +12,6 @@ export type ConnectedRooms = [
   left: Maybe<Room>
 ];
 
-export type NeighborRooms = [
-  up: Maybe<Room>,
-  upRight: Maybe<Room>,
-  right: Maybe<Room>,
-  downRight: Maybe<Room>,
-  down: Maybe<Room>,
-  downLeft: Maybe<Room>,
-  left: Maybe<Room>,
-  upLeft: Maybe<Room>
-];
-
 export type LevelEvents = {
   room_enter: { room: Room };
   room_leave: { room: Room };
@@ -35,18 +24,6 @@ export class Level extends EventEmitter<LevelEvents> {
 
   protected roomsIndexedMap: Map<string, Room>;
   protected lastVisitedRoom: Room | null = null;
-
-  // pre-allocated memory
-  // prettier-ignore
-  private _connectedRooms: ConnectedRooms = [
-    null, null, null, null
-  ];
-
-  // prettier-ignore
-  private _neighborRooms: NeighborRooms = [
-    null, null, null, null,
-    null, null, null, null
-  ];
 
   constructor(rooms: Room[]) {
     super();
@@ -92,24 +69,41 @@ export class Level extends EventEmitter<LevelEvents> {
     });
 
     if (!currentRoom.visited) {
-      const exploredBefore = currentRoom.explored;
-      currentRoom.setVisited(this.lastVisitedRoom);
+      currentRoom.visited = true;
 
-      if (exploredBefore !== currentRoom.explored) {
+      if (currentRoom.deadEnd && currentRoom.type !== "start") {
+        currentRoom.explored = true;
         this.emit("room_explore", {
           room: currentRoom,
         });
       }
 
       for (const otherRoom of this.getConnectedRooms(currentRoom)) {
-        if (otherRoom) {
-          const exploredBefore = otherRoom.explored;
-          otherRoom.incrementVisitedConnectedRooms();
+        if (!otherRoom) {
+          continue;
+        }
+        otherRoom.visitedConnectedRooms += 1;
 
-          if (exploredBefore !== otherRoom.explored) {
-            this.emit("room_explore", {
-              room: otherRoom,
-            });
+        // the current room should have just been explored
+        if (currentRoom.explored) {
+          otherRoom.exploredConnectedRooms += 1;
+        }
+
+        const threshold = otherRoom.type === "start" ? 1 : 2;
+
+        if (
+          otherRoom.explored === false &&
+          otherRoom.visitedConnectedRooms >= threshold
+        ) {
+          otherRoom.explored = true;
+          this.emit("room_explore", {
+            room: otherRoom,
+          });
+
+          for (const anotherRoom of this.getConnectedRooms(otherRoom)) {
+            if (anotherRoom) {
+              anotherRoom.exploredConnectedRooms += 1;
+            }
           }
         }
       }
@@ -125,39 +119,23 @@ export class Level extends EventEmitter<LevelEvents> {
     return currentRoom;
   }
 
-  public getNeighborRooms(room: Room) {
-    const x = room.x;
-    const y = room.y;
-
-    this._neighborRooms[0] = this.getRoom(x, y - 1) || null;
-    this._neighborRooms[1] = this.getRoom(x + 1, y - 1) || null;
-    this._neighborRooms[2] = this.getRoom(x + 1, y) || null;
-    this._neighborRooms[3] = this.getRoom(x + 1, y + 1) || null;
-    this._neighborRooms[4] = this.getRoom(x, y + 1) || null;
-    this._neighborRooms[5] = this.getRoom(x - 1, y + 1) || null;
-    this._neighborRooms[6] = this.getRoom(x - 1, y) || null;
-    this._neighborRooms[7] = this.getRoom(x - 1, y - 1) || null;
-
-    return this._neighborRooms;
-  }
-
   public getConnectedRooms(room: Room) {
-    const x = room.x;
-    const y = room.y;
+    const matches: ConnectedRooms = [null, null, null, null];
 
-    this._connectedRooms[0] =
-      (room.walls[0] === WallState.open && this.getRoom(x, y - 1)) || null;
+    if (room.walls[0] === WallState.open) {
+      matches[0] = this.getRoom(room.x, room.y - 1) || null;
+    }
+    if (room.walls[1] === WallState.open) {
+      matches[1] = this.getRoom(room.x + 1, room.y) || null;
+    }
+    if (room.walls[2] === WallState.open) {
+      matches[2] = this.getRoom(room.x, room.y + 1) || null;
+    }
+    if (room.walls[3] === WallState.open) {
+      matches[3] = this.getRoom(room.x - 1, room.y) || null;
+    }
 
-    this._connectedRooms[1] =
-      (room.walls[1] === WallState.open && this.getRoom(x + 1, y)) || null;
-
-    this._connectedRooms[2] =
-      (room.walls[2] === WallState.open && this.getRoom(x, y + 1)) || null;
-
-    this._connectedRooms[3] =
-      (room.walls[3] === WallState.open && this.getRoom(x - 1, y)) || null;
-
-    return this._connectedRooms;
+    return matches;
   }
 
   public filterConnectedRooms(room: Room, predicate: RoomPredicate) {
