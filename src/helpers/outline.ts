@@ -1,33 +1,73 @@
 import { depthFirstSearchAll } from "./dfs";
 
-export type Vertex = [x: number, y: number];
+export class Point {
+  public x: number;
+  public y: number;
 
-export type CornerType = "none" | "convex" | "concave";
+  constructor(x: number, y: number) {
+    this.x = x;
+    this.y = y;
+  }
+
+  isEqual(other: Point) {
+    return this.x === other.x && this.y === other.y;
+  }
+
+  toString() {
+    return `${this.x},${this.y}`;
+  }
+}
+
+export class Vertex extends Point {
+  /**
+   * ```
+   *  A--B--C
+   *  |     |
+   *  H  E--D
+   *  |  |
+   *  G--F
+   *
+   * ```
+   * - `straight` - no corners, just a straight line connection, e.g. B, H.
+   * - `convex` - corner in which the smaller angle (90°) is interior, e.g. A, C, D, F, G.
+   * - `concave` - corner in which the larger angle (270°) is interior, e.g. E.
+   *
+   * @see https://en.wikipedia.org/wiki/Rectilinear_polygon
+   */
+  public type: "straight" | "convex" | "concave" = "straight";
+
+  constructor(x: number, y: number) {
+    super(x, y);
+  }
+
+  setType(connections: number) {
+    if (connections === 1) {
+      this.type = "convex";
+    } else if (connections === 3) {
+      this.type = "concave";
+    } else {
+      this.type = "straight";
+    }
+  }
+}
 
 export class Edge {
   public a: Vertex;
   public b: Vertex;
-  public vector: Vertex;
-
-  // https://en.wikipedia.org/wiki/Rectilinear_polygon
-  public cornerA: CornerType = "none";
-  public cornerB: CornerType = "none";
+  public vector: Point;
 
   constructor(a: Vertex, b: Vertex) {
     this.a = a;
     this.b = b;
-    this.vector = [Math.sign(b[0] - a[0]), Math.sign(b[1] - a[1])];
+    this.vector = new Point(Math.sign(b.x - a.x), Math.sign(b.y - a.y));
   }
 
-  connects(other: Edge) {
-    return (
-      (this.a[0] === other.b[0] && this.a[1] === other.b[1]) ||
-      (this.b[0] === other.a[0] && this.b[1] === other.a[1])
-    );
+  isConnected(other: Edge) {
+    return this.a.isEqual(other.b) || this.b.isEqual(other.a);
   }
 
   toString() {
-    return `${this.a[0]},${this.a[1]},${this.b[0]},${this.b[1]}`;
+    return `${this.a.x},${this.a.y},${this.b.x},${this.b.y}`;
   }
 }
 
@@ -46,15 +86,23 @@ export class Tile {
 
     const sx = x * size;
     const sy = y * size;
+    const a = new Vertex(sx, sy);
+    const b = new Vertex(sx + size, sy);
+    const c = new Vertex(sx + size, sy + size);
+    const d = new Vertex(sx, sy + size);
 
-    this.up = new Edge([sx, sy], [sx + size, sy]);
-    this.right = new Edge([sx + size, sy], [sx + size, sy + size]);
-    this.down = new Edge([sx + size, sy + size], [sx, sy + size]);
-    this.left = new Edge([sx, sy + size], [sx, sy]);
+    this.up = new Edge(a, b);
+    this.right = new Edge(b, c);
+    this.down = new Edge(c, d);
+    this.left = new Edge(d, a);
   }
 
   toString() {
-    return `${this.x},${this.y}`;
+    return Tile.toString(this.x, this.y);
+  }
+
+  static toString(x: number, y: number) {
+    return `${x},${y}`;
   }
 }
 
@@ -65,12 +113,12 @@ export class TilesOutline {
 
   addTile(x: number, y: number, size: number) {
     const tile = new Tile(x, y, size);
-    this.tiles.set(`${x},${y}`, tile);
+    this.tiles.set(tile.toString(), tile);
 
-    const upKey = `${tile.up.a[0]},${tile.up.a[1]}`;
-    const rightKey = `${tile.right.a[0]},${tile.right.a[1]}`;
-    const downKey = `${tile.down.a[0]},${tile.down.a[1]}`;
-    const leftKey = `${tile.left.a[0]},${tile.left.a[1]}`;
+    const upKey = tile.up.a.toString();
+    const rightKey = tile.right.a.toString();
+    const downKey = tile.down.a.toString();
+    const leftKey = tile.left.a.toString();
 
     // the number of vertex connections
     // determines the type of angle
@@ -78,10 +126,12 @@ export class TilesOutline {
     this.vertices.set(rightKey, (this.vertices.get(rightKey) ?? 0) + 1);
     this.vertices.set(downKey, (this.vertices.get(downKey) ?? 0) + 1);
     this.vertices.set(leftKey, (this.vertices.get(leftKey) ?? 0) + 1);
+
+    return tile;
   }
 
   getTile(x: number, y: number) {
-    return this.tiles.get(`${x},${y}`);
+    return this.tiles.get(Tile.toString(x, y));
   }
 
   parse() {
@@ -98,14 +148,12 @@ export class TilesOutline {
     for (const edge of edges) {
       graph.set(
         edge,
-        edges.filter((other) => edge !== other && edge.connects(other))
+        edges.filter((other) => edge !== other && edge.isConnected(other))
       );
 
-      // updates corner types of the edge
-      const a = this.vertices.get(`${edge.a[0]},${edge.a[1]}`);
-      const b = this.vertices.get(`${edge.b[0]},${edge.b[1]}`);
-      edge.cornerA = a === 1 ? "convex" : a === 3 ? "concave" : "none";
-      edge.cornerB = b === 1 ? "convex" : b === 3 ? "concave" : "none";
+      // updates vertex types of the edge
+      edge.a.setType(this.vertices.get(edge.a.toString()) || 0);
+      edge.b.setType(this.vertices.get(edge.b.toString()) || 0);
     }
 
     const cycles = depthFirstSearchAll(graph);
@@ -126,7 +174,7 @@ export class TilesOutline {
 function isClockwise(edges: Edge[]) {
   let sum = 0;
   for (const edge of edges) {
-    sum += (edge.b[0] - edge.a[0]) * (edge.b[1] + edge.a[1]);
+    sum += (edge.b.x - edge.a.x) * (edge.b.y + edge.a.y);
   }
   return sum > 0;
 }

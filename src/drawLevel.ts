@@ -105,47 +105,47 @@ export const drawLevel: DrawFunction<
     g.lineStyle(2, 0xfff);
     for (const cycle of outline.edges) {
       for (const edge of cycle) {
-        g.moveTo(edge.a[0], edge.a[1]);
-        g.lineTo(edge.b[0], edge.b[1]);
+        g.moveTo(edge.a.x, edge.a.y);
+        g.lineTo(edge.b.x, edge.b.y);
 
         const spriteA = outlineSprites.get(edge + "a");
         const spriteB = outlineSprites.get(edge + "b");
 
-        if (edge.vector[1] === 0) {
-          if (edge.vector[0] > 0) {
+        if (edge.vector.y === 0) {
+          if (edge.vector.x > 0) {
             spriteA.texture = textures.room_outer_0a;
-            spriteA.x = edge.a[0];
-            spriteA.y = edge.a[1] - outlineSize;
+            spriteA.x = edge.a.x;
+            spriteA.y = edge.a.y - outlineSize;
 
             spriteB.texture = textures.room_outer_0b;
-            spriteB.x = edge.a[0] + outlineSize;
-            spriteB.y = edge.a[1] - outlineSize;
+            spriteB.x = edge.a.x + outlineSize;
+            spriteB.y = edge.a.y - outlineSize;
           } else {
             spriteA.texture = textures.room_outer_4a;
-            spriteA.x = edge.b[0] + outlineSize;
-            spriteA.y = edge.b[1];
+            spriteA.x = edge.b.x + outlineSize;
+            spriteA.y = edge.b.y;
 
             spriteB.texture = textures.room_outer_4b;
-            spriteB.x = edge.b[0];
-            spriteB.y = edge.b[1];
+            spriteB.x = edge.b.x;
+            spriteB.y = edge.b.y;
           }
         } else {
-          if (edge.vector[1] > 0) {
+          if (edge.vector.y > 0) {
             spriteA.texture = textures.room_outer_2a;
-            spriteA.x = edge.a[0];
-            spriteA.y = edge.a[1];
+            spriteA.x = edge.a.x;
+            spriteA.y = edge.a.y;
 
             spriteB.texture = textures.room_outer_2b;
-            spriteB.x = edge.a[0];
-            spriteB.y = edge.a[1] + outlineSize;
+            spriteB.x = edge.a.x;
+            spriteB.y = edge.a.y + outlineSize;
           } else {
             spriteA.texture = textures.room_outer_6a;
-            spriteA.x = edge.b[0] - outlineSize;
-            spriteA.y = edge.b[1] + outlineSize;
+            spriteA.x = edge.b.x - outlineSize;
+            spriteA.y = edge.b.y + outlineSize;
 
             spriteB.texture = textures.room_outer_6b;
-            spriteB.x = edge.b[0] - outlineSize;
-            spriteB.y = edge.b[1];
+            spriteB.x = edge.b.x - outlineSize;
+            spriteB.y = edge.b.y;
           }
         }
       }
