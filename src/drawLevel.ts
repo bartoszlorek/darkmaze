@@ -7,7 +7,6 @@ import type { Level, Room } from "./core";
 
 type RoomPartialSprites = Readonly<{
   floor: PIXI.Sprite;
-  outer: PIXI.Container;
   walls: PIXI.Sprite;
   items: PIXI.Sprite;
 }>;
@@ -38,14 +37,12 @@ export const drawLevel: DrawFunction<
     // fills the root with partial sprites
     const partials: RoomPartialSprites = {
       floor: new PIXI.Sprite(),
-      outer: new PIXI.Container(),
       walls: new PIXI.Sprite(),
       items: new PIXI.Sprite(),
     };
 
     refs.set(room, partials);
     root.addChild(partials.floor);
-    root.addChild(partials.outer);
     root.addChild(partials.walls);
     root.addChild(partials.items);
   }
@@ -63,9 +60,6 @@ export const drawLevel: DrawFunction<
     }
   );
 
-  const g = new PIXI.Graphics();
-  parent.addChild(g);
-
   level.subscribe("room_explore", ({ room }) => {
     outline.addTile(room.x, room.y, gridSize);
     outline.parse();
@@ -79,11 +73,21 @@ export const drawLevel: DrawFunction<
           room.x * gridSize + gridSize / 2,
           room.y * gridSize + gridSize / 2
         );
+      } else if (debugMode === DEBUG_MODE.EXPLORED_CONNECTED) {
+        debug.print(
+          room.exploredConnectedRooms,
+          room.x * gridSize + gridSize / 2,
+          room.y * gridSize + gridSize / 2
+        );
       }
 
-      const { walls, items } = refs.get(room) as RoomPartialSprites;
-      if (room.explored) {
+      const { walls, floor, items } = refs.get(room) as RoomPartialSprites;
+      if (room.explored || debugMode === DEBUG_MODE.ROOMS_LAYOUT) {
         walls.texture = textures[`room_${room.signature}`];
+        floor.texture =
+          room.randomId % 2 === 0
+            ? textures.room_floor_1
+            : textures.room_floor_2;
 
         switch (room.type) {
           case "evil":
@@ -98,54 +102,118 @@ export const drawLevel: DrawFunction<
             items.texture = textures.room_passage;
             break;
         }
+      } else if (room.exploredConnectedRooms > 0) {
+        floor.texture = textures.room_floor_2;
       }
     }
 
-    g.clear();
-    g.lineStyle(2, 0xfff);
     for (const cycle of outline.edges) {
       for (const edge of cycle) {
-        g.moveTo(edge.a.x, edge.a.y);
-        g.lineTo(edge.b.x, edge.b.y);
-
-        const spriteA = outlineSprites.get(edge + "a");
-        const spriteB = outlineSprites.get(edge + "b");
-
         if (edge.vector.y === 0) {
+          /**
+           * going right
+           */
           if (edge.vector.x > 0) {
-            spriteA.texture = textures.room_outer_0a;
-            spriteA.x = edge.a.x;
-            spriteA.y = edge.a.y - outlineSize;
+            const a = outlineSprites.get(edge + "a");
+            a.texture =
+              edge.a.type === "concave"
+                ? textures.room_inner_2
+                : textures.room_outer_0a;
+            a.x = edge.a.x;
+            a.y = edge.a.y - outlineSize;
 
-            spriteB.texture = textures.room_outer_0b;
-            spriteB.x = edge.a.x + outlineSize;
-            spriteB.y = edge.a.y - outlineSize;
+            if (edge.b.type !== "concave") {
+              const b = outlineSprites.get(edge + "b");
+              b.texture = textures.room_outer_0b;
+              b.x = edge.a.x + outlineSize;
+              b.y = edge.a.y - outlineSize;
+
+              if (edge.b.type === "convex") {
+                const c = outlineSprites.get(edge + "c");
+                c.texture = textures.room_outer_1;
+                c.x = edge.b.x;
+                c.y = edge.b.y - outlineSize;
+              }
+            }
+
+            /**
+             * going left
+             */
           } else {
-            spriteA.texture = textures.room_outer_4a;
-            spriteA.x = edge.b.x + outlineSize;
-            spriteA.y = edge.b.y;
+            const a = outlineSprites.get(edge + "a");
+            a.texture =
+              edge.a.type === "concave"
+                ? textures.room_inner_0
+                : textures.room_outer_4a;
+            a.x = edge.b.x + outlineSize;
+            a.y = edge.b.y;
 
-            spriteB.texture = textures.room_outer_4b;
-            spriteB.x = edge.b.x;
-            spriteB.y = edge.b.y;
+            if (edge.b.type !== "concave") {
+              const b = outlineSprites.get(edge + "b");
+              b.texture = textures.room_outer_4b;
+              b.x = edge.b.x;
+              b.y = edge.b.y;
+
+              if (edge.b.type === "convex") {
+                const c = outlineSprites.get(edge + "c");
+                c.texture = textures.room_outer_5;
+                c.x = edge.b.x - outlineSize;
+                c.y = edge.b.y;
+              }
+            }
           }
         } else {
+          /**
+           * going down
+           */
           if (edge.vector.y > 0) {
-            spriteA.texture = textures.room_outer_2a;
-            spriteA.x = edge.a.x;
-            spriteA.y = edge.a.y;
+            const a = outlineSprites.get(edge + "a");
+            a.texture =
+              edge.a.type === "concave"
+                ? textures.room_inner_3
+                : textures.room_outer_2a;
+            a.x = edge.a.x;
+            a.y = edge.a.y;
 
-            spriteB.texture = textures.room_outer_2b;
-            spriteB.x = edge.a.x;
-            spriteB.y = edge.a.y + outlineSize;
+            if (edge.b.type !== "concave") {
+              const b = outlineSprites.get(edge + "b");
+              b.texture = textures.room_outer_2b;
+              b.x = edge.a.x;
+              b.y = edge.a.y + outlineSize;
+
+              if (edge.b.type === "convex") {
+                const c = outlineSprites.get(edge + "c");
+                c.texture = textures.room_outer_3;
+                c.x = edge.b.x;
+                c.y = edge.b.y;
+              }
+            }
+
+            /**
+             * going up
+             */
           } else {
-            spriteA.texture = textures.room_outer_6a;
-            spriteA.x = edge.b.x - outlineSize;
-            spriteA.y = edge.b.y + outlineSize;
+            const a = outlineSprites.get(edge + "a");
+            a.texture =
+              edge.a.type === "concave"
+                ? textures.room_inner_1
+                : textures.room_outer_6a;
+            a.x = edge.b.x - outlineSize;
+            a.y = edge.b.y + outlineSize;
 
-            spriteB.texture = textures.room_outer_6b;
-            spriteB.x = edge.b.x - outlineSize;
-            spriteB.y = edge.b.y;
+            if (edge.b.type !== "concave") {
+              const b = outlineSprites.get(edge + "b");
+              b.texture = textures.room_outer_6b;
+              b.x = edge.b.x - outlineSize;
+              b.y = edge.b.y;
+
+              if (edge.b.type === "convex") {
+                const c = outlineSprites.get(edge + "c");
+                c.texture = textures.room_outer_7;
+                c.x = edge.b.x - outlineSize;
+                c.y = edge.b.y - outlineSize;
+              }
+            }
           }
         }
       }

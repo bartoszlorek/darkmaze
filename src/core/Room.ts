@@ -37,6 +37,7 @@ export class Room {
   public walls: [WallState, WallState, WallState, WallState];
   public signature: RoomSignature = "0000";
   public type: RoomType;
+  public randomId: number;
 
   /**
    * the room has only one open wall,
@@ -62,6 +63,7 @@ export class Room {
     this.y = y;
     this.walls = walls;
     this.type = type;
+    this.randomId = Math.floor(Math.random() * 100000);
     this.parse();
   }
 

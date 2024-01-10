@@ -319,6 +319,22 @@
       "spriteSourceSize": { "x": 0, "y": 0, "w": 12, "h": 12 },
       "sourceSize": { "w": 12, "h": 12 },
       "duration": 100
+    },
+    "room_floor_1": {
+      "frame": { "x": 96, "y": 48, "w": 24, "h": 24 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 24, "h": 24 },
+      "sourceSize": { "w": 24, "h": 24 },
+      "duration": 100
+    },
+    "room_floor_2": {
+      "frame": { "x": 120, "y": 48, "w": 24, "h": 24 },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": { "x": 0, "y": 0, "w": 24, "h": 24 },
+      "sourceSize": { "w": 24, "h": 24 },
+      "duration": 100
     }
   },
   "meta": {
@@ -599,6 +615,20 @@
         "color": "#0000ffff",
         "keys": [
           { "frame": 0, "bounds": { "x": 96, "y": 12, "w": 12, "h": 12 } }
+        ]
+      },
+      {
+        "name": "room_floor_1",
+        "color": "#0000ffff",
+        "keys": [
+          { "frame": 0, "bounds": { "x": 96, "y": 48, "w": 24, "h": 24 } }
+        ]
+      },
+      {
+        "name": "room_floor_2",
+        "color": "#0000ffff",
+        "keys": [
+          { "frame": 0, "bounds": { "x": 120, "y": 48, "w": 24, "h": 24 } }
         ]
       }
     ]

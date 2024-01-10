@@ -87,7 +87,10 @@ export const drawDarkness: DrawFunction<{
 
     g.clear();
     for (let i = 0; i < linesCount; i++) {
-      lines[i] = lerp(lines[i] ?? 0, linesBuffer[i], 0.15);
+      const a = lines[i] || 0;
+      const b = linesBuffer[i];
+
+      lines[i] = lerp(a, b, a < b ? 0.25 : 0.025);
       g.beginFill(0x17152e, 1 - lines[i]);
       g.drawRect(i * linesWidth - linesOffset, 0, linesWidth, linesHeight);
     }
