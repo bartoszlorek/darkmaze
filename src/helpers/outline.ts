@@ -165,23 +165,11 @@ export class TilesOutline {
 
     const cycles = depthFirstSearchAll(graph);
     for (const cycle of cycles) {
-      if (!isClockwise(cycle)) {
+      if (cycle.length > 1 && !cycle[0].b.isEqual(cycle[1].a)) {
         cycle.reverse();
       }
     }
 
     this.edges = cycles;
   }
-}
-
-/**
- * @see https://github.com/mattdesl/is-clockwise
- * @see https://stackoverflow.com/questions/1165647/how-to-determine-if-a-list-of-polygon-points-are-in-clockwise-order
- */
-function isClockwise(edges: Edge[]) {
-  let sum = 0;
-  for (const edge of edges) {
-    sum += (edge.b.x - edge.a.x) * (edge.b.y + edge.a.y);
-  }
-  return sum > 0;
 }
