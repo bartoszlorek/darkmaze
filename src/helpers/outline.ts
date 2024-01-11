@@ -62,6 +62,13 @@ export class Edge {
     this.vector = new Point(Math.sign(b.x - a.x), Math.sign(b.y - a.y));
   }
 
+  isEqual(other: Edge) {
+    return (
+      (this.a.isEqual(other.a) && this.b.isEqual(other.b)) ||
+      (this.a.isEqual(other.b) && this.b.isEqual(other.a))
+    );
+  }
+
   isConnected(other: Edge) {
     return this.a.isEqual(other.b) || this.b.isEqual(other.a);
   }

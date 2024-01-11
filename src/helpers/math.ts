@@ -17,6 +17,10 @@ export function clamp(value: number, min: number, max: number) {
   return Math.min(Math.max(value, min), max);
 }
 
+export function modIndex(index: number, length: number) {
+  return ((index % length) + length) % length;
+}
+
 /**
  * The definition of floored division modulo.
  * https://en.wikipedia.org/wiki/Modulo

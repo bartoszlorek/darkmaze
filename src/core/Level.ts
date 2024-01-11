@@ -70,12 +70,11 @@ export class Level extends EventEmitter<LevelEvents> {
 
     if (!currentRoom.visited) {
       currentRoom.visited = true;
+      const exploreEventQueue = [];
 
       if (currentRoom.deadEnd && currentRoom.type !== "start") {
         currentRoom.explored = true;
-        this.emit("room_explore", {
-          room: currentRoom,
-        });
+        exploreEventQueue.push(currentRoom);
       }
 
       for (const otherRoom of this.getConnectedRooms(currentRoom)) {
@@ -96,9 +95,7 @@ export class Level extends EventEmitter<LevelEvents> {
           otherRoom.visitedConnectedRooms >= threshold
         ) {
           otherRoom.explored = true;
-          this.emit("room_explore", {
-            room: otherRoom,
-          });
+          exploreEventQueue.push(otherRoom);
 
           for (const anotherRoom of this.getConnectedRooms(otherRoom)) {
             if (anotherRoom) {
@@ -106,6 +103,10 @@ export class Level extends EventEmitter<LevelEvents> {
             }
           }
         }
+      }
+
+      for (const room of exploreEventQueue) {
+        this.emit("room_explore", { room });
       }
     }
 

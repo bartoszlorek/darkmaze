@@ -1,9 +1,17 @@
 import * as PIXI from "pixi.js";
-import { DEBUG_MODE } from "./debug";
 import { LoadedSpritesheets } from "./assets";
-import { DrawFunction, TilesOutline, Pool } from "./helpers";
+import { WallState, Level, Room } from "./core";
+import { DEBUG_MODE } from "./debug";
 import { createDebugger } from "./debugger";
-import type { Level, Room } from "./core";
+import {
+  DirectionIndex,
+  DrawFunction,
+  Edge,
+  Pool,
+  Tile,
+  TilesOutline,
+  modIndex,
+} from "./helpers";
 
 type RoomPartialSprites = Readonly<{
   floor: PIXI.Sprite;
@@ -48,6 +56,7 @@ export const drawLevel: DrawFunction<
   }
 
   const outline = new TilesOutline();
+  const outlineMask: boolean[][] = [];
   const outlineSize = gridSize / 2;
   const outlineSprites = new Pool(
     () => {
@@ -63,6 +72,37 @@ export const drawLevel: DrawFunction<
   level.subscribe("room_explore", ({ room }) => {
     outline.addTile(room.x, room.y, gridSize);
     outline.parse();
+
+    const exitEdges: Edge[] = [];
+    for (const room of level.rooms) {
+      if (!room.explored && room.exploredConnectedRooms > 0) {
+        const exitTile = new Tile(room.x, room.y, gridSize);
+
+        if (room.walls[DirectionIndex.up] === WallState.open) {
+          exitEdges.push(exitTile.up);
+        }
+        if (room.walls[DirectionIndex.right] === WallState.open) {
+          exitEdges.push(exitTile.right);
+        }
+        if (room.walls[DirectionIndex.down] === WallState.open) {
+          exitEdges.push(exitTile.down);
+        }
+        if (room.walls[DirectionIndex.left] === WallState.open) {
+          exitEdges.push(exitTile.left);
+        }
+      }
+    }
+
+    for (let i = 0; i < outline.edges.length; i++) {
+      if (!outlineMask[i]) {
+        outlineMask[i] = [];
+      }
+      for (let j = 0; j < outline.edges[i].length; j++) {
+        outlineMask[i][j] = !exitEdges.some((other) =>
+          outline.edges[i][j].isEqual(other)
+        );
+      }
+    }
   });
 
   return () => {
@@ -107,8 +147,26 @@ export const drawLevel: DrawFunction<
       }
     }
 
-    for (const cycle of outline.edges) {
-      for (const edge of cycle) {
+    for (let i = 0; i < outline.edges.length; i++) {
+      const cycleLength = outline.edges[i].length;
+
+      for (let j = 0; j < cycleLength; j++) {
+        const edge = outline.edges[i][j];
+
+        if (!outlineMask[i][j]) {
+          debug.print(
+            "x",
+            (edge.a.x + edge.b.x) / 2,
+            (edge.a.y + edge.b.y) / 2
+          );
+          continue;
+        }
+
+        const prevEdgeIndex = modIndex(j - 1, cycleLength);
+        const nextEdgeIndex = modIndex(j + 1, cycleLength);
+        const prevEdgeVisible = outlineMask[i][prevEdgeIndex];
+        const nextEdgeVisible = outlineMask[i][nextEdgeIndex];
+
         if (edge.vector.y === 0) {
           /**
            * going right
@@ -116,13 +174,13 @@ export const drawLevel: DrawFunction<
           if (edge.vector.x > 0) {
             const a = outlineSprites.get(edge + "a");
             a.texture =
-              edge.a.type === "concave"
+              edge.a.type === "concave" && prevEdgeVisible
                 ? textures.room_inner_2
                 : textures.room_outer_0a;
             a.x = edge.a.x;
             a.y = edge.a.y - outlineSize;
 
-            if (edge.b.type !== "concave") {
+            if (edge.b.type !== "concave" || !nextEdgeVisible) {
               const b = outlineSprites.get(edge + "b");
               b.texture = textures.room_outer_0b;
               b.x = edge.a.x + outlineSize;
@@ -142,13 +200,13 @@ export const drawLevel: DrawFunction<
           } else {
             const a = outlineSprites.get(edge + "a");
             a.texture =
-              edge.a.type === "concave"
+              edge.a.type === "concave" && prevEdgeVisible
                 ? textures.room_inner_0
                 : textures.room_outer_4a;
             a.x = edge.b.x + outlineSize;
             a.y = edge.b.y;
 
-            if (edge.b.type !== "concave") {
+            if (edge.b.type !== "concave" || !nextEdgeVisible) {
               const b = outlineSprites.get(edge + "b");
               b.texture = textures.room_outer_4b;
               b.x = edge.b.x;
@@ -169,13 +227,13 @@ export const drawLevel: DrawFunction<
           if (edge.vector.y > 0) {
             const a = outlineSprites.get(edge + "a");
             a.texture =
-              edge.a.type === "concave"
+              edge.a.type === "concave" && prevEdgeVisible
                 ? textures.room_inner_3
                 : textures.room_outer_2a;
             a.x = edge.a.x;
             a.y = edge.a.y;
 
-            if (edge.b.type !== "concave") {
+            if (edge.b.type !== "concave" || !nextEdgeVisible) {
               const b = outlineSprites.get(edge + "b");
               b.texture = textures.room_outer_2b;
               b.x = edge.a.x;
@@ -195,13 +253,13 @@ export const drawLevel: DrawFunction<
           } else {
             const a = outlineSprites.get(edge + "a");
             a.texture =
-              edge.a.type === "concave"
+              edge.a.type === "concave" && prevEdgeVisible
                 ? textures.room_inner_1
                 : textures.room_outer_6a;
             a.x = edge.b.x - outlineSize;
             a.y = edge.b.y + outlineSize;
 
-            if (edge.b.type !== "concave") {
+            if (edge.b.type !== "concave" || !nextEdgeVisible) {
               const b = outlineSprites.get(edge + "b");
               b.texture = textures.room_outer_6b;
               b.x = edge.b.x - outlineSize;
