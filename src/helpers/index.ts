@@ -3,6 +3,7 @@ export * from "./debounce";
 export * from "./dfs";
 export * from "./draw";
 export * from "./fieldOfView";
+export * from "./grid";
 export * from "./math";
 export * from "./pooling";
 export * from "./randomNumber";

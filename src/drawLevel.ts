@@ -1,23 +1,35 @@
 import * as PIXI from "pixi.js";
 import { LoadedSpritesheets } from "./assets";
-import { WallState, Level, Room } from "./core";
+import { Level, Room, WallState } from "./core";
 import { DEBUG_MODE } from "./debug";
 import { createDebugger } from "./debugger";
 import {
   DirectionIndex,
   DrawFunction,
-  Edge,
+  Grid,
+  NeighborIndex,
+  Neighbors,
   Pool,
-  Tile,
-  TilesOutline,
-  modIndex,
 } from "./helpers";
 
-type RoomPartialSprites = Readonly<{
-  floor: PIXI.Sprite;
-  walls: PIXI.Sprite;
-  items: PIXI.Sprite;
-}>;
+/**
+ * @see https://code.tutsplus.com/how-to-use-tile-bitmasking-to-auto-tile-your-level-layouts--cms-25673t
+ */
+// prettier-ignore
+type BitIndex =
+  | 0  | 1  | 2  | 3
+  | 4  | 5  | 6  | 7
+  | 8  | 9  | 10 | 11
+  | 12 | 13 | 14 | 15;
+
+interface TileDisplay {
+  uniqueId: string;
+  randomId: number;
+  wallIndex: BitIndex | -1;
+  floorIndex: BitIndex;
+  actualX: number;
+  actualY: number;
+}
 
 export const drawLevel: DrawFunction<
   {
@@ -28,40 +40,62 @@ export const drawLevel: DrawFunction<
   },
   [revealed: boolean]
 > = ({ parent, level, gridSize, sprites, debugMode }) => {
-  const { textures } = sprites.world;
-  const roomsLayer = new PIXI.Container();
-  const debug = createDebugger();
+  const tex = sprites.world.textures;
+  const wallTextures: Record<BitIndex, PIXI.Texture[]> = {
+    0: [tex.walls_3b],
+    1: [tex.walls_4b],
+    2: [tex.walls_5d],
+    3: [tex.walls_5d],
+    4: [tex.walls_1d],
+    5: [tex.walls_1d],
+    6: [tex.walls_2a, tex.walls_2d, tex.walls_3a, tex.walls_3d, tex.walls_4d],
+    7: [tex.walls_2a, tex.walls_2d, tex.walls_3a, tex.walls_3d, tex.walls_4d],
+    8: [tex.walls_4c],
+    9: [tex.walls_1b, tex.walls_1c, tex.walls_5b, tex.walls_5c],
+    10: [tex.walls_5a],
+    11: [tex.walls_5a],
+    12: [tex.walls_1a],
+    13: [tex.walls_1a],
+    14: [tex.walls_4a],
+    15: [],
+  };
 
-  parent.addChild(roomsLayer);
-  parent.addChild(debug.layer);
+  const floorTextures: Record<BitIndex, PIXI.Texture[]> = {
+    0: [],
+    1: [],
+    2: [],
+    3: [tex.floor_4d],
+    4: [],
+    5: [tex.floor_1d],
+    6: [],
+    7: [tex.floor_2d, tex.floor_3d],
+    8: [],
+    9: [],
+    10: [tex.floor_4a],
+    11: [tex.floor_4b, tex.floor_4c],
+    12: [tex.floor_1a],
+    13: [tex.floor_1b, tex.floor_1c],
+    14: [tex.floor_2a, tex.floor_3a],
+    15: [tex.floor_2b, tex.floor_2c, tex.floor_3b, tex.floor_3c],
+  };
 
-  const refs = new Map<Room, RoomPartialSprites>();
-  for (const room of level.rooms) {
-    const root = new PIXI.Container();
-    root.x = room.x * gridSize;
-    root.y = room.y * gridSize;
-    roomsLayer.addChild(root);
+  const tileDisplays = new Map<string, TileDisplay>();
+  const tileStates = new Grid<WallState>(
+    level.dimension * 2 + 1,
+    level.dimension * 2 + 1
+  );
 
-    // fills the root with partial sprites
-    const partials: RoomPartialSprites = {
-      floor: new PIXI.Sprite(),
-      walls: new PIXI.Sprite(),
-      items: new PIXI.Sprite(),
-    };
+  const halfGridSize = gridSize / 2;
+  const wallsLayer = new PIXI.Container();
+  const floorLayer = new PIXI.Container();
+  const itemsLayer = new PIXI.Container();
+  wallsLayer.x = floorLayer.x = halfGridSize / 2;
+  wallsLayer.y = floorLayer.y = halfGridSize;
 
-    refs.set(room, partials);
-    root.addChild(partials.floor);
-    root.addChild(partials.walls);
-    root.addChild(partials.items);
-  }
-
-  const outline = new TilesOutline();
-  const outlineMask: boolean[][] = [];
-  const outlineSize = gridSize / 2;
-  const outlineSprites = new Pool(
+  const wallsSprites = new Pool(
     () => {
       const sprite = new PIXI.Sprite();
-      roomsLayer.addChild(sprite);
+      wallsLayer.addChild(sprite);
       return sprite;
     },
     (sprite) => {
@@ -69,41 +103,106 @@ export const drawLevel: DrawFunction<
     }
   );
 
-  level.subscribe("room_explore", ({ room }) => {
-    outline.addTile(room.x, room.y, gridSize);
-    outline.parse();
-
-    const exitEdges: Edge[] = [];
-    for (const room of level.rooms) {
-      if (!room.explored && room.exploredConnectedRooms > 0) {
-        const exitTile = new Tile(room.x, room.y, gridSize);
-
-        if (room.walls[DirectionIndex.up] === WallState.open) {
-          exitEdges.push(exitTile.up);
-        }
-        if (room.walls[DirectionIndex.right] === WallState.open) {
-          exitEdges.push(exitTile.right);
-        }
-        if (room.walls[DirectionIndex.down] === WallState.open) {
-          exitEdges.push(exitTile.down);
-        }
-        if (room.walls[DirectionIndex.left] === WallState.open) {
-          exitEdges.push(exitTile.left);
-        }
-      }
+  const floorSprites = new Pool(
+    () => {
+      const sprite = new PIXI.Sprite();
+      floorLayer.addChild(sprite);
+      return sprite;
+    },
+    (sprite) => {
+      sprite.destroy();
     }
+  );
 
-    for (let i = 0; i < outline.edges.length; i++) {
-      if (!outlineMask[i]) {
-        outlineMask[i] = [];
-      }
-      for (let j = 0; j < outline.edges[i].length; j++) {
-        outlineMask[i][j] = !exitEdges.some((other) =>
-          outline.edges[i][j].isEqual(other)
-        );
-      }
+  const itemsSprites = new Pool(
+    () => {
+      const sprite = new PIXI.Sprite();
+      itemsLayer.addChild(sprite);
+      return sprite;
+    },
+    (sprite) => {
+      sprite.destroy();
     }
+  );
+
+  // temporarily build level grid
+  const levelGrid = new Grid<Room>(level.dimension, level.dimension);
+  for (const room of level.rooms) {
+    levelGrid.setValue(room.x, room.y, room);
+  }
+
+  // preallocated array memory
+  // prettier-ignore
+  const _tileStatesNeighbors: Neighbors<WallState> = [
+    null, null, null,
+    null,       null,
+    null, null, null,
+  ];
+
+  level.subscribe("room_explore", ({ room }: { room: Room }) => {
+    const x = tileStates.transformX(room.x, levelGrid);
+    const y = tileStates.transformY(room.y, levelGrid);
+
+    // previous row
+    tileStates.setValue(x - 1, y - 1, WallState.closed);
+    tileStates.setValue(x, y - 1, room.walls[DirectionIndex.up]);
+    tileStates.setValue(x + 1, y - 1, WallState.closed);
+
+    // current row
+    tileStates.setValue(x - 1, y, room.walls[DirectionIndex.left]);
+    tileStates.setValue(x, y, WallState.open);
+    tileStates.setValue(x + 1, y, room.walls[DirectionIndex.right]);
+
+    // next row
+    tileStates.setValue(x - 1, y + 1, WallState.closed);
+    tileStates.setValue(x, y + 1, room.walls[DirectionIndex.down]);
+    tileStates.setValue(x + 1, y + 1, WallState.closed);
+
+    // regenerates every bitIndex of walls and the floor
+    tileStates.forEach((x, y, value) => {
+      const neighbors = tileStates.neighbors(x, y, _tileStatesNeighbors);
+
+      let wallIndex = 0;
+      if (value === WallState.closed) {
+        if (neighbors[NeighborIndex.up]) wallIndex += 1;
+        if (neighbors[NeighborIndex.left]) wallIndex += 2;
+        if (neighbors[NeighborIndex.right]) wallIndex += 4;
+        if (neighbors[NeighborIndex.down]) wallIndex += 8;
+      } else {
+        wallIndex = -1;
+      }
+
+      let floorIndex = 0;
+      if (neighbors[NeighborIndex.up] !== null) floorIndex += 1;
+      if (neighbors[NeighborIndex.left] !== null) floorIndex += 2;
+      if (neighbors[NeighborIndex.right] !== null) floorIndex += 4;
+      if (neighbors[NeighborIndex.down] !== null) floorIndex += 8;
+
+      const uniqueId = `${x},${y}`;
+      const tile = tileDisplays.get(uniqueId);
+
+      if (tile === undefined) {
+        tileDisplays.set(uniqueId, {
+          uniqueId,
+          randomId: Math.floor(Math.random() * 100000),
+          wallIndex: wallIndex as BitIndex,
+          floorIndex: floorIndex as BitIndex,
+          actualX: x * halfGridSize,
+          actualY: y * halfGridSize,
+        });
+      } else {
+        tile.wallIndex = wallIndex as BitIndex;
+        tile.floorIndex = floorIndex as BitIndex;
+      }
+    });
   });
+
+  parent.addChild(floorLayer);
+  parent.addChild(wallsLayer);
+  parent.addChild(itemsLayer);
+
+  const debug = createDebugger();
+  parent.addChild(debug.layer);
 
   return () => {
     for (const room of level.rooms) {
@@ -120,164 +219,75 @@ export const drawLevel: DrawFunction<
           room.y * gridSize + gridSize / 2
         );
       }
+    }
 
-      const { walls, floor, items } = refs.get(room) as RoomPartialSprites;
-      if (room.explored || debugMode === DEBUG_MODE.ROOMS_LAYOUT) {
-        walls.texture = textures[`room_${room.signature}`];
-        floor.texture =
-          room.randomId % 2 === 0
-            ? textures.room_floor_1
-            : textures.room_floor_2;
+    for (const tile of tileDisplays.values()) {
+      if (debugMode === DEBUG_MODE.WALLS_INDEX) {
+        debug.print(
+          String(tile.wallIndex),
+          tile.actualX + halfGridSize,
+          tile.actualY + halfGridSize + halfGridSize / 2,
+          10
+        );
+      } else if (debugMode === DEBUG_MODE.FLOOR_INDEX) {
+        debug.print(
+          String(tile.floorIndex),
+          tile.actualX + halfGridSize,
+          tile.actualY + halfGridSize + halfGridSize / 2,
+          10
+        );
+      }
+
+      if (tile.wallIndex !== -1) {
+        const sprite = wallsSprites.get(tile.uniqueId);
+        const wallVariants = wallTextures[tile.wallIndex];
+        sprite.texture = wallVariants[tile.randomId % wallVariants.length];
+        sprite.x = tile.actualX;
+        sprite.y = tile.actualY;
+      }
+
+      const sprite = floorSprites.get(tile.uniqueId);
+      const floorVariants = floorTextures[tile.floorIndex];
+      sprite.texture = floorVariants[tile.randomId % floorVariants.length];
+      sprite.x = tile.actualX;
+      sprite.y = tile.actualY;
+    }
+
+    for (const room of level.rooms) {
+      if (room.explored) {
+        const roomKey = `${room.x},${room.y}`;
 
         switch (room.type) {
-          case "evil":
-            items.texture = textures.room_evil;
+          case "evil": {
+            const sprite = itemsSprites.get(roomKey);
+            sprite.texture = tex.room_evil;
+            sprite.x = room.x * gridSize;
+            sprite.y = room.y * gridSize;
             break;
-
-          case "golden":
-            items.texture = textures.room_golden;
-            break;
-
-          case "passage":
-            items.texture = textures.room_passage;
-            break;
-        }
-      } else if (room.exploredConnectedRooms > 0) {
-        floor.texture = textures.room_floor_2;
-      }
-    }
-
-    for (let i = 0; i < outline.edges.length; i++) {
-      const cycleLength = outline.edges[i].length;
-
-      for (let j = 0; j < cycleLength; j++) {
-        const edge = outline.edges[i][j];
-
-        if (!outlineMask[i][j]) {
-          debug.print(
-            "x",
-            (edge.a.x + edge.b.x) / 2,
-            (edge.a.y + edge.b.y) / 2
-          );
-          continue;
-        }
-
-        const prevEdgeIndex = modIndex(j - 1, cycleLength);
-        const nextEdgeIndex = modIndex(j + 1, cycleLength);
-        const prevEdgeVisible = outlineMask[i][prevEdgeIndex];
-        const nextEdgeVisible = outlineMask[i][nextEdgeIndex];
-
-        if (edge.vector.y === 0) {
-          /**
-           * going right
-           */
-          if (edge.vector.x > 0) {
-            const a = outlineSprites.get(edge + "a");
-            a.texture =
-              edge.a.type === "concave" && prevEdgeVisible
-                ? textures.room_inner_2
-                : textures.room_outer_0a;
-            a.x = edge.a.x;
-            a.y = edge.a.y - outlineSize;
-
-            if (edge.b.type !== "concave" || !nextEdgeVisible) {
-              const b = outlineSprites.get(edge + "b");
-              b.texture = textures.room_outer_0b;
-              b.x = edge.a.x + outlineSize;
-              b.y = edge.a.y - outlineSize;
-
-              if (edge.b.type === "convex") {
-                const c = outlineSprites.get(edge + "c");
-                c.texture = textures.room_outer_1;
-                c.x = edge.b.x;
-                c.y = edge.b.y - outlineSize;
-              }
-            }
-
-            /**
-             * going left
-             */
-          } else {
-            const a = outlineSprites.get(edge + "a");
-            a.texture =
-              edge.a.type === "concave" && prevEdgeVisible
-                ? textures.room_inner_0
-                : textures.room_outer_4a;
-            a.x = edge.b.x + outlineSize;
-            a.y = edge.b.y;
-
-            if (edge.b.type !== "concave" || !nextEdgeVisible) {
-              const b = outlineSprites.get(edge + "b");
-              b.texture = textures.room_outer_4b;
-              b.x = edge.b.x;
-              b.y = edge.b.y;
-
-              if (edge.b.type === "convex") {
-                const c = outlineSprites.get(edge + "c");
-                c.texture = textures.room_outer_5;
-                c.x = edge.b.x - outlineSize;
-                c.y = edge.b.y;
-              }
-            }
           }
-        } else {
-          /**
-           * going down
-           */
-          if (edge.vector.y > 0) {
-            const a = outlineSprites.get(edge + "a");
-            a.texture =
-              edge.a.type === "concave" && prevEdgeVisible
-                ? textures.room_inner_3
-                : textures.room_outer_2a;
-            a.x = edge.a.x;
-            a.y = edge.a.y;
 
-            if (edge.b.type !== "concave" || !nextEdgeVisible) {
-              const b = outlineSprites.get(edge + "b");
-              b.texture = textures.room_outer_2b;
-              b.x = edge.a.x;
-              b.y = edge.a.y + outlineSize;
+          case "golden": {
+            const sprite = itemsSprites.get(roomKey);
+            sprite.texture = tex.room_golden;
+            sprite.x = room.x * gridSize;
+            sprite.y = room.y * gridSize;
+            break;
+          }
 
-              if (edge.b.type === "convex") {
-                const c = outlineSprites.get(edge + "c");
-                c.texture = textures.room_outer_3;
-                c.x = edge.b.x;
-                c.y = edge.b.y;
-              }
-            }
-
-            /**
-             * going up
-             */
-          } else {
-            const a = outlineSprites.get(edge + "a");
-            a.texture =
-              edge.a.type === "concave" && prevEdgeVisible
-                ? textures.room_inner_1
-                : textures.room_outer_6a;
-            a.x = edge.b.x - outlineSize;
-            a.y = edge.b.y + outlineSize;
-
-            if (edge.b.type !== "concave" || !nextEdgeVisible) {
-              const b = outlineSprites.get(edge + "b");
-              b.texture = textures.room_outer_6b;
-              b.x = edge.b.x - outlineSize;
-              b.y = edge.b.y;
-
-              if (edge.b.type === "convex") {
-                const c = outlineSprites.get(edge + "c");
-                c.texture = textures.room_outer_7;
-                c.x = edge.b.x - outlineSize;
-                c.y = edge.b.y - outlineSize;
-              }
-            }
+          case "passage": {
+            const sprite = itemsSprites.get(roomKey);
+            sprite.texture = tex.room_passage;
+            sprite.x = room.x * gridSize;
+            sprite.y = room.y * gridSize;
+            break;
           }
         }
       }
     }
 
-    outlineSprites.afterAll();
+    wallsSprites.afterAll();
+    floorSprites.afterAll();
+    itemsSprites.afterAll();
     debug.afterAll();
   };
 };
