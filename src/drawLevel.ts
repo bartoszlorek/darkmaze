@@ -4,6 +4,8 @@ import { Level, Room, WallState } from "./core";
 import { DEBUG_MODE } from "./debug";
 import { createDebugger } from "./debugger";
 import {
+  createBitMask,
+  BitMaskValue,
   DirectionIndex,
   DrawFunction,
   Grid,
@@ -12,21 +14,11 @@ import {
   Pool,
 } from "./helpers";
 
-/**
- * @see https://code.tutsplus.com/how-to-use-tile-bitmasking-to-auto-tile-your-level-layouts--cms-25673t
- */
-// prettier-ignore
-type BitIndex =
-  | 0  | 1  | 2  | 3
-  | 4  | 5  | 6  | 7
-  | 8  | 9  | 10 | 11
-  | 12 | 13 | 14 | 15;
-
 interface TileDisplay {
   uniqueId: string;
   randomId: number;
-  wallIndex: BitIndex | -1;
-  floorIndex: BitIndex;
+  wallIndex: BitMaskValue | -1;
+  floorIndex: BitMaskValue;
   actualX: number;
   actualY: number;
 }
@@ -41,7 +33,7 @@ export const drawLevel: DrawFunction<
   [revealed: boolean]
 > = ({ parent, level, gridSize, sprites, debugMode }) => {
   const tex = sprites.world.textures;
-  const wallTextures: Record<BitIndex, PIXI.Texture[]> = {
+  const wallTextures: Record<BitMaskValue, PIXI.Texture[]> = {
     0: [tex.walls_3b],
     1: [tex.walls_4b],
     2: [tex.walls_5d],
@@ -60,7 +52,7 @@ export const drawLevel: DrawFunction<
     15: [],
   };
 
-  const floorTextures: Record<BitIndex, PIXI.Texture[]> = {
+  const floorTextures: Record<BitMaskValue, PIXI.Texture[]> = {
     0: [],
     1: [],
     2: [],
@@ -162,21 +154,22 @@ export const drawLevel: DrawFunction<
     tileStates.forEach((x, y, value) => {
       const neighbors = tileStates.neighbors(x, y, _tileStatesNeighbors);
 
-      let wallIndex = 0;
-      if (value === WallState.closed) {
-        if (neighbors[NeighborIndex.up]) wallIndex += 1;
-        if (neighbors[NeighborIndex.left]) wallIndex += 2;
-        if (neighbors[NeighborIndex.right]) wallIndex += 4;
-        if (neighbors[NeighborIndex.down]) wallIndex += 8;
-      } else {
-        wallIndex = -1;
-      }
+      const wallIndex =
+        value === WallState.closed
+          ? createBitMask(
+              neighbors[NeighborIndex.up] ? 1 : 0,
+              neighbors[NeighborIndex.left] ? 1 : 0,
+              neighbors[NeighborIndex.right] ? 1 : 0,
+              neighbors[NeighborIndex.down] ? 1 : 0
+            )
+          : -1;
 
-      let floorIndex = 0;
-      if (neighbors[NeighborIndex.up] !== null) floorIndex += 1;
-      if (neighbors[NeighborIndex.left] !== null) floorIndex += 2;
-      if (neighbors[NeighborIndex.right] !== null) floorIndex += 4;
-      if (neighbors[NeighborIndex.down] !== null) floorIndex += 8;
+      const floorIndex = createBitMask(
+        neighbors[NeighborIndex.up] !== null ? 1 : 0,
+        neighbors[NeighborIndex.left] !== null ? 1 : 0,
+        neighbors[NeighborIndex.right] !== null ? 1 : 0,
+        neighbors[NeighborIndex.down] !== null ? 1 : 0
+      );
 
       const uniqueId = `${x},${y}`;
       const tile = tileDisplays.get(uniqueId);
@@ -185,14 +178,14 @@ export const drawLevel: DrawFunction<
         tileDisplays.set(uniqueId, {
           uniqueId,
           randomId: Math.floor(Math.random() * 100000),
-          wallIndex: wallIndex as BitIndex,
-          floorIndex: floorIndex as BitIndex,
+          wallIndex,
+          floorIndex,
           actualX: x * halfGridSize,
           actualY: y * halfGridSize,
         });
       } else {
-        tile.wallIndex = wallIndex as BitIndex;
-        tile.floorIndex = floorIndex as BitIndex;
+        tile.wallIndex = wallIndex;
+        tile.floorIndex = floorIndex;
       }
     });
   });

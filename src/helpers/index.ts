@@ -1,4 +1,5 @@
 export * from "./array";
+export * from "./bitmask";
 export * from "./debounce";
 export * from "./dfs";
 export * from "./draw";
