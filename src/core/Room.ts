@@ -7,37 +7,13 @@ export enum WallState {
 
 export type RoomType = "start" | "empty" | "evil" | "golden" | "passage";
 
-// wall state permutations
-// for (let i = 0; i <= ~(-1 << 4); i++) {
-//   console.log(i.toString(2).padStart(4, "0"));
-// }
-export type RoomSignature =
-  | "0000"
-  | "0001"
-  | "0010"
-  | "0011"
-  | "0100"
-  | "0101"
-  | "0110"
-  | "0111"
-  | "1000"
-  | "1001"
-  | "1010"
-  | "1011"
-  | "1100"
-  | "1101"
-  | "1110"
-  | "1111";
-
 export const isEvil = (room: Room) => room.type === "evil";
 
 export class Room {
   public x: number;
   public y: number;
   public walls: [WallState, WallState, WallState, WallState];
-  public signature: RoomSignature = "0000";
   public type: RoomType;
-  public randomId: number;
 
   /**
    * the room has only one open wall,
@@ -63,24 +39,17 @@ export class Room {
     this.y = y;
     this.walls = walls;
     this.type = type;
-    this.randomId = Math.floor(Math.random() * 100000);
     this.parse();
   }
 
   public parse() {
     let entrances = 0;
-    let signature = "";
-
     for (const wall of this.walls) {
       if (wall === WallState.open) {
         entrances += 1;
-        signature += "0";
-      } else {
-        signature += "1";
       }
     }
     this.deadEnd = entrances === 1;
-    this.signature = signature as RoomSignature;
   }
 
   public contains(x: number, y: number): boolean {
