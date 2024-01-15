@@ -1,16 +1,23 @@
 import { Maybe } from "./types";
 
-export type Cell<T> = [x: number, y: number, value: T];
-export type Iterate<T> = (x: number, y: number, value: T) => void;
+export interface GridCell<T> {
+  x: number;
+  y: number;
+  value: T;
+}
 
-// prettier-ignore
-export type Neighbors<T> = [
-  Maybe<T>, Maybe<T>, Maybe<T>,
-  Maybe<T>,           Maybe<T>,
-  Maybe<T>, Maybe<T>, Maybe<T>
+export type GridNeighbors<T> = [
+  Maybe<GridCell<T>>,
+  Maybe<GridCell<T>>,
+  Maybe<GridCell<T>>,
+  Maybe<GridCell<T>>,
+  Maybe<GridCell<T>>,
+  Maybe<GridCell<T>>,
+  Maybe<GridCell<T>>,
+  Maybe<GridCell<T>>
 ];
 
-export enum NeighborIndex {
+export enum GridNeighborIndex {
   upLeft = 0,
   up = 1,
   upRight = 2,
@@ -21,58 +28,51 @@ export enum NeighborIndex {
   downRight = 7,
 }
 
-export class Grid<T> {
+export class GridMap<T> extends Map<string, GridCell<T>> {
   public width: number;
   public height: number;
-  public cells: Map<string, Cell<T>> = new Map();
 
   constructor(width: number, height: number) {
+    super();
     this.width = width;
     this.height = height;
   }
 
   setValue(x: number, y: number, value: T) {
-    this.cells.set(`${x},${y}`, [x, y, value]);
+    this.set(`${x},${y}`, { x, y, value });
   }
 
   getValue(x: number, y: number) {
-    const payload = this.cells.get(`${x},${y}`);
-    return payload ? payload[2] : undefined;
-  }
-
-  forEach(fn: Iterate<T>) {
-    for (const payload of this.cells.values()) {
-      fn(...payload);
-    }
+    return this.get(`${x},${y}`);
   }
 
   neighbors(
     x: number,
     y: number,
-    arr: Neighbors<T> = [null, null, null, null, null, null, null, null]
-  ): Neighbors<T> {
+    arr: GridNeighbors<T> = [null, null, null, null, null, null, null, null]
+  ): GridNeighbors<T> {
     // previous row
-    arr[NeighborIndex.upLeft] = this.getValue(x - 1, y - 1) ?? null;
-    arr[NeighborIndex.up] = this.getValue(x, y - 1) ?? null;
-    arr[NeighborIndex.upRight] = this.getValue(x + 1, y - 1) ?? null;
+    arr[GridNeighborIndex.upLeft] = this.getValue(x - 1, y - 1) ?? null;
+    arr[GridNeighborIndex.up] = this.getValue(x, y - 1) ?? null;
+    arr[GridNeighborIndex.upRight] = this.getValue(x + 1, y - 1) ?? null;
 
     // current row
-    arr[NeighborIndex.left] = this.getValue(x - 1, y) ?? null;
-    arr[NeighborIndex.right] = this.getValue(x + 1, y) ?? null;
+    arr[GridNeighborIndex.left] = this.getValue(x - 1, y) ?? null;
+    arr[GridNeighborIndex.right] = this.getValue(x + 1, y) ?? null;
 
     // next row
-    arr[NeighborIndex.downLeft] = this.getValue(x - 1, y + 1) ?? null;
-    arr[NeighborIndex.down] = this.getValue(x, y + 1) ?? null;
-    arr[NeighborIndex.downRight] = this.getValue(x + 1, y + 1) ?? null;
+    arr[GridNeighborIndex.downLeft] = this.getValue(x - 1, y + 1) ?? null;
+    arr[GridNeighborIndex.down] = this.getValue(x, y + 1) ?? null;
+    arr[GridNeighborIndex.downRight] = this.getValue(x + 1, y + 1) ?? null;
 
     return arr;
   }
 
-  transformX<K>(otherGridX: number, otherGrid: Grid<K>) {
+  transformX<K>(otherGridX: number, otherGrid: GridMap<K>) {
     return Math.floor((otherGridX / otherGrid.width) * this.width);
   }
 
-  transformY<K>(otherGridY: number, otherGrid: Grid<K>) {
+  transformY<K>(otherGridY: number, otherGrid: GridMap<K>) {
     return Math.floor((otherGridY / otherGrid.height) * this.height);
   }
 }

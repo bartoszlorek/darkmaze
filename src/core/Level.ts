@@ -1,9 +1,8 @@
 import { EventEmitter } from "./EventEmitter";
 import { Player } from "./Player";
 import { Room, WallState } from "./Room";
+import { GridMap, DirectionIndex } from "../helpers";
 import type { Maybe } from "../helpers";
-
-export type RoomPredicate = (room: Room) => boolean;
 
 export type ConnectedRooms = [
   up: Maybe<Room>,
@@ -19,43 +18,30 @@ export type LevelEvents = {
 };
 
 export class Level extends EventEmitter<LevelEvents> {
-  public rooms: Room[];
   public dimension: number;
-
-  protected roomsIndexedMap: Map<string, Room>;
-  protected lastVisitedRoom: Room | null = null;
+  public rooms: GridMap<Room>;
+  public lastVisitedRoom: Room | null = null;
 
   constructor(rooms: Room[]) {
     super();
-    this.rooms = rooms;
     this.dimension = Math.sqrt(rooms.length);
+    this.rooms = new GridMap<Room>(this.dimension, this.dimension);
 
-    // index rooms
-    this.roomsIndexedMap = new Map<string, Room>();
     for (const room of rooms) {
-      const roomKey = this.getRoomKey(room.x, room.y);
-      this.roomsIndexedMap.set(roomKey, room);
+      this.rooms.setValue(room.x, room.y, room);
     }
-  }
-
-  protected getRoomKey(roomX: number, roomY: number) {
-    return `${roomX}-${roomY}`;
-  }
-
-  protected getRoom(x: number, y: number) {
-    return this.roomsIndexedMap.get(this.getRoomKey(x, y));
   }
 
   public getCurrentRoom(player: Player) {
     const x = Math.round(player.x);
     const y = Math.round(player.y);
 
-    const match = this.getRoom(x, y);
+    const match = this.rooms.getValue(x, y);
     if (match === undefined) {
       throw new Error("the player is outside the level");
     }
 
-    return match;
+    return match.value;
   }
 
   public updateCurrentRoom(player: Player) {
@@ -120,32 +106,33 @@ export class Level extends EventEmitter<LevelEvents> {
     return currentRoom;
   }
 
-  public getConnectedRooms(room: Room) {
-    const matches: ConnectedRooms = [null, null, null, null];
+  public getConnectedRooms(
+    room: Room,
+    arr: ConnectedRooms = [null, null, null, null]
+  ) {
+    if (room.walls[DirectionIndex.up] === WallState.open) {
+      arr[0] = this.rooms.getValue(room.x, room.y - 1)?.value || null;
+    }
+    if (room.walls[DirectionIndex.right] === WallState.open) {
+      arr[1] = this.rooms.getValue(room.x + 1, room.y)?.value || null;
+    }
+    if (room.walls[DirectionIndex.down] === WallState.open) {
+      arr[2] = this.rooms.getValue(room.x, room.y + 1)?.value || null;
+    }
+    if (room.walls[DirectionIndex.left] === WallState.open) {
+      arr[3] = this.rooms.getValue(room.x - 1, room.y)?.value || null;
+    }
 
-    if (room.walls[0] === WallState.open) {
-      matches[0] = this.getRoom(room.x, room.y - 1) || null;
-    }
-    if (room.walls[1] === WallState.open) {
-      matches[1] = this.getRoom(room.x + 1, room.y) || null;
-    }
-    if (room.walls[2] === WallState.open) {
-      matches[2] = this.getRoom(room.x, room.y + 1) || null;
-    }
-    if (room.walls[3] === WallState.open) {
-      matches[3] = this.getRoom(room.x - 1, room.y) || null;
-    }
-
-    return matches;
+    return arr;
   }
 
-  public filterConnectedRooms(room: Room, predicate: RoomPredicate) {
+  public filterConnectedRooms(room: Room, predicate: (room: Room) => boolean) {
     return this.getConnectedRooms(room).filter((room) =>
       room !== null ? predicate(room) : false
     ) as Room[];
   }
 
-  public someConnectedRooms(room: Room, predicate: RoomPredicate) {
+  public someConnectedRooms(room: Room, predicate: (room: Room) => boolean) {
     return this.getConnectedRooms(room).some((room) =>
       room !== null ? predicate(room) : false
     );

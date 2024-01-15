@@ -8,9 +8,9 @@ import {
   BitMaskValue,
   DirectionIndex,
   DrawFunction,
-  Grid,
-  NeighborIndex,
-  Neighbors,
+  GridMap,
+  GridNeighborIndex,
+  GridNeighbors,
   Pool,
 } from "./helpers";
 
@@ -72,7 +72,7 @@ export const drawLevel: DrawFunction<
   };
 
   const tileDisplays = new Map<string, TileDisplay>();
-  const tileStates = new Grid<WallState>(
+  const tileStates = new GridMap<WallState>(
     level.dimension * 2 + 1,
     level.dimension * 2 + 1
   );
@@ -117,23 +117,17 @@ export const drawLevel: DrawFunction<
     }
   );
 
-  // temporarily build level grid
-  const levelGrid = new Grid<Room>(level.dimension, level.dimension);
-  for (const room of level.rooms) {
-    levelGrid.setValue(room.x, room.y, room);
-  }
-
   // preallocated array memory
   // prettier-ignore
-  const _tileStatesNeighbors: Neighbors<WallState> = [
+  const _tileStatesNeighbors: GridNeighbors<WallState> = [
     null, null, null,
     null,       null,
     null, null, null,
   ];
 
   level.subscribe("room_explore", ({ room }: { room: Room }) => {
-    const x = tileStates.transformX(room.x, levelGrid);
-    const y = tileStates.transformY(room.y, levelGrid);
+    const x = tileStates.transformX(room.x, level.rooms);
+    const y = tileStates.transformY(room.y, level.rooms);
 
     // previous row
     tileStates.setValue(x - 1, y - 1, WallState.closed);
@@ -151,29 +145,28 @@ export const drawLevel: DrawFunction<
     tileStates.setValue(x + 1, y + 1, WallState.closed);
 
     // regenerates every bitIndex of walls and the floor
-    tileStates.forEach((x, y, value) => {
-      const neighbors = tileStates.neighbors(x, y, _tileStatesNeighbors);
+    for (const { x, y, value } of tileStates.values()) {
+      const n = tileStates.neighbors(x, y, _tileStatesNeighbors);
 
       const wallIndex =
         value === WallState.closed
           ? createBitMask(
-              neighbors[NeighborIndex.up] ? 1 : 0,
-              neighbors[NeighborIndex.left] ? 1 : 0,
-              neighbors[NeighborIndex.right] ? 1 : 0,
-              neighbors[NeighborIndex.down] ? 1 : 0
+              n[GridNeighborIndex.up]?.value === WallState.closed ? 1 : 0,
+              n[GridNeighborIndex.left]?.value === WallState.closed ? 1 : 0,
+              n[GridNeighborIndex.right]?.value === WallState.closed ? 1 : 0,
+              n[GridNeighborIndex.down]?.value === WallState.closed ? 1 : 0
             )
           : -1;
 
       const floorIndex = createBitMask(
-        neighbors[NeighborIndex.up] !== null ? 1 : 0,
-        neighbors[NeighborIndex.left] !== null ? 1 : 0,
-        neighbors[NeighborIndex.right] !== null ? 1 : 0,
-        neighbors[NeighborIndex.down] !== null ? 1 : 0
+        n[GridNeighborIndex.up] !== null ? 1 : 0,
+        n[GridNeighborIndex.left] !== null ? 1 : 0,
+        n[GridNeighborIndex.right] !== null ? 1 : 0,
+        n[GridNeighborIndex.down] !== null ? 1 : 0
       );
 
       const uniqueId = `${x},${y}`;
       const tile = tileDisplays.get(uniqueId);
-
       if (tile === undefined) {
         tileDisplays.set(uniqueId, {
           uniqueId,
@@ -187,7 +180,7 @@ export const drawLevel: DrawFunction<
         tile.wallIndex = wallIndex;
         tile.floorIndex = floorIndex;
       }
-    });
+    }
   });
 
   parent.addChild(floorLayer);
@@ -198,22 +191,6 @@ export const drawLevel: DrawFunction<
   parent.addChild(debug.layer);
 
   return () => {
-    for (const room of level.rooms) {
-      if (debugMode === DEBUG_MODE.VISITED_CONNECTED) {
-        debug.print(
-          room.visitedConnectedRooms,
-          room.x * gridSize + gridSize / 2,
-          room.y * gridSize + gridSize / 2
-        );
-      } else if (debugMode === DEBUG_MODE.EXPLORED_CONNECTED) {
-        debug.print(
-          room.exploredConnectedRooms,
-          room.x * gridSize + gridSize / 2,
-          room.y * gridSize + gridSize / 2
-        );
-      }
-    }
-
     for (const tile of tileDisplays.values()) {
       if (debugMode === DEBUG_MODE.WALLS_INDEX) {
         debug.print(
@@ -246,32 +223,46 @@ export const drawLevel: DrawFunction<
       sprite.y = tile.actualY;
     }
 
-    for (const room of level.rooms) {
+    for (const { x, y, value: room } of level.rooms.values()) {
+      if (debugMode === DEBUG_MODE.VISITED_CONNECTED) {
+        debug.print(
+          room.visitedConnectedRooms,
+          x * gridSize + gridSize / 2,
+          y * gridSize + gridSize / 2
+        );
+      } else if (debugMode === DEBUG_MODE.EXPLORED_CONNECTED) {
+        debug.print(
+          room.exploredConnectedRooms,
+          x * gridSize + gridSize / 2,
+          y * gridSize + gridSize / 2
+        );
+      }
+
       if (room.explored) {
-        const roomKey = `${room.x},${room.y}`;
+        const roomKey = `${x},${y}`;
 
         switch (room.type) {
           case "evil": {
             const sprite = itemsSprites.get(roomKey);
             sprite.texture = tex.room_evil;
-            sprite.x = room.x * gridSize;
-            sprite.y = room.y * gridSize;
+            sprite.x = x * gridSize;
+            sprite.y = y * gridSize;
             break;
           }
 
           case "golden": {
             const sprite = itemsSprites.get(roomKey);
             sprite.texture = tex.room_golden;
-            sprite.x = room.x * gridSize;
-            sprite.y = room.y * gridSize;
+            sprite.x = x * gridSize;
+            sprite.y = y * gridSize;
             break;
           }
 
           case "passage": {
             const sprite = itemsSprites.get(roomKey);
             sprite.texture = tex.room_passage;
-            sprite.x = room.x * gridSize;
-            sprite.y = room.y * gridSize;
+            sprite.x = x * gridSize;
+            sprite.y = y * gridSize;
             break;
           }
         }

@@ -31,10 +31,15 @@ export function Compass({ player, level }: PropsType) {
   /**
    * a static list of rooms
    */
-  const goldenRooms = React.useMemo<Room[]>(
-    () => level.rooms.filter((room) => room.type === "golden"),
-    [level]
-  );
+  const goldenRooms = React.useMemo<Room[]>(() => {
+    const matches = [];
+    for (const room of level.rooms.values()) {
+      if (room.value.type === "golden") {
+        matches.push(room.value);
+      }
+    }
+    return matches;
+  }, [level]);
 
   React.useEffect(() => {
     const unsubscribeMove = player.subscribe("move", (payload) => {

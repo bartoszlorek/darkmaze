@@ -2,7 +2,14 @@ import { Level, Player, WallState } from "./core";
 import { angleFromDirectionIndex } from "./helpers";
 
 export function createPlayer(level: Level, alignToRoom: boolean): Player {
-  const startingRoom = level.rooms.find((a) => a.type === "start");
+  let startingRoom;
+  for (const room of level.rooms.values()) {
+    if (room.value.type === "start") {
+      startingRoom = room.value;
+      break;
+    }
+  }
+
   if (!startingRoom) {
     throw new Error("there is no start room for the player");
   }
