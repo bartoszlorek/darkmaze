@@ -1,7 +1,7 @@
 import { arrayRandomItem } from "../helpers";
 import { Room } from "../core";
 
-const roomKey = (x: number, y: number) => `${x}-${y}`;
+const roomKey = (x: number, y: number) => `${x},${y}`;
 
 /**
  * All generated rooms are empty.
@@ -20,8 +20,15 @@ export function generateRoomsLayout({
 
   for (let y = 0; y < dimension; y++) {
     for (let x = 0; x < dimension; x++) {
-      const room = new Room(x, y, [1, 1, 1, 1]);
-      roomsMap.set(roomKey(x, y), room);
+      roomsMap.set(
+        roomKey(x, y),
+        new Room(x, y).setWalls({
+          up: true,
+          left: true,
+          right: true,
+          down: true,
+        })
+      );
     }
   }
 
@@ -45,12 +52,7 @@ export function generateRoomsLayout({
     }
   }
 
-  const rooms = Array.from(roomsMap.values());
-  for (const room of rooms) {
-    room.parse();
-  }
-
-  return rooms;
+  return [...roomsMap.values()];
 }
 
 function getUnvisitedNeighbors(
@@ -60,43 +62,35 @@ function getUnvisitedNeighbors(
 ) {
   const neighbors: Room[] = [];
   const top = roomsMap.get(roomKey(room.x, room.y - 1));
+  const left = roomsMap.get(roomKey(room.x - 1, room.y));
   const right = roomsMap.get(roomKey(room.x + 1, room.y));
   const bottom = roomsMap.get(roomKey(room.x, room.y + 1));
-  const left = roomsMap.get(roomKey(room.x - 1, room.y));
 
-  if (top && !visitedRooms.has(top)) {
-    neighbors.push(top);
-  }
-  if (right && !visitedRooms.has(right)) {
-    neighbors.push(right);
-  }
-  if (bottom && !visitedRooms.has(bottom)) {
-    neighbors.push(bottom);
-  }
-  if (left && !visitedRooms.has(left)) {
-    neighbors.push(left);
-  }
+  if (top && !visitedRooms.has(top)) neighbors.push(top);
+  if (left && !visitedRooms.has(left)) neighbors.push(left);
+  if (right && !visitedRooms.has(right)) neighbors.push(right);
+  if (bottom && !visitedRooms.has(bottom)) neighbors.push(bottom);
 
   return neighbors;
 }
 
 function removeWallBetween(a: Room, b: Room) {
-  const x = a.x - b.x;
-  const y = a.y - b.y;
+  const diffX = a.x - b.x;
+  const diffY = a.y - b.y;
 
-  if (x === 1) {
-    a.walls[3] = 0;
-    b.walls[1] = 0;
-  } else if (x === -1) {
-    a.walls[1] = 0;
-    b.walls[3] = 0;
+  if (diffX > 0) {
+    a.setWalls({ left: false });
+    b.setWalls({ right: false });
+  } else if (diffX < 0) {
+    a.setWalls({ right: false });
+    b.setWalls({ left: false });
   }
 
-  if (y === 1) {
-    a.walls[0] = 0;
-    b.walls[2] = 0;
-  } else if (y === -1) {
-    a.walls[2] = 0;
-    b.walls[0] = 0;
+  if (diffY > 0) {
+    a.setWalls({ up: false });
+    b.setWalls({ down: false });
+  } else if (diffY < 0) {
+    a.setWalls({ down: false });
+    b.setWalls({ up: false });
   }
 }

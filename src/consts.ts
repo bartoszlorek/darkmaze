@@ -1,6 +1,6 @@
 export const GRID_SIZE = 48;
 
-export const ANTICIPATION_TIME = 320;
+export const ANTICIPATION_TIME = 820;
 
 export const DIALOGUES = {
   entry: "Where am I? It is so dark. I have to use all my SENSES to escape.",

@@ -1,5 +1,5 @@
 import * as PIXI from "pixi.js";
-import { DrawFunction, FacingAngle } from "./helpers";
+import { DrawFunction, Direction8Angle } from "./helpers";
 import type { LoadedSpritesheets } from "./assets";
 import type { Player, PlayerStatus } from "./core";
 
@@ -24,35 +24,35 @@ export const drawPlayer: DrawFunction<{
       lastPlayerStatus !== player.status
     ) {
       switch (player.facingAngle) {
-        case FacingAngle.upLeft:
+        case Direction8Angle.upLeft:
           anim.textures = sprites.player.animations.upLeft;
           break;
 
-        case FacingAngle.up:
+        case Direction8Angle.up:
           anim.textures = sprites.player.animations.up;
           break;
 
-        case FacingAngle.upRight:
+        case Direction8Angle.upRight:
           anim.textures = sprites.player.animations.upRight;
           break;
 
-        case FacingAngle.left:
+        case Direction8Angle.left:
           anim.textures = sprites.player.animations.left;
           break;
 
-        case FacingAngle.right:
+        case Direction8Angle.right:
           anim.textures = sprites.player.animations.right;
           break;
 
-        case FacingAngle.downLeft:
+        case Direction8Angle.downLeft:
           anim.textures = sprites.player.animations.downLeft;
           break;
 
-        case FacingAngle.down:
+        case Direction8Angle.down:
           anim.textures = sprites.player.animations.down;
           break;
 
-        case FacingAngle.downRight:
+        case Direction8Angle.downRight:
           anim.textures = sprites.player.animations.downRight;
           break;
       }

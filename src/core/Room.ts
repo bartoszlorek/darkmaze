@@ -1,23 +1,28 @@
-import { DirectionIndex, FacingAngle } from "../helpers";
-
-export enum WallState {
-  open = 0,
-  closed = 1,
-}
+import {
+  Bit,
+  Direction4Neighbors,
+  Direction4Key,
+  direction4KeyFromAngle,
+  direction8KeyFromAngle,
+} from "../helpers";
 
 export type RoomType = "start" | "empty" | "evil" | "golden" | "passage";
 
-export const isEvil = (room: Room) => room.type === "evil";
+export type RoomWalls = Readonly<Direction4Neighbors<boolean>>;
 
 export class Room {
   public x: number;
   public y: number;
-  public walls: [WallState, WallState, WallState, WallState];
   public type: RoomType;
+  public walls: RoomWalls = {
+    up: false,
+    left: false,
+    right: false,
+    down: false,
+  };
 
   /**
-   * the room has only one open wall,
-   * which is the entrance
+   * the room has only one exit
    */
   public deadEnd: boolean = false;
 
@@ -29,100 +34,76 @@ export class Room {
   public explored: boolean = false;
   public exploredConnectedRooms: number = 0;
 
-  constructor(
-    x: number,
-    y: number,
-    walls: [WallState, WallState, WallState, WallState],
-    type: RoomType = "empty"
-  ) {
+  constructor(x: number, y: number, type: RoomType = "empty") {
     this.x = x;
     this.y = y;
-    this.walls = walls;
     this.type = type;
-    this.parse();
   }
 
-  public parse() {
-    let entrances = 0;
-    for (const wall of this.walls) {
-      if (wall === WallState.open) {
-        entrances += 1;
-      }
-    }
-    this.deadEnd = entrances === 1;
+  public setWalls(walls: Partial<RoomWalls>) {
+    this.walls = Object.assign(this.walls, walls);
+
+    let exits = 0;
+    if (!this.walls.up) exits += 1;
+    if (!this.walls.left) exits += 1;
+    if (!this.walls.right) exits += 1;
+    if (!this.walls.down) exits += 1;
+
+    this.deadEnd = exits <= 1;
+    return this;
+  }
+
+  public setWallsByBit(up: Bit, left: Bit, right: Bit, down: Bit) {
+    return this.setWalls({
+      up: Boolean(up),
+      left: Boolean(left),
+      right: Boolean(right),
+      down: Boolean(down),
+    });
   }
 
   public contains(x: number, y: number): boolean {
     return !(this.x !== Math.round(x) || this.y !== Math.round(y));
   }
 
-  public directionIndexFromAngle(
-    currentFacingAngle: number,
-    previousFacingAngle: number
-  ): DirectionIndex {
-    switch (currentFacingAngle) {
-      case FacingAngle.up:
-        return DirectionIndex.up;
+  public direction(currAngle: number, prevAngle: number): Direction4Key {
+    const directionKey = direction8KeyFromAngle(currAngle);
 
-      case FacingAngle.down:
-        return DirectionIndex.down;
-
-      case FacingAngle.right:
-        return DirectionIndex.right;
-
-      case FacingAngle.left:
-        return DirectionIndex.left;
-
-      case FacingAngle.upRight:
-        // the change from the up to upRight indicates intent to turn right
-        if (previousFacingAngle === DirectionIndex.up) {
-          return this.walls[DirectionIndex.right] === WallState.open
-            ? DirectionIndex.right
-            : DirectionIndex.up;
+    switch (directionKey) {
+      case "upLeft":
+        if (direction4KeyFromAngle(prevAngle) === "up") {
+          return this.walls.left ? "up" : "left";
         } else {
-          return this.walls[DirectionIndex.up] === WallState.open
-            ? DirectionIndex.up
-            : DirectionIndex.right;
+          return this.walls.up ? "left" : "up";
         }
 
-      case FacingAngle.downRight:
-        // the change from the down to downRight indicates intent to turn right
-        if (previousFacingAngle === DirectionIndex.down) {
-          return this.walls[DirectionIndex.right] === WallState.open
-            ? DirectionIndex.right
-            : DirectionIndex.down;
+      case "upRight":
+        if (direction4KeyFromAngle(prevAngle) === "up") {
+          return this.walls.right ? "up" : "right";
         } else {
-          return this.walls[DirectionIndex.down] === WallState.open
-            ? DirectionIndex.down
-            : DirectionIndex.right;
+          return this.walls.up ? "right" : "up";
         }
 
-      case FacingAngle.upLeft:
-        // the change from the up to upLeft indicates intent to turn left
-        if (previousFacingAngle === DirectionIndex.up) {
-          return this.walls[DirectionIndex.left] === WallState.open
-            ? DirectionIndex.left
-            : DirectionIndex.up;
+      case "downLeft":
+        if (direction4KeyFromAngle(prevAngle) === "down") {
+          return this.walls.left ? "down" : "left";
         } else {
-          return this.walls[DirectionIndex.up] === WallState.open
-            ? DirectionIndex.up
-            : DirectionIndex.left;
+          return this.walls.down ? "left" : "down";
         }
 
-      case FacingAngle.downLeft:
-        // the change from the down to downLeft indicates intent to turn left
-        if (previousFacingAngle === DirectionIndex.down) {
-          return this.walls[DirectionIndex.left] === WallState.open
-            ? DirectionIndex.left
-            : DirectionIndex.down;
+      case "downRight":
+        if (direction4KeyFromAngle(prevAngle) === "down") {
+          return this.walls.right ? "down" : "right";
         } else {
-          return this.walls[DirectionIndex.down] === WallState.open
-            ? DirectionIndex.down
-            : DirectionIndex.left;
+          return this.walls.down ? "right" : "down";
         }
 
       default:
-        return DirectionIndex.up;
+        return directionKey;
     }
+  }
+
+  static isEvil(room: Room) {
+    return room.type === "evil";
   }
 }

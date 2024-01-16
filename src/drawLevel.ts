@@ -1,18 +1,22 @@
 import * as PIXI from "pixi.js";
 import { LoadedSpritesheets } from "./assets";
-import { Level, Room, WallState } from "./core";
+import { Level, Room } from "./core";
 import { DEBUG_MODE } from "./debug";
 import { createDebugger } from "./debugger";
 import {
-  createBitMask,
   BitMaskValue,
-  DirectionIndex,
   DrawFunction,
+  GridCell,
   GridMap,
-  GridNeighborIndex,
-  GridNeighbors,
   Pool,
+  createBitMask,
+  createEmptyNeighbors8,
 } from "./helpers";
+
+enum TileState {
+  floor = 0,
+  walls = 1,
+}
 
 interface TileDisplay {
   uniqueId: string;
@@ -23,15 +27,12 @@ interface TileDisplay {
   actualY: number;
 }
 
-export const drawLevel: DrawFunction<
-  {
-    level: Level;
-    gridSize: number;
-    sprites: LoadedSpritesheets;
-    debugMode: DEBUG_MODE;
-  },
-  [revealed: boolean]
-> = ({ parent, level, gridSize, sprites, debugMode }) => {
+export const drawLevel: DrawFunction<{
+  level: Level;
+  gridSize: number;
+  sprites: LoadedSpritesheets;
+  debugMode: DEBUG_MODE;
+}> = ({ parent, level, gridSize, sprites, debugMode }) => {
   const tex = sprites.world.textures;
   const wallTextures: Record<BitMaskValue, PIXI.Texture[]> = {
     0: [tex.walls_3b],
@@ -72,7 +73,7 @@ export const drawLevel: DrawFunction<
   };
 
   const tileDisplays = new Map<string, TileDisplay>();
-  const tileStates = new GridMap<WallState>(
+  const tileStates = new GridMap<TileState>(
     level.dimension * 2 + 1,
     level.dimension * 2 + 1
   );
@@ -118,51 +119,51 @@ export const drawLevel: DrawFunction<
   );
 
   // preallocated array memory
-  // prettier-ignore
-  const _tileStatesNeighbors: GridNeighbors<WallState> = [
-    null, null, null,
-    null,       null,
-    null, null, null,
-  ];
+  const _tileStatesNeighbors = createEmptyNeighbors8<GridCell<TileState>>();
 
   level.subscribe("room_explore", ({ room }: { room: Room }) => {
     const x = tileStates.transformX(room.x, level.rooms);
     const y = tileStates.transformY(room.y, level.rooms);
 
+    const upState = room.walls.up ? TileState.walls : TileState.floor;
+    const leftState = room.walls.left ? TileState.walls : TileState.floor;
+    const rightState = room.walls.right ? TileState.walls : TileState.floor;
+    const downState = room.walls.down ? TileState.walls : TileState.floor;
+
     // previous row
-    tileStates.setValue(x - 1, y - 1, WallState.closed);
-    tileStates.setValue(x, y - 1, room.walls[DirectionIndex.up]);
-    tileStates.setValue(x + 1, y - 1, WallState.closed);
+    tileStates.setValue(x - 1, y - 1, TileState.walls);
+    tileStates.setValue(x, y - 1, upState);
+    tileStates.setValue(x + 1, y - 1, TileState.walls);
 
     // current row
-    tileStates.setValue(x - 1, y, room.walls[DirectionIndex.left]);
-    tileStates.setValue(x, y, WallState.open);
-    tileStates.setValue(x + 1, y, room.walls[DirectionIndex.right]);
+    tileStates.setValue(x - 1, y, leftState);
+    tileStates.setValue(x, y, TileState.floor);
+    tileStates.setValue(x + 1, y, rightState);
 
     // next row
-    tileStates.setValue(x - 1, y + 1, WallState.closed);
-    tileStates.setValue(x, y + 1, room.walls[DirectionIndex.down]);
-    tileStates.setValue(x + 1, y + 1, WallState.closed);
+    tileStates.setValue(x - 1, y + 1, TileState.walls);
+    tileStates.setValue(x, y + 1, downState);
+    tileStates.setValue(x + 1, y + 1, TileState.walls);
 
     // regenerates every bitIndex of walls and the floor
     for (const { x, y, value } of tileStates.values()) {
       const n = tileStates.neighbors(x, y, _tileStatesNeighbors);
 
       const wallIndex =
-        value === WallState.closed
+        value === TileState.walls
           ? createBitMask(
-              n[GridNeighborIndex.up]?.value === WallState.closed ? 1 : 0,
-              n[GridNeighborIndex.left]?.value === WallState.closed ? 1 : 0,
-              n[GridNeighborIndex.right]?.value === WallState.closed ? 1 : 0,
-              n[GridNeighborIndex.down]?.value === WallState.closed ? 1 : 0
+              n.up?.value === TileState.walls ? 1 : 0,
+              n.left?.value === TileState.walls ? 1 : 0,
+              n.right?.value === TileState.walls ? 1 : 0,
+              n.down?.value === TileState.walls ? 1 : 0
             )
           : -1;
 
       const floorIndex = createBitMask(
-        n[GridNeighborIndex.up] !== null ? 1 : 0,
-        n[GridNeighborIndex.left] !== null ? 1 : 0,
-        n[GridNeighborIndex.right] !== null ? 1 : 0,
-        n[GridNeighborIndex.down] !== null ? 1 : 0
+        n.up !== null ? 1 : 0,
+        n.left !== null ? 1 : 0,
+        n.right !== null ? 1 : 0,
+        n.down !== null ? 1 : 0
       );
 
       const uniqueId = `${x},${y}`;

@@ -1,17 +1,15 @@
 import {
+  direction4KeyFromAngle,
+  Direction4Angle,
   ceilNumber,
   floorNumber,
-  normalizeAngle,
-  subtractAngle,
   lerp,
   lerpAngle,
-  DirectionIndex,
-  DirectionAngle,
-  angleFromDirectionIndex,
-  directionIndexFromAngle,
+  normalizeAngle,
+  subtractAngle,
 } from "../helpers";
 import { EventEmitter } from "./EventEmitter";
-import { Room, WallState } from "./Room";
+import { Room } from "./Room";
 
 export const PLAYER_MOVE_SPEED = 0.05; // pixels
 export const PLAYER_MOVE_FOLLOWING_AXIS = 0.1; // bias
@@ -60,7 +58,7 @@ export class Player extends EventEmitter<PlayerEvents> {
     status: { value: PLAYER_DEFAULT_STATUS },
   };
 
-  protected previousFacingAngle: number;
+  protected prevFacingAngle: number;
 
   constructor(x: number, y: number, angle: number) {
     super();
@@ -68,7 +66,7 @@ export class Player extends EventEmitter<PlayerEvents> {
     this.y = y;
     this.angle = angle;
     this.facingAngle = floorNumber(angle, PLAYER_FACING_ANGLE);
-    this.previousFacingAngle = this.facingAngle;
+    this.prevFacingAngle = this.facingAngle;
   }
 
   public moveForward() {
@@ -120,73 +118,73 @@ export class Player extends EventEmitter<PlayerEvents> {
 
     if (this.moveDirection !== 0) {
       const isMovingForward = this.moveDirection > 0;
-      const directionIndex = currentRoom.directionIndexFromAngle(
+      const directionKey = currentRoom.direction(
         isMovingForward
           ? this.facingAngle
           : normalizeAngle(this.facingAngle + 180),
         isMovingForward
-          ? this.previousFacingAngle
-          : normalizeAngle(this.previousFacingAngle + 180)
+          ? this.prevFacingAngle
+          : normalizeAngle(this.prevFacingAngle + 180)
       );
 
-      switch (directionIndex) {
-        case DirectionIndex.up:
+      switch (directionKey) {
+        case "up":
           this.y -= PLAYER_MOVE_SPEED * deltaTime;
 
-          if (currentRoom.walls[DirectionIndex.up] === WallState.closed) {
+          if (currentRoom.walls.up) {
             this.y = Math.max(this.y, currentRoom.y);
           }
 
           if (this.y !== yBefore) {
             this.x = lerp(this.x, currentRoom.x, PLAYER_MOVE_FOLLOWING_AXIS);
             this.facingAngle = isMovingForward
-              ? DirectionAngle.up
-              : DirectionAngle.down;
+              ? Direction4Angle.up
+              : Direction4Angle.down;
           }
           break;
 
-        case DirectionIndex.right:
+        case "right":
           this.x += PLAYER_MOVE_SPEED * deltaTime;
 
-          if (currentRoom.walls[DirectionIndex.right] === WallState.closed) {
+          if (currentRoom.walls.right) {
             this.x = Math.min(this.x, currentRoom.x);
           }
 
           if (this.x !== xBefore) {
             this.y = lerp(this.y, currentRoom.y, PLAYER_MOVE_FOLLOWING_AXIS);
             this.facingAngle = isMovingForward
-              ? DirectionAngle.right
-              : DirectionAngle.left;
+              ? Direction4Angle.right
+              : Direction4Angle.left;
           }
           break;
 
-        case DirectionIndex.down:
+        case "down":
           this.y += PLAYER_MOVE_SPEED * deltaTime;
 
-          if (currentRoom.walls[DirectionIndex.down] === WallState.closed) {
+          if (currentRoom.walls.down) {
             this.y = Math.min(this.y, currentRoom.y);
           }
 
           if (this.y !== yBefore) {
             this.x = lerp(this.x, currentRoom.x, PLAYER_MOVE_FOLLOWING_AXIS);
             this.facingAngle = isMovingForward
-              ? DirectionAngle.down
-              : DirectionAngle.up;
+              ? Direction4Angle.down
+              : Direction4Angle.up;
           }
           break;
 
-        case DirectionIndex.left:
+        case "left":
           this.x -= PLAYER_MOVE_SPEED * deltaTime;
 
-          if (currentRoom.walls[DirectionIndex.left] === WallState.closed) {
+          if (currentRoom.walls.left) {
             this.x = Math.max(this.x, currentRoom.x);
           }
 
           if (this.x !== xBefore) {
             this.y = lerp(this.y, currentRoom.y, PLAYER_MOVE_FOLLOWING_AXIS);
             this.facingAngle = isMovingForward
-              ? DirectionAngle.left
-              : DirectionAngle.right;
+              ? Direction4Angle.left
+              : Direction4Angle.right;
           }
           break;
       }
@@ -216,7 +214,7 @@ export class Player extends EventEmitter<PlayerEvents> {
     }
 
     if (this.facingAngle !== facingAngleBefore) {
-      this.previousFacingAngle = facingAngleBefore;
+      this.prevFacingAngle = facingAngleBefore;
     }
 
     didSomeTurn = this.angle !== angleBefore;
@@ -237,16 +235,16 @@ export class Player extends EventEmitter<PlayerEvents> {
   protected applyPathSense(currentRoom: Room) {
     const angleLeft = this.facingAngle - 90;
     const angleRight = this.facingAngle + 90;
-    const directionIndexLeft = directionIndexFromAngle(angleLeft);
-    const directionIndexRight = directionIndexFromAngle(angleRight);
+    const directionKeyLeft = direction4KeyFromAngle(angleLeft);
+    const directionKeyRight = direction4KeyFromAngle(angleRight);
 
     // references
     const pathSenseLeftBefore = this.pathSenseLeft;
     const pathSenseRightBefore = this.pathSenseRight;
 
-    if (currentRoom.walls[directionIndexLeft] === WallState.open) {
+    if (!currentRoom.walls[directionKeyLeft]) {
       const angleDiff = subtractAngle(
-        angleFromDirectionIndex(directionIndexLeft),
+        Direction4Angle[directionKeyLeft],
         angleLeft
       );
 
@@ -255,9 +253,9 @@ export class Player extends EventEmitter<PlayerEvents> {
       this.pathSenseLeft = 0;
     }
 
-    if (currentRoom.walls[directionIndexRight] === WallState.open) {
+    if (!currentRoom.walls[directionKeyRight]) {
       const angleDiff = subtractAngle(
-        angleFromDirectionIndex(directionIndexRight),
+        Direction4Angle[directionKeyRight],
         angleRight
       );
 

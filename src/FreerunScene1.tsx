@@ -43,11 +43,13 @@ export function FreerunScene1({
     level.subscribe("room_enter", ({ room }) => {
       switch (room.type) {
         case "evil":
+          level.emit("reveal", undefined);
           player.setStatus("paused");
           setTimeout(() => player.setStatus("died"), ANTICIPATION_TIME);
           break;
 
         case "golden":
+          level.emit("reveal", undefined);
           player.setStatus("paused");
           setTimeout(() => player.setStatus("won"), ANTICIPATION_TIME);
           break;
@@ -57,11 +59,7 @@ export function FreerunScene1({
 
   return (
     <>
-      <MainStageLayer
-        player={player}
-        level={level}
-        levelRevealed={player.status === "won"}
-      />
+      <MainStageLayer player={player} level={level} />
       <Compass player={player} level={level} />
       {playerStatus === "died" && (
         <ActionScreen title="you died" titleColor="red">

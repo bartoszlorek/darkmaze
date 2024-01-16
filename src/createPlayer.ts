@@ -1,5 +1,5 @@
-import { Level, Player, WallState } from "./core";
-import { angleFromDirectionIndex } from "./helpers";
+import { Level, Player } from "./core";
+import { Direction4Angle } from "./helpers";
 
 export function createPlayer(level: Level, alignToRoom: boolean): Player {
   let startingRoom;
@@ -18,9 +18,16 @@ export function createPlayer(level: Level, alignToRoom: boolean): Player {
     return new Player(startingRoom.x, startingRoom.y, 0);
   }
 
-  const openWallAngle = angleFromDirectionIndex(
-    startingRoom.walls.findIndex((a) => a === WallState.open)
-  );
+  let openWallAngle = 0;
+  if (!startingRoom.walls.up) {
+    openWallAngle = Direction4Angle.up;
+  } else if (!startingRoom.walls.right) {
+    openWallAngle = Direction4Angle.right;
+  } else if (!startingRoom.walls.down) {
+    openWallAngle = Direction4Angle.down;
+  } else if (!startingRoom.walls.left) {
+    openWallAngle = Direction4Angle.left;
+  }
 
   return new Player(startingRoom.x, startingRoom.y, openWallAngle);
 }

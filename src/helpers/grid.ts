@@ -1,31 +1,9 @@
-import { Maybe } from "./types";
+import { Direction8Neighbors, createEmptyNeighbors8 } from "./direction";
 
 export interface GridCell<T> {
   x: number;
   y: number;
   value: T;
-}
-
-export type GridNeighbors<T> = [
-  Maybe<GridCell<T>>,
-  Maybe<GridCell<T>>,
-  Maybe<GridCell<T>>,
-  Maybe<GridCell<T>>,
-  Maybe<GridCell<T>>,
-  Maybe<GridCell<T>>,
-  Maybe<GridCell<T>>,
-  Maybe<GridCell<T>>
-];
-
-export enum GridNeighborIndex {
-  upLeft = 0,
-  up = 1,
-  upRight = 2,
-  left = 3,
-  right = 4,
-  downLeft = 5,
-  down = 6,
-  downRight = 7,
 }
 
 export class GridMap<T> extends Map<string, GridCell<T>> {
@@ -49,23 +27,17 @@ export class GridMap<T> extends Map<string, GridCell<T>> {
   neighbors(
     x: number,
     y: number,
-    arr: GridNeighbors<T> = [null, null, null, null, null, null, null, null]
-  ): GridNeighbors<T> {
-    // previous row
-    arr[GridNeighborIndex.upLeft] = this.getValue(x - 1, y - 1) ?? null;
-    arr[GridNeighborIndex.up] = this.getValue(x, y - 1) ?? null;
-    arr[GridNeighborIndex.upRight] = this.getValue(x + 1, y - 1) ?? null;
-
-    // current row
-    arr[GridNeighborIndex.left] = this.getValue(x - 1, y) ?? null;
-    arr[GridNeighborIndex.right] = this.getValue(x + 1, y) ?? null;
-
-    // next row
-    arr[GridNeighborIndex.downLeft] = this.getValue(x - 1, y + 1) ?? null;
-    arr[GridNeighborIndex.down] = this.getValue(x, y + 1) ?? null;
-    arr[GridNeighborIndex.downRight] = this.getValue(x + 1, y + 1) ?? null;
-
-    return arr;
+    output: Direction8Neighbors<GridCell<T>> = createEmptyNeighbors8()
+  ) {
+    output.upLeft = this.getValue(x - 1, y - 1) ?? null;
+    output.up = this.getValue(x, y - 1) ?? null;
+    output.upRight = this.getValue(x + 1, y - 1) ?? null;
+    output.left = this.getValue(x - 1, y) ?? null;
+    output.right = this.getValue(x + 1, y) ?? null;
+    output.downLeft = this.getValue(x - 1, y + 1) ?? null;
+    output.down = this.getValue(x, y + 1) ?? null;
+    output.downRight = this.getValue(x + 1, y + 1) ?? null;
+    return output;
   }
 
   transformX<K>(otherGridX: number, otherGrid: GridMap<K>) {

@@ -62,37 +62,3 @@ export function angleBetweenPoints(
   const deltaY = pointY - originY;
   return (Math.atan2(deltaY, deltaX) * 180) / Math.PI + 90;
 }
-
-export enum DirectionIndex {
-  up = 0,
-  right = 1,
-  down = 2,
-  left = 3,
-}
-
-export enum DirectionAngle {
-  up = 0,
-  right = 90,
-  down = 180,
-  left = 270,
-}
-
-export enum FacingAngle {
-  up = 0,
-  upRight = 45,
-  right = 90,
-  downRight = 135,
-  down = 180,
-  downLeft = 225,
-  left = 270,
-  upLeft = 315,
-}
-
-export const directionAngles: DirectionAngle[] = [0, 90, 180, 270];
-export function angleFromDirectionIndex(index: DirectionIndex): DirectionAngle {
-  return directionAngles[index] ?? DirectionAngle.up;
-}
-
-export function directionIndexFromAngle(angle: number): DirectionIndex {
-  return Math.floor(normalizeAngle(angle + 45) / 90);
-}

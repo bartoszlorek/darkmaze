@@ -1,17 +1,11 @@
 import * as PIXI from "pixi.js";
-import {
-  DrawFunction,
-  DirectionAngle,
-  DirectionIndex,
-  getPointInView,
-  lerp,
-} from "./helpers";
-import { WallState } from "./core";
+import { DrawFunction, Direction4Angle, getPointInView, lerp } from "./helpers";
 import type { Player, Level, Room } from "./core";
 import type { Maybe } from "./helpers";
 
 const FIELD_OF_VIEW = 180;
 const MIN_LINES_COUNT = 15;
+const FADE_OUT_SPEED = 0.05;
 
 export const drawDarkness: DrawFunction<{
   player: Player;
@@ -26,41 +20,41 @@ export const drawDarkness: DrawFunction<{
     currentRoom = room;
   });
 
-  const currentOpenWallsInView: [
-    Maybe<number>,
-    Maybe<number>,
-    Maybe<number>,
-    Maybe<number>
-  ] = [null, null, null, null];
+  let fadeOut = false;
+  level.subscribe("reveal", () => {
+    fadeOut = true;
+  });
 
+  const openWallsInView: Maybe<number>[] = [null, null, null, null];
   const lines: number[] = [];
   const linesBuffer: number[] = [];
 
   return () => {
+    if (fadeOut) {
+      g.alpha = Math.max(0, g.alpha - FADE_OUT_SPEED);
+      return;
+    }
+
     if (!currentRoom) {
       return;
     }
 
     // update room angles according to player's view
-    currentOpenWallsInView[DirectionIndex.up] =
-      currentRoom.walls[DirectionIndex.up] === WallState.open
-        ? getPointInView(player.angle, DirectionAngle.up, FIELD_OF_VIEW)
-        : null;
+    openWallsInView[0] = !currentRoom.walls.up
+      ? getPointInView(player.angle, Direction4Angle.up, FIELD_OF_VIEW)
+      : null;
 
-    currentOpenWallsInView[DirectionIndex.right] =
-      currentRoom.walls[DirectionIndex.right] === WallState.open
-        ? getPointInView(player.angle, DirectionAngle.right, FIELD_OF_VIEW)
-        : null;
+    openWallsInView[1] = !currentRoom.walls.right
+      ? getPointInView(player.angle, Direction4Angle.right, FIELD_OF_VIEW)
+      : null;
 
-    currentOpenWallsInView[DirectionIndex.down] =
-      currentRoom.walls[DirectionIndex.down] === WallState.open
-        ? getPointInView(player.angle, DirectionAngle.down, FIELD_OF_VIEW)
-        : null;
+    openWallsInView[2] = !currentRoom.walls.down
+      ? getPointInView(player.angle, Direction4Angle.down, FIELD_OF_VIEW)
+      : null;
 
-    currentOpenWallsInView[DirectionIndex.left] =
-      currentRoom.walls[DirectionIndex.left] === WallState.open
-        ? getPointInView(player.angle, DirectionAngle.left, FIELD_OF_VIEW)
-        : null;
+    openWallsInView[3] = !currentRoom.walls.left
+      ? getPointInView(player.angle, Direction4Angle.left, FIELD_OF_VIEW)
+      : null;
 
     // the number of lines should be odd
     // to perfectly center the middle one
@@ -83,7 +77,7 @@ export const drawDarkness: DrawFunction<{
       linesBuffer[i] = 0;
     }
 
-    interpolatePoints(linesBuffer, linesCount, currentOpenWallsInView);
+    interpolatePoints(linesBuffer, linesCount, openWallsInView);
 
     g.clear();
     for (let i = 0; i < linesCount; i++) {

@@ -38,11 +38,13 @@ export function StoryScene3({ nextScene, resetScene }: PropsType) {
     level.subscribe("room_enter", ({ room }) => {
       switch (room.type) {
         case "evil":
+          level.emit("reveal", undefined);
           player.setStatus("paused");
           setTimeout(() => player.setStatus("died"), ANTICIPATION_TIME);
           break;
 
         case "golden":
+          level.emit("reveal", undefined);
           player.setStatus("paused");
           setTimeout(() => player.setStatus("won"), ANTICIPATION_TIME);
           break;
@@ -54,11 +56,7 @@ export function StoryScene3({ nextScene, resetScene }: PropsType) {
 
   return (
     <>
-      <MainStageLayer
-        player={player}
-        level={level}
-        levelRevealed={player.status === "won"}
-      />
+      <MainStageLayer player={player} level={level} />
       <Compass player={player} level={level} />
       {dialog !== null && <Dialog value={dialog} />}
       {playerStatus === "died" && (
@@ -77,24 +75,24 @@ export function StoryScene3({ nextScene, resetScene }: PropsType) {
 
 function createRooms(): Room[] {
   return [
-    new Room(0, 0, [1, 1, 0, 1], "evil"),
-    new Room(1, 0, [1, 0, 1, 1], "golden"),
-    new Room(2, 0, [1, 0, 1, 0]),
-    new Room(3, 0, [1, 1, 0, 0]),
+    new Room(0, 0, "evil").setWallsByBit(1, 1, 1, 0),
+    new Room(1, 0, "golden").setWallsByBit(1, 1, 0, 1),
+    new Room(2, 0).setWallsByBit(1, 0, 0, 1),
+    new Room(3, 0).setWallsByBit(1, 0, 1, 0),
 
-    new Room(0, 1, [0, 0, 0, 1]),
-    new Room(1, 1, [1, 0, 1, 0]),
-    new Room(2, 1, [1, 1, 1, 0], "start"),
-    new Room(3, 1, [0, 1, 0, 1]),
+    new Room(0, 1).setWallsByBit(0, 1, 0, 0),
+    new Room(1, 1).setWallsByBit(1, 0, 0, 1),
+    new Room(2, 1, "start").setWallsByBit(1, 0, 1, 1),
+    new Room(3, 1).setWallsByBit(0, 1, 1, 0),
 
-    new Room(0, 2, [0, 1, 0, 1]),
-    new Room(1, 2, [1, 0, 1, 1], "evil"),
-    new Room(2, 2, [1, 0, 0, 0]),
-    new Room(3, 2, [0, 1, 0, 0]),
+    new Room(0, 2).setWallsByBit(0, 1, 1, 0),
+    new Room(1, 2, "evil").setWallsByBit(1, 1, 0, 1),
+    new Room(2, 2).setWallsByBit(1, 0, 0, 0),
+    new Room(3, 2).setWallsByBit(0, 0, 1, 0),
 
-    new Room(0, 3, [0, 0, 1, 1]),
-    new Room(1, 3, [1, 0, 1, 0]),
-    new Room(2, 3, [0, 1, 1, 0]),
-    new Room(3, 3, [0, 1, 1, 1], "evil"),
+    new Room(0, 3).setWallsByBit(0, 1, 0, 1),
+    new Room(1, 3).setWallsByBit(1, 0, 0, 1),
+    new Room(2, 3).setWallsByBit(0, 0, 1, 1),
+    new Room(3, 3, "evil").setWallsByBit(0, 1, 1, 1),
   ];
 }

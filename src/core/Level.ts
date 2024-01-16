@@ -1,20 +1,13 @@
 import { EventEmitter } from "./EventEmitter";
 import { Player } from "./Player";
-import { Room, WallState } from "./Room";
-import { GridMap, DirectionIndex } from "../helpers";
-import type { Maybe } from "../helpers";
-
-export type ConnectedRooms = [
-  up: Maybe<Room>,
-  right: Maybe<Room>,
-  down: Maybe<Room>,
-  left: Maybe<Room>
-];
+import { Room } from "./Room";
+import { GridMap } from "../helpers";
 
 export type LevelEvents = {
   room_enter: { room: Room };
   room_leave: { room: Room };
   room_explore: { room: Room };
+  reveal: undefined;
 };
 
 export class Level extends EventEmitter<LevelEvents> {
@@ -64,9 +57,6 @@ export class Level extends EventEmitter<LevelEvents> {
       }
 
       for (const otherRoom of this.getConnectedRooms(currentRoom)) {
-        if (!otherRoom) {
-          continue;
-        }
         otherRoom.visitedConnectedRooms += 1;
 
         // the current room should have just been explored
@@ -84,9 +74,7 @@ export class Level extends EventEmitter<LevelEvents> {
           exploreEventQueue.push(otherRoom);
 
           for (const anotherRoom of this.getConnectedRooms(otherRoom)) {
-            if (anotherRoom) {
-              anotherRoom.exploredConnectedRooms += 1;
-            }
+            anotherRoom.exploredConnectedRooms += 1;
           }
         }
       }
@@ -106,35 +94,22 @@ export class Level extends EventEmitter<LevelEvents> {
     return currentRoom;
   }
 
-  public getConnectedRooms(
-    room: Room,
-    arr: ConnectedRooms = [null, null, null, null]
-  ) {
-    if (room.walls[DirectionIndex.up] === WallState.open) {
-      arr[0] = this.rooms.getValue(room.x, room.y - 1)?.value || null;
+  public getConnectedRooms(room: Room) {
+    const matches: Room[] = [];
+
+    if (!room.walls.up) {
+      matches.push(this.rooms.getValue(room.x, room.y - 1)?.value as Room);
     }
-    if (room.walls[DirectionIndex.right] === WallState.open) {
-      arr[1] = this.rooms.getValue(room.x + 1, room.y)?.value || null;
+    if (!room.walls.left) {
+      matches.push(this.rooms.getValue(room.x - 1, room.y)?.value as Room);
     }
-    if (room.walls[DirectionIndex.down] === WallState.open) {
-      arr[2] = this.rooms.getValue(room.x, room.y + 1)?.value || null;
+    if (!room.walls.right) {
+      matches.push(this.rooms.getValue(room.x + 1, room.y)?.value as Room);
     }
-    if (room.walls[DirectionIndex.left] === WallState.open) {
-      arr[3] = this.rooms.getValue(room.x - 1, room.y)?.value || null;
+    if (!room.walls.down) {
+      matches.push(this.rooms.getValue(room.x, room.y + 1)?.value as Room);
     }
 
-    return arr;
-  }
-
-  public filterConnectedRooms(room: Room, predicate: (room: Room) => boolean) {
-    return this.getConnectedRooms(room).filter((room) =>
-      room !== null ? predicate(room) : false
-    ) as Room[];
-  }
-
-  public someConnectedRooms(room: Room, predicate: (room: Room) => boolean) {
-    return this.getConnectedRooms(room).some((room) =>
-      room !== null ? predicate(room) : false
-    );
+    return matches;
   }
 }
