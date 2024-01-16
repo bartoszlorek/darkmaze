@@ -6,6 +6,7 @@ import { GridMap } from "../helpers";
 export type LevelEvents = {
   room_enter: { room: Room };
   room_leave: { room: Room };
+  room_visit: { room: Room };
   room_explore: { room: Room };
   reveal: undefined;
 };
@@ -42,15 +43,23 @@ export class Level extends EventEmitter<LevelEvents> {
       return this.lastVisitedRoom;
     }
 
-    const currentRoom = this.getCurrentRoom(player);
-    this.emit("room_enter", {
-      room: currentRoom,
-    });
+    /**
+     * The queue synchronizes the emitting of events
+     * when the currently visited room and its connected
+     * neighbors have finished processing.
+     */
+    const exploreEventQueue = [];
+    let shouldEmitVisitEvent = false;
 
+    const currentRoom = this.getCurrentRoom(player);
     if (!currentRoom.visited) {
       currentRoom.visited = true;
-      const exploreEventQueue = [];
+      shouldEmitVisitEvent = true;
 
+      /**
+       * The dead end rooms (except the starting one)
+       * should be explored immediately after the visit.
+       */
       if (currentRoom.deadEnd && currentRoom.type !== "start") {
         currentRoom.explored = true;
         exploreEventQueue.push(currentRoom);
@@ -58,30 +67,32 @@ export class Level extends EventEmitter<LevelEvents> {
 
       for (const otherRoom of this.getConnectedRooms(currentRoom)) {
         otherRoom.visitedConnectedRooms += 1;
-
-        // the current room should have just been explored
-        if (currentRoom.explored) {
-          otherRoom.exploredConnectedRooms += 1;
+        if (otherRoom.explored) {
+          continue;
         }
 
-        const threshold = otherRoom.type === "start" ? 1 : 2;
-
-        if (
-          otherRoom.explored === false &&
-          otherRoom.visitedConnectedRooms >= threshold
-        ) {
+        const thresholdToBecomeExplored = otherRoom.type === "start" ? 1 : 2;
+        if (thresholdToBecomeExplored <= otherRoom.visitedConnectedRooms) {
           otherRoom.explored = true;
           exploreEventQueue.push(otherRoom);
-
-          for (const anotherRoom of this.getConnectedRooms(otherRoom)) {
-            anotherRoom.exploredConnectedRooms += 1;
-          }
         }
       }
+    }
 
-      for (const room of exploreEventQueue) {
-        this.emit("room_explore", { room });
-      }
+    this.emit("room_enter", {
+      room: currentRoom,
+    });
+
+    if (shouldEmitVisitEvent) {
+      this.emit("room_visit", {
+        room: currentRoom,
+      });
+    }
+
+    for (const room of exploreEventQueue) {
+      this.emit("room_explore", {
+        room,
+      });
     }
 
     if (this.lastVisitedRoom !== null) {

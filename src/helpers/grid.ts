@@ -20,6 +20,10 @@ export class GridMap<T> extends Map<string, GridCell<T>> {
     this.set(`${x},${y}`, { x, y, value });
   }
 
+  setIfNotValue(x: number, y: number, value: T) {
+    if (!this.has(`${x},${y}`)) this.setValue(x, y, value);
+  }
+
   getValue(x: number, y: number) {
     return this.get(`${x},${y}`);
   }

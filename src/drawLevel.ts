@@ -121,6 +121,70 @@ export const drawLevel: DrawFunction<{
   // preallocated array memory
   const _tileStatesNeighbors = createEmptyNeighbors8<GridCell<TileState>>();
 
+  const updateTilesToDisplay = () => {
+    for (const { x, y, value } of tileStates.values()) {
+      const neighbors = tileStates.neighbors(x, y, _tileStatesNeighbors);
+
+      const wallIndex =
+        value === TileState.walls
+          ? createBitMask(
+              neighbors.up?.value === TileState.walls ? 1 : 0,
+              neighbors.left?.value === TileState.walls ? 1 : 0,
+              neighbors.right?.value === TileState.walls ? 1 : 0,
+              neighbors.down?.value === TileState.walls ? 1 : 0
+            )
+          : -1;
+
+      const floorIndex = createBitMask(
+        neighbors.up !== null ? 1 : 0,
+        neighbors.left !== null ? 1 : 0,
+        neighbors.right !== null ? 1 : 0,
+        neighbors.down !== null ? 1 : 0
+      );
+
+      const uniqueId = `${x},${y}`;
+      const tile = tileDisplays.get(uniqueId);
+      if (tile === undefined) {
+        tileDisplays.set(uniqueId, {
+          uniqueId,
+          randomId: Math.floor(Math.random() * 100000),
+          wallIndex,
+          floorIndex,
+          actualX: x * halfGridSize,
+          actualY: y * halfGridSize,
+        });
+      } else {
+        tile.wallIndex = wallIndex;
+        tile.floorIndex = floorIndex;
+      }
+    }
+  };
+
+  // draws the empty (floor-only) tiles for just visited rooms
+  level.subscribe("room_visit", ({ room }: { room: Room }) => {
+    if (!room.explored && room.visited) {
+      const x = tileStates.transformX(room.x, level.rooms);
+      const y = tileStates.transformY(room.y, level.rooms);
+
+      // previous row
+      tileStates.setIfNotValue(x - 1, y - 1, TileState.floor);
+      tileStates.setIfNotValue(x, y - 1, TileState.floor);
+      tileStates.setIfNotValue(x + 1, y - 1, TileState.floor);
+
+      // current row
+      tileStates.setIfNotValue(x - 1, y, TileState.floor);
+      tileStates.setIfNotValue(x, y, TileState.floor);
+      tileStates.setIfNotValue(x + 1, y, TileState.floor);
+
+      // next row
+      tileStates.setIfNotValue(x - 1, y + 1, TileState.floor);
+      tileStates.setIfNotValue(x, y + 1, TileState.floor);
+      tileStates.setIfNotValue(x + 1, y + 1, TileState.floor);
+
+      updateTilesToDisplay();
+    }
+  });
+
   level.subscribe("room_explore", ({ room }: { room: Room }) => {
     const x = tileStates.transformX(room.x, level.rooms);
     const y = tileStates.transformY(room.y, level.rooms);
@@ -145,43 +209,7 @@ export const drawLevel: DrawFunction<{
     tileStates.setValue(x, y + 1, downState);
     tileStates.setValue(x + 1, y + 1, TileState.walls);
 
-    // regenerates every bitIndex of walls and the floor
-    for (const { x, y, value } of tileStates.values()) {
-      const n = tileStates.neighbors(x, y, _tileStatesNeighbors);
-
-      const wallIndex =
-        value === TileState.walls
-          ? createBitMask(
-              n.up?.value === TileState.walls ? 1 : 0,
-              n.left?.value === TileState.walls ? 1 : 0,
-              n.right?.value === TileState.walls ? 1 : 0,
-              n.down?.value === TileState.walls ? 1 : 0
-            )
-          : -1;
-
-      const floorIndex = createBitMask(
-        n.up !== null ? 1 : 0,
-        n.left !== null ? 1 : 0,
-        n.right !== null ? 1 : 0,
-        n.down !== null ? 1 : 0
-      );
-
-      const uniqueId = `${x},${y}`;
-      const tile = tileDisplays.get(uniqueId);
-      if (tile === undefined) {
-        tileDisplays.set(uniqueId, {
-          uniqueId,
-          randomId: Math.floor(Math.random() * 100000),
-          wallIndex,
-          floorIndex,
-          actualX: x * halfGridSize,
-          actualY: y * halfGridSize,
-        });
-      } else {
-        tile.wallIndex = wallIndex;
-        tile.floorIndex = floorIndex;
-      }
-    }
+    updateTilesToDisplay();
   });
 
   parent.addChild(floorLayer);
@@ -231,17 +259,10 @@ export const drawLevel: DrawFunction<{
           x * gridSize + gridSize / 2,
           y * gridSize + gridSize / 2
         );
-      } else if (debugMode === DEBUG_MODE.EXPLORED_CONNECTED) {
-        debug.print(
-          room.exploredConnectedRooms,
-          x * gridSize + gridSize / 2,
-          y * gridSize + gridSize / 2
-        );
       }
 
       if (room.explored) {
         const roomKey = `${x},${y}`;
-
         switch (room.type) {
           case "evil": {
             const sprite = itemsSprites.get(roomKey);

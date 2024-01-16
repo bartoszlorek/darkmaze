@@ -32,7 +32,6 @@ export class Room {
   public visited: boolean = false;
   public visitedConnectedRooms: number = 0;
   public explored: boolean = false;
-  public exploredConnectedRooms: number = 0;
 
   constructor(x: number, y: number, type: RoomType = "empty") {
     this.x = x;
