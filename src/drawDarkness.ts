@@ -30,6 +30,8 @@ export const drawDarkness: DrawFunction<{
   const linesBuffer: number[] = [];
 
   return () => {
+    return;
+
     if (fadeOut) {
       g.alpha = Math.max(0, g.alpha - FADE_OUT_SPEED);
       return;
@@ -85,7 +87,7 @@ export const drawDarkness: DrawFunction<{
       const b = linesBuffer[i];
 
       lines[i] = lerp(a, b, a < b ? 0.25 : 0.025);
-      g.beginFill(0x17152e, 1 - lines[i]);
+      g.beginFill(0xffffff, 1 - lines[i]);
       g.drawRect(i * linesWidth - linesOffset, 0, linesWidth, linesHeight);
     }
   };

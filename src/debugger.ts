@@ -1,5 +1,7 @@
 import * as PIXI from "pixi.js";
 
+type FontColor = "white" | "red";
+
 const textStyleOptions = {
   fontFamily: "Arial",
   fill: 0xffffff,
@@ -14,7 +16,8 @@ export function createDebugger() {
     value: string | number,
     x: number,
     y: number,
-    fontSize: number = 16
+    fontSize: number = 16,
+    fontColor: FontColor = "white"
   ) => {
     const key = `${x}-${y}`;
 
@@ -29,8 +32,9 @@ export function createDebugger() {
       refs.set(key, element);
     }
 
-    element.style.fontSize = fontSize;
     element.text = value;
+    element.style.fontSize = fontSize;
+    element.style.fill = fontColor;
     used.add(key);
   };
 

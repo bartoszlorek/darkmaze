@@ -44,6 +44,19 @@ export class GridMap<T> extends Map<string, GridCell<T>> {
     return output;
   }
 
+  isEdgeCell(neighbors: Direction8Neighbors<GridCell<T>>) {
+    return (
+      neighbors.upLeft === null ||
+      neighbors.up === null ||
+      neighbors.upRight === null ||
+      neighbors.left === null ||
+      neighbors.right === null ||
+      neighbors.downLeft === null ||
+      neighbors.down === null ||
+      neighbors.downRight === null
+    );
+  }
+
   transformX<K>(otherGridX: number, otherGrid: GridMap<K>) {
     return Math.floor((otherGridX / otherGrid.width) * this.width);
   }

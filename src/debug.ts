@@ -3,7 +3,7 @@ export enum DEBUG_MODE {
   ROOMS_LAYOUT = 1,
   VISITED_CONNECTED = 2,
   WALLS_INDEX = 3,
-  FLOOR_INDEX = 4,
+  EDGES_INDEX = 4,
 }
 
 export function getDebugMode(): DEBUG_MODE {
