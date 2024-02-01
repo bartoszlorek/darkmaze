@@ -3,18 +3,21 @@ import { Direction4Angle, createPointInView, lerp } from "./helpers";
 
 const getPointInView = createPointInView({ fieldOfView: 180 });
 
+export type IntensityBias = (prev: number, next: number) => number;
+export const defaultIntensityBias: IntensityBias = (prev, next) =>
+  prev < next ? 0.1 : 0.01;
+
 export class Light {
   public x: number = 0;
   public intensity: number = 0; // [0..1]
-  public intensitySpeed: number = 0.025;
 
   setPosition(x: number) {
     this.x = x;
     return this;
   }
 
-  setIntensity(value: number) {
-    this.intensity = lerp(this.intensity, value, this.intensitySpeed);
+  setIntensity(value: number, bias: IntensityBias = defaultIntensityBias) {
+    this.intensity = lerp(this.intensity, value, bias(this.intensity, value));
     return this;
   }
 }
