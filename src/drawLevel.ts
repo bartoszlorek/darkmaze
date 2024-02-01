@@ -15,6 +15,8 @@ import {
   createEmptyNeighbors8,
 } from "./helpers";
 
+const TILES_MARGIN = 1;
+
 enum TileState {
   floor = 0,
   walls = 1,
@@ -31,8 +33,8 @@ export const drawLevel: DrawFunction<{
   const edgeTextures = createEdgeTextures(sprites);
 
   const tileStates = new GridMap<TileState>(
-    level.dimension * 2 + 1,
-    level.dimension * 2 + 1
+    level.dimension * 2 + TILES_MARGIN,
+    level.dimension * 2 + TILES_MARGIN
   );
 
   const tilesLayer = new PIXI.Container();
@@ -40,8 +42,7 @@ export const drawLevel: DrawFunction<{
   const edgesLayer = new PIXI.Container();
   const itemsLayer = new PIXI.Container();
 
-  tilesLayer.x = halfGridSize / 2;
-  tilesLayer.y = halfGridSize;
+  tilesLayer.x = -(halfGridSize / 2);
   tilesLayer.addChild(wallsLayer);
   tilesLayer.addChild(edgesLayer);
 
@@ -129,10 +130,6 @@ export const drawLevel: DrawFunction<{
 
     wallsSprites.afterAll();
     edgesSprites.afterAll();
-
-    // force caching
-    tilesLayer.cacheAsBitmap = false;
-    tilesLayer.cacheAsBitmap = true;
   }
 
   let renderTimeout: NodeJS.Timeout;
@@ -144,8 +141,8 @@ export const drawLevel: DrawFunction<{
   // draws the empty (floor-only) tiles for just visited rooms
   level.subscribe("room_visit", ({ room }: { room: Room }) => {
     if (!room.explored && room.visited) {
-      const x = tileStates.transformX(room.x, level.rooms);
-      const y = tileStates.transformY(room.y, level.rooms);
+      const x = tileStates.transformX(room.x, level.rooms) + TILES_MARGIN;
+      const y = tileStates.transformY(room.y, level.rooms) + TILES_MARGIN;
 
       // previous row
       tileStates.setIfNotValue(x - 1, y - 1, TileState.floor);
@@ -167,8 +164,8 @@ export const drawLevel: DrawFunction<{
   });
 
   level.subscribe("room_explore", ({ room }: { room: Room }) => {
-    const x = tileStates.transformX(room.x, level.rooms);
-    const y = tileStates.transformY(room.y, level.rooms);
+    const x = tileStates.transformX(room.x, level.rooms) + TILES_MARGIN;
+    const y = tileStates.transformY(room.y, level.rooms) + TILES_MARGIN;
 
     const upState = room.walls.up ? TileState.walls : TileState.floor;
     const leftState = room.walls.left ? TileState.walls : TileState.floor;

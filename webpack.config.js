@@ -62,6 +62,10 @@ module.exports = (_, argv) => ({
           "sass-loader",
         ],
       },
+      {
+        test: /\.frag$/,
+        loader: "webpack-glsl-loader",
+      },
     ],
   },
   resolve: {

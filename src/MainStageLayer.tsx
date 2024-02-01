@@ -1,13 +1,15 @@
 import * as React from "react";
 import * as PIXI from "pixi.js";
+import { LightsFilter } from "./LightsFilter";
 import { StageLayer } from "./components";
-import { Level, Player } from "./core";
-import { useAppContext } from "./context";
-import { subscribeResize } from "./helpers";
-import { drawDarkness } from "./drawDarkness";
-import { drawLevel } from "./drawLevel";
-import { drawPlayer } from "./drawPlayer";
 import { GRID_SIZE } from "./consts";
+import { useAppContext } from "./context";
+import { Level, Player } from "./core";
+import { drawLevel } from "./drawLevel";
+import { drawLights } from "./drawLights";
+import { drawPlayer } from "./drawPlayer";
+import { subscribeResize } from "./helpers";
+import { createLights } from "./lights";
 
 type PropsType = Readonly<{
   player: Player;
@@ -37,6 +39,15 @@ export function MainStageLayer({ player, level }: PropsType) {
         const unsubscribeResize = subscribeResize(centerView);
         centerView();
 
+        const backLights = new LightsFilter();
+        back.filters = [backLights];
+
+        const getLights = createLights(level, player);
+        const updateLevelLights = () => {
+          backLights.setRadius(window.innerWidth / 3);
+          backLights.setLights(getLights());
+        };
+
         const redrawLevel = drawLevel({
           parent: back,
           level,
@@ -45,11 +56,10 @@ export function MainStageLayer({ player, level }: PropsType) {
           debugMode,
         });
 
-        const redrawDarkness = drawDarkness({
+        const redrawLights = drawLights({
           parent: middle,
           player,
           level,
-          gridSize: GRID_SIZE,
         });
 
         const redrawPlayer = drawPlayer({
@@ -61,15 +71,17 @@ export function MainStageLayer({ player, level }: PropsType) {
 
         return {
           redrawLevel,
-          redrawDarkness,
+          redrawLights,
           redrawPlayer,
           unsubscribeResize,
+          updateLevelLights,
         };
       }}
       onUpdate={(_, ctx) => {
         ctx.redrawLevel();
-        ctx.redrawDarkness();
+        ctx.redrawLights();
         ctx.redrawPlayer();
+        ctx.updateLevelLights();
       }}
       onUnmount={(_, ctx) => {
         ctx.unsubscribeResize();

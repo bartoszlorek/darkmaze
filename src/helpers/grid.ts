@@ -9,6 +9,10 @@ export interface GridCell<T> {
 export class GridMap<T> extends Map<string, GridCell<T>> {
   public width: number;
   public height: number;
+  public minX: number = Infinity;
+  public minY: number = Infinity;
+  public maxX: number = -Infinity;
+  public maxY: number = -Infinity;
 
   constructor(width: number, height: number) {
     super();
@@ -18,6 +22,11 @@ export class GridMap<T> extends Map<string, GridCell<T>> {
 
   setValue(x: number, y: number, value: T) {
     this.set(`${x},${y}`, { x, y, value });
+
+    if (x < this.minX) this.minX = x;
+    if (x > this.maxX) this.maxX = x;
+    if (y < this.minY) this.minY = y;
+    if (y > this.maxY) this.maxY = y;
   }
 
   setIfNotValue(x: number, y: number, value: T) {
