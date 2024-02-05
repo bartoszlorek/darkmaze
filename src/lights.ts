@@ -1,35 +1,16 @@
 import { Level, Player } from "./core";
-import { Direction4Angle, createPointInView, lerp } from "./helpers";
+import { Direction4Angle, createPointInView } from "./helpers";
+import { Light } from "./LightsFilter";
 
 const getPointInView = createPointInView({ fieldOfView: 180 });
 
-export type IntensityBias = (prev: number, next: number) => number;
-export const defaultIntensityBias: IntensityBias = (prev, next) =>
-  prev < next ? 0.1 : 0.01;
-
-export class Light {
-  public x: number = 0;
-  public intensity: number = 0; // [0..1]
-
-  setPosition(x: number) {
-    this.x = x;
-    return this;
-  }
-
-  setIntensity(value: number, bias: IntensityBias = defaultIntensityBias) {
-    this.intensity = lerp(this.intensity, value, bias(this.intensity, value));
-    return this;
-  }
-}
-
 export function createLights(level: Level, player: Player) {
-  // prettier-ignore
-  const output = [
-    new Light(),
-    new Light(),
-    new Light(),
-    new Light(),
-  ] as const;
+  const up = new Light();
+  const right = new Light();
+  const down = new Light();
+  const left = new Light();
+
+  const output = [up, right, down, left];
 
   return () => {
     const room = level.lastVisitedRoom;
@@ -40,21 +21,24 @@ export function createLights(level: Level, player: Player) {
     const angle = player.angle;
     const width = window.innerWidth;
 
-    output[0]
+    up.setRadius(width / 2)
       .setPosition(getPointInView(angle, Direction4Angle.up) * width)
       .setIntensity(room.walls.up ? 0 : 1);
 
-    output[1]
-      .setPosition(getPointInView(angle, Direction4Angle.left) * width)
-      .setIntensity(room.walls.left ? 0 : 1);
-
-    output[2]
+    right
+      .setRadius(width / 2)
       .setPosition(getPointInView(angle, Direction4Angle.right) * width)
       .setIntensity(room.walls.right ? 0 : 1);
 
-    output[3]
+    down
+      .setRadius(width / 2)
       .setPosition(getPointInView(angle, Direction4Angle.down) * width)
       .setIntensity(room.walls.down ? 0 : 1);
+
+    left
+      .setRadius(width / 2)
+      .setPosition(getPointInView(angle, Direction4Angle.left) * width)
+      .setIntensity(room.walls.left ? 0 : 1);
 
     return output;
   };

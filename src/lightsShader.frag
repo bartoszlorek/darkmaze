@@ -1,12 +1,16 @@
-// global uniforms
 varying vec2 vTextureCoord;
 uniform sampler2D uSampler;
 uniform highp vec4 inputSize;
 uniform highp vec4 outputFrame;
 
-// custom uniforms
-uniform float radius;
-uniform vec3 lights[4]; // vec3(x, y, intensity)
+/**
+ * vec3(
+ *   float x,
+ *   float radius,
+ *   float intensity,
+ * );
+ */
+uniform vec3 lights[4];
 
 float luminance(vec3 rgb) {
   return 0.2126 * rgb.r + 0.7152 * rgb.g + 0.0722 * rgb.b;
@@ -20,9 +24,19 @@ float idistance(float x, float y, float range) {
   return 1.0 - distance(x, y, range);
 }
 
-float steps(float x, float count) {
-  float n = 1.0 / count;
-  return ceil(x / n) * n;
+float steps(float x, float size) {
+  return ceil(x / size) * size;
+}
+
+float easeOutQuad(float x) {
+  return x * (2.0 - x);
+}
+
+float calculateLight(float x, vec3 light) {
+  float value = idistance(x, light.x, light.y);
+  value = easeOutQuad(value);
+  value *= light.z;
+  return value;
 }
 
 void main(void) {
@@ -37,12 +51,17 @@ void main(void) {
   // https://github.com/pixijs/pixijs/wiki/v5-Creating-filters#conversion-functions
   float x = vTextureCoord.x * inputSize.x + outputFrame.x;
 
-  float alpha = 0.0;
-  alpha += steps(idistance(x, lights[0].x, radius), 3.0) * lights[0].z;
-  alpha += steps(idistance(x, lights[1].x, radius), 3.0) * lights[1].z;
-  alpha += steps(idistance(x, lights[2].x, radius), 3.0) * lights[2].z;
-  alpha += steps(idistance(x, lights[3].x, radius), 3.0) * lights[3].z;
+  // pixel-like appearance
+  x = steps(x, 12.0);
 
+  float lum = luminance(color.rgb);
+  float alpha = 0.0;
+
+  alpha += calculateLight(x, lights[0]);
+  alpha += calculateLight(x, lights[1]);
+  alpha += calculateLight(x, lights[2]);
+  alpha += calculateLight(x, lights[3]);
   alpha = min(1.0, alpha);
-  gl_FragColor = color * alpha;
+
+  gl_FragColor = color * (lum < 1.0 - alpha ? 0.0 : 1.0);
 }

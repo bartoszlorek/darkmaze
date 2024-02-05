@@ -44,7 +44,6 @@ export function MainStageLayer({ player, level }: PropsType) {
 
         const getLights = createLights(level, player);
         const updateLevelLights = () => {
-          backLights.setRadius(window.innerWidth / 3);
           backLights.setLights(getLights());
         };
 
