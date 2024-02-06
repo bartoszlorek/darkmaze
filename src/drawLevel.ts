@@ -163,7 +163,7 @@ export const drawLevel: DrawFunction<{
     }
   });
 
-  level.subscribe("room_explore", ({ room }: { room: Room }) => {
+  const exploreRoom = ({ room }: { room: Room }) => {
     const x = tileStates.transformX(room.x, level.rooms) + TILES_MARGIN;
     const y = tileStates.transformY(room.y, level.rooms) + TILES_MARGIN;
 
@@ -188,7 +188,15 @@ export const drawLevel: DrawFunction<{
     tileStates.setValue(x + 1, y + 1, TileState.walls);
 
     requestTilesRender();
-  });
+  };
+
+  level.subscribe("room_explore", exploreRoom);
+
+  if (debugMode === DEBUG_MODE.ROOMS_LAYOUT) {
+    for (const { value: room } of level.rooms.values()) {
+      exploreRoom({ room });
+    }
+  }
 
   return () => {
     for (const { x, y, value: room } of level.rooms.values()) {
@@ -200,7 +208,7 @@ export const drawLevel: DrawFunction<{
         );
       }
 
-      if (room.explored) {
+      if (room.explored || debugMode === DEBUG_MODE.ROOMS_LAYOUT) {
         const roomKey = `${x},${y}`;
         switch (room.type) {
           case "evil": {
