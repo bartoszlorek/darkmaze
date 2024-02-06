@@ -5,8 +5,8 @@ import { StageLayer } from "./components";
 import { GRID_SIZE } from "./consts";
 import { useAppContext } from "./context";
 import { Level, Player } from "./core";
+import { drawFrame } from "./drawFrame";
 import { drawLevel } from "./drawLevel";
-import { drawLights } from "./drawLights";
 import { drawPlayer } from "./drawPlayer";
 import { subscribeResize } from "./helpers";
 import { createLights } from "./lights";
@@ -24,11 +24,11 @@ export function MainStageLayer({ player, level }: PropsType) {
       app={app}
       onMount={(layer) => {
         const back = new PIXI.Container();
-        const middle = new PIXI.Container();
         const front = new PIXI.Container();
+        const frame = new PIXI.Container();
         layer.addChild(back);
-        layer.addChild(middle);
         layer.addChild(front);
+        layer.addChild(frame);
 
         const centerView = () => {
           const halfSize = (level.dimension * GRID_SIZE) / 2;
@@ -39,13 +39,20 @@ export function MainStageLayer({ player, level }: PropsType) {
         const unsubscribeResize = subscribeResize(centerView);
         centerView();
 
-        const backLights = new LightsFilter();
-        back.filters = [backLights];
+        const commonLightsFilter = new LightsFilter();
+        back.filters = [commonLightsFilter];
+        frame.filters = [commonLightsFilter];
 
         const getLights = createLights(level, player);
-        const updateLevelLights = () => {
-          backLights.setLights(getLights());
+        const updateLightsFilter = () => {
+          commonLightsFilter.setLights(getLights());
         };
+
+        const redrawFrame = drawFrame({
+          parent: frame,
+          gridSize: GRID_SIZE,
+          sprites,
+        });
 
         const redrawLevel = drawLevel({
           parent: back,
@@ -53,12 +60,6 @@ export function MainStageLayer({ player, level }: PropsType) {
           gridSize: GRID_SIZE,
           sprites,
           debugMode,
-        });
-
-        const redrawLights = drawLights({
-          parent: middle,
-          player,
-          level,
         });
 
         const redrawPlayer = drawPlayer({
@@ -69,18 +70,18 @@ export function MainStageLayer({ player, level }: PropsType) {
         });
 
         return {
+          redrawFrame,
           redrawLevel,
-          redrawLights,
           redrawPlayer,
           unsubscribeResize,
-          updateLevelLights,
+          updateLightsFilter,
         };
       }}
       onUpdate={(_, ctx) => {
+        ctx.redrawFrame();
         ctx.redrawLevel();
-        ctx.redrawLights();
         ctx.redrawPlayer();
-        ctx.updateLevelLights();
+        ctx.updateLightsFilter();
       }}
       onUnmount={(_, ctx) => {
         ctx.unsubscribeResize();
