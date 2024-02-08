@@ -8,6 +8,7 @@ import { Level, Player } from "./core";
 import { drawFrame } from "./drawFrame";
 import { drawLevel } from "./drawLevel";
 import { drawPlayer } from "./drawPlayer";
+import { createFrameBounds, createEmptyFrameBounds } from "./frame";
 import { subscribeResize } from "./helpers";
 import { createLights } from "./lights";
 
@@ -30,14 +31,28 @@ export function MainStageLayer({ player, level }: PropsType) {
         layer.addChild(front);
         layer.addChild(frame);
 
-        const centerView = () => {
+        const frameBoundsRef = createEmptyFrameBounds();
+        const redrawFrame = drawFrame({
+          parent: frame,
+          gridSize: GRID_SIZE,
+          sprites,
+        });
+
+        const resize = () => {
           const halfSize = (level.dimension * GRID_SIZE) / 2;
           front.x = back.x = Math.floor(window.innerWidth / 2 - halfSize);
           front.y = back.y = Math.floor(window.innerHeight / 2 - halfSize);
+
+          const frameBounds = createFrameBounds(
+            frameBoundsRef,
+            GRID_SIZE,
+            GRID_SIZE
+          );
+          redrawFrame(frameBounds);
         };
 
-        const unsubscribeResize = subscribeResize(centerView);
-        centerView();
+        const unsubscribeResize = subscribeResize(resize);
+        resize();
 
         const commonLightsFilter = new LightsFilter();
         back.filters = [commonLightsFilter];
@@ -47,12 +62,6 @@ export function MainStageLayer({ player, level }: PropsType) {
         const updateLightsFilter = () => {
           commonLightsFilter.setLights(getLights());
         };
-
-        const redrawFrame = drawFrame({
-          parent: frame,
-          gridSize: GRID_SIZE,
-          sprites,
-        });
 
         const redrawLevel = drawLevel({
           parent: back,
@@ -70,7 +79,6 @@ export function MainStageLayer({ player, level }: PropsType) {
         });
 
         return {
-          redrawFrame,
           redrawLevel,
           redrawPlayer,
           unsubscribeResize,
@@ -78,7 +86,6 @@ export function MainStageLayer({ player, level }: PropsType) {
         };
       }}
       onUpdate={(_, ctx) => {
-        ctx.redrawFrame();
         ctx.redrawLevel();
         ctx.redrawPlayer();
         ctx.updateLightsFilter();
