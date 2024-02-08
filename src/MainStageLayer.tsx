@@ -1,11 +1,11 @@
 import * as React from "react";
 import * as PIXI from "pixi.js";
 
-import { StageLayer } from "./components";
-import { GRID_SIZE } from "./consts";
-import { useAppContext } from "./context";
+import { TILE_SIZE } from "./consts";
 import { Level, Player } from "./core";
+import { StageLayer } from "./components";
 import { subscribeResize } from "./helpers";
+import { useAppContext } from "./context";
 import {
   drawFrame,
   drawLevel,
@@ -38,19 +38,19 @@ export function MainStageLayer({ player, level }: PropsType) {
         const frameBoundsRef = createEmptyFrameBounds();
         const redrawFrame = drawFrame({
           parent: frame,
-          gridSize: GRID_SIZE,
+          tileSize: TILE_SIZE,
           sprites,
         });
 
         const resize = () => {
-          const halfSize = (level.dimension * GRID_SIZE) / 2;
+          const halfSize = (level.dimension * TILE_SIZE) / 2;
           front.x = back.x = Math.floor(window.innerWidth / 2 - halfSize);
           front.y = back.y = Math.floor(window.innerHeight / 2 - halfSize);
 
           const frameBounds = createFrameBounds(
             frameBoundsRef,
-            GRID_SIZE,
-            GRID_SIZE
+            TILE_SIZE,
+            TILE_SIZE
           );
           redrawFrame(frameBounds);
         };
@@ -70,7 +70,7 @@ export function MainStageLayer({ player, level }: PropsType) {
         const redrawLevel = drawLevel({
           parent: back,
           level,
-          gridSize: GRID_SIZE,
+          tileSize: TILE_SIZE,
           sprites,
           debugMode,
         });
@@ -78,7 +78,7 @@ export function MainStageLayer({ player, level }: PropsType) {
         const redrawPlayer = drawPlayer({
           parent: front,
           player,
-          gridSize: GRID_SIZE,
+          tileSize: TILE_SIZE,
           sprites,
         });
 

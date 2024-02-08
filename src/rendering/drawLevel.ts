@@ -24,11 +24,11 @@ enum TileState {
 
 export const drawLevel: DrawFunction<{
   level: Level;
-  gridSize: number;
+  tileSize: number;
   sprites: LoadedSpritesheets;
   debugMode: DEBUG_MODE;
-}> = ({ parent, level, gridSize, sprites, debugMode }) => {
-  const halfGridSize = gridSize / 2;
+}> = ({ parent, level, tileSize, sprites, debugMode }) => {
+  const halfTileSize = tileSize / 2;
   const wallTextures = createWallTextures(sprites);
   const edgeTextures = createEdgeTextures(sprites);
 
@@ -42,7 +42,7 @@ export const drawLevel: DrawFunction<{
   const edgesLayer = new PIXI.Container();
   const itemsLayer = new PIXI.Container();
 
-  tilesLayer.x = -(halfGridSize / 2);
+  tilesLayer.x = -(halfTileSize / 2);
   tilesLayer.addChild(wallsLayer);
   tilesLayer.addChild(edgesLayer);
 
@@ -107,21 +107,21 @@ export const drawLevel: DrawFunction<{
       const edgeVariants = edgeTextures[edgeIndex];
       edgeSprite.texture = edgeVariants[variantId % edgeVariants.length];
 
-      wallSprite.x = edgeSprite.x = x * halfGridSize;
-      wallSprite.y = edgeSprite.y = y * halfGridSize;
+      wallSprite.x = edgeSprite.x = x * halfTileSize;
+      wallSprite.y = edgeSprite.y = y * halfTileSize;
 
       if (debugMode === DEBUG_MODE.WALLS_INDEX) {
         debug.print(
           String(wallIndex),
-          x * halfGridSize + halfGridSize,
-          y * halfGridSize + halfGridSize + halfGridSize / 2,
+          x * halfTileSize + halfTileSize,
+          y * halfTileSize + halfTileSize + halfTileSize / 2,
           10
         );
       } else if (debugMode === DEBUG_MODE.EDGES_INDEX) {
         debug.print(
           String(edgeIndex),
-          x * halfGridSize + halfGridSize,
-          y * halfGridSize + halfGridSize + halfGridSize / 2,
+          x * halfTileSize + halfTileSize,
+          y * halfTileSize + halfTileSize + halfTileSize / 2,
           12,
           edgeTextures[edgeIndex].length ? "white" : "red"
         );
@@ -203,8 +203,8 @@ export const drawLevel: DrawFunction<{
       if (debugMode === DEBUG_MODE.VISITED_CONNECTED) {
         debug.print(
           room.visitedConnectedRooms,
-          x * gridSize + gridSize / 2,
-          y * gridSize + gridSize / 2
+          x * tileSize + tileSize / 2,
+          y * tileSize + tileSize / 2
         );
       }
 
@@ -214,24 +214,24 @@ export const drawLevel: DrawFunction<{
           case "evil": {
             const sprite = itemsSprites.get(roomKey);
             sprite.texture = sprites.items.textures.room_evil;
-            sprite.x = x * gridSize;
-            sprite.y = y * gridSize;
+            sprite.x = x * tileSize;
+            sprite.y = y * tileSize;
             break;
           }
 
           case "golden": {
             const sprite = itemsSprites.get(roomKey);
             sprite.texture = sprites.items.textures.room_golden;
-            sprite.x = x * gridSize;
-            sprite.y = y * gridSize;
+            sprite.x = x * tileSize;
+            sprite.y = y * tileSize;
             break;
           }
 
           case "passage": {
             const sprite = itemsSprites.get(roomKey);
             sprite.texture = sprites.items.textures.room_passage;
-            sprite.x = x * gridSize;
-            sprite.y = y * gridSize;
+            sprite.x = x * tileSize;
+            sprite.y = y * tileSize;
             break;
           }
         }

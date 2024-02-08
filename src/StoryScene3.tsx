@@ -1,8 +1,9 @@
 import * as React from "react";
-import { ANTICIPATION_TIME, DIALOGUES } from "./consts";
-import { createPlayer } from "./createPlayer";
-import { ActionScreen, Button, Compass, Dialog } from "./components";
+import { ANTICIPATION_TIME } from "./consts";
 import { Level, Room } from "./core";
+import { ActionScreen, Button, Compass, Dialog } from "./components";
+import { createPlayer } from "./createPlayer";
+import { dialogues } from "./dialogues";
 import { MainStageLayer } from "./MainStageLayer";
 import { useAppContext } from "./context";
 import { useDialog } from "./useDialog";
@@ -21,7 +22,7 @@ export function StoryScene3({ nextScene, resetScene }: PropsType) {
   const level = useInstance(() => new Level(createRooms()));
   const player = useInstance(() => createPlayer(level, false));
   const playerStatus = usePlayerStatus({ player });
-  const [dialog, setDialog] = useDialog(DIALOGUES);
+  const [dialog, setDialog] = useDialog(dialogues);
 
   usePlayerKeyboard({
     player,

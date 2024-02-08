@@ -6,9 +6,9 @@ import type { Player, PlayerStatus } from "../core";
 
 export const drawPlayer: DrawFunction<{
   player: Player;
-  gridSize: number;
+  tileSize: number;
   sprites: LoadedSpritesheets;
-}> = ({ parent, player, gridSize, sprites }) => {
+}> = ({ parent, player, tileSize, sprites }) => {
   const anim = new PIXI.AnimatedSprite(sprites.player.animations.right);
   anim.anchor.set(0.5);
   anim.animationSpeed = 0.1666;
@@ -17,8 +17,8 @@ export const drawPlayer: DrawFunction<{
   let lastFacingAngle: number;
   let lastPlayerStatus: PlayerStatus;
   return () => {
-    anim.x = player.x * gridSize + gridSize / 2;
-    anim.y = player.y * gridSize + gridSize / 2;
+    anim.x = player.x * tileSize + tileSize / 2;
+    anim.y = player.y * tileSize + tileSize / 2;
 
     if (
       lastFacingAngle !== player.facingAngle ||
