@@ -8,7 +8,7 @@ type PropsType<Context> = Readonly<{
   onUpdate: (deltaTime: number, context: Context) => void;
 }>;
 
-export function StageLayer<Context>({
+export function useGameLayer<Context>({
   app,
   onMount,
   onUnmount,
@@ -38,6 +38,4 @@ export function StageLayer<Context>({
       layer.destroy({ children: true });
     };
   }, [app]);
-
-  return null;
 }
