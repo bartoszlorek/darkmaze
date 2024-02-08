@@ -1,5 +1,5 @@
 import { defaultFilterVertex, Filter } from "@pixi/core";
-import { lerp } from "./helpers";
+import { lerp } from "../helpers";
 import fragment from "./lightsShader.frag";
 
 export class Light {

@@ -1,7 +1,8 @@
 import * as PIXI from "pixi.js";
-import { DrawFunction, Direction8Angle } from "./helpers";
-import type { LoadedSpritesheets } from "./assets";
-import type { Player, PlayerStatus } from "./core";
+import { Direction8Angle } from "../helpers";
+import { DrawFunction } from "./draw";
+import type { LoadedSpritesheets } from "../assets";
+import type { Player, PlayerStatus } from "../core";
 
 export const drawPlayer: DrawFunction<{
   player: Player;

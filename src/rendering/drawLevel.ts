@@ -1,19 +1,19 @@
 import * as PIXI from "pixi.js";
-import { LoadedSpritesheets } from "./assets";
-import { Level, Room } from "./core";
-import { DEBUG_MODE } from "./debug";
-import { createDebugger } from "./debugger";
+import { LoadedSpritesheets } from "../assets";
+import { Level, Room } from "../core";
+import { DEBUG_MODE } from "../debug";
 import {
   Bit4MaskValue,
   Bit8MaskValue,
-  DrawFunction,
   GridCell,
   GridMap,
   Pool,
   createBit4Mask,
   createBit8Mask,
   createEmptyNeighbors8,
-} from "./helpers";
+} from "../helpers";
+import { createDebugger } from "./debugger";
+import { DrawFunction } from "./draw";
 
 const TILES_MARGIN = 1;
 

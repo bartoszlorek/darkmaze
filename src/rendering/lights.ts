@@ -1,5 +1,5 @@
-import { Level, Player } from "./core";
-import { Direction4Angle, createPointInView } from "./helpers";
+import { Level, Player } from "../core";
+import { Direction4Angle, createPointInView } from "../helpers";
 import { Light } from "./LightsFilter";
 
 const getPointInView = createPointInView({ fieldOfView: 180 });

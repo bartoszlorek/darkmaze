@@ -1,6 +1,7 @@
 import * as PIXI from "pixi.js";
-import { LoadedSpritesheets } from "./assets";
-import { DrawFunction, Pool } from "./helpers";
+import { LoadedSpritesheets } from "../assets";
+import { Pool } from "../helpers";
+import { DrawFunction } from "./draw";
 import { FrameBounds } from "./frame";
 
 export const drawFrame: DrawFunction<

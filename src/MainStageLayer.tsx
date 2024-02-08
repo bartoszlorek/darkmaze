@@ -1,16 +1,20 @@
 import * as React from "react";
 import * as PIXI from "pixi.js";
-import { LightsFilter } from "./LightsFilter";
+
 import { StageLayer } from "./components";
 import { GRID_SIZE } from "./consts";
 import { useAppContext } from "./context";
 import { Level, Player } from "./core";
-import { drawFrame } from "./drawFrame";
-import { drawLevel } from "./drawLevel";
-import { drawPlayer } from "./drawPlayer";
-import { createFrameBounds, createEmptyFrameBounds } from "./frame";
 import { subscribeResize } from "./helpers";
-import { createLights } from "./lights";
+import {
+  drawFrame,
+  drawLevel,
+  drawPlayer,
+  createFrameBounds,
+  createEmptyFrameBounds,
+  createLights,
+  LightsFilter,
+} from "./rendering";
 
 type PropsType = Readonly<{
   player: Player;
