@@ -105,4 +105,8 @@ export class Room {
   static isEvil(room: Room) {
     return room.type === "evil";
   }
+
+  static isGolden(room: Room) {
+    return room.type === "golden";
+  }
 }
