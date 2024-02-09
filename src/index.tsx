@@ -14,6 +14,10 @@ const app = new PIXI.Application({
   antialias: false,
   resizeTo: window,
   view,
+  // setting the initial width and height fixes auto-resize bug
+  // https://www.html5gamedevs.com/topic/22692-mobile-device-resolution-issue/
+  width: 100,
+  height: 100,
 });
 
 const debugMode = getDebugMode();

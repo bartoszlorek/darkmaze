@@ -58,7 +58,8 @@ export function MainStageLayer({ player, level }: PropsType) {
         front.x = back.x = Math.floor(window.innerWidth / 2 - halfSize);
         front.y = back.y = Math.floor(window.innerHeight / 2 - halfSize);
 
-        frameBounds.update(TILE_SIZE, TILE_SIZE);
+        const margin = window.innerWidth > 800 ? TILE_SIZE : TILE_SIZE / 4;
+        frameBounds.update(TILE_SIZE, margin);
         redrawFrame();
         redrawCompass();
       };
