@@ -1,3 +1,4 @@
+export * from "./Camera";
 export * from "./drawCompass";
 export * from "./drawFrame";
 export * from "./drawLevel";

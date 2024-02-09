@@ -7,6 +7,7 @@ import { subscribeResize } from "./helpers";
 import { useAppContext } from "./context";
 import { useGameLayer } from "./useGameLayer";
 import {
+  Camera,
   drawCompass,
   drawFrame,
   drawLevel,
@@ -27,12 +28,19 @@ export function MainStageLayer({ player, level }: PropsType) {
   useGameLayer({
     app,
     onMount: (layer) => {
-      const back = new PIXI.Container();
-      const front = new PIXI.Container();
+      // the gameplay elements
+      const world = new PIXI.Container();
+      const background = new PIXI.Container();
+      const foreground = new PIXI.Container();
+      world.addChild(background);
+      world.addChild(foreground);
+
+      // the ui elements
       const frame = new PIXI.Container();
       const compass = new PIXI.Container();
-      layer.addChild(back);
-      layer.addChild(front);
+
+      // compose the view
+      layer.addChild(world);
       layer.addChild(frame);
       layer.addChild(compass);
 
@@ -53,11 +61,11 @@ export function MainStageLayer({ player, level }: PropsType) {
         sprites,
       });
 
-      const resize = () => {
-        const halfSize = (level.dimension * TILE_SIZE) / 2;
-        front.x = back.x = Math.floor(window.innerWidth / 2 - halfSize);
-        front.y = back.y = Math.floor(window.innerHeight / 2 - halfSize);
+      const camera = new Camera(world, TILE_SIZE);
+      player.subscribe("move", () => camera.lookAt(player));
 
+      const resize = () => {
+        camera.lookAt(player);
         const margin = window.innerWidth > 800 ? TILE_SIZE : TILE_SIZE / 4;
         frameBounds.update(TILE_SIZE, margin);
         redrawFrame();
@@ -68,7 +76,7 @@ export function MainStageLayer({ player, level }: PropsType) {
       resize();
 
       const commonLightsFilter = new LightsFilter();
-      back.filters = [commonLightsFilter];
+      background.filters = [commonLightsFilter];
       frame.filters = [commonLightsFilter];
 
       const getLights = createLights(level, player);
@@ -77,7 +85,7 @@ export function MainStageLayer({ player, level }: PropsType) {
       };
 
       const redrawLevel = drawLevel({
-        parent: back,
+        parent: background,
         level,
         tileSize: TILE_SIZE,
         sprites,
@@ -85,7 +93,7 @@ export function MainStageLayer({ player, level }: PropsType) {
       });
 
       const redrawPlayer = drawPlayer({
-        parent: front,
+        parent: foreground,
         player,
         tileSize: TILE_SIZE,
         sprites,
