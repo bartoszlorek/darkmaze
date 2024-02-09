@@ -31,27 +31,18 @@ export const drawCompass: DrawFunction<{
   parent.addChild(pointsLayer);
 
   const trackRefs = new Pool(
-    () => {
-      const sprite = new PIXI.Sprite();
-      sprite.y = frame.top;
-      return trackLayer.addChild(sprite);
-    },
+    () => trackLayer.addChild(new PIXI.Sprite()),
     (sprite) => sprite.destroy()
   );
 
   const pointsRefs = new Pool(
-    () => {
-      const sprite = new PIXI.Sprite();
-      sprite.y = frame.top;
-      return pointsLayer.addChild(sprite);
-    },
+    () => pointsLayer.addChild(new PIXI.Sprite()),
     (sprite) => sprite.destroy()
   );
 
   const textsRefs = new Pool(
     () => {
       const text = new PIXI.Text("", textStyles);
-      text.y = frame.top;
       text.anchor.set(0.5);
       return pointsLayer.addChild(text);
     },
@@ -81,15 +72,18 @@ export const drawCompass: DrawFunction<{
     const left = trackRefs.get("left");
     left.texture = sprites.frame.textures["compass_left"];
     left.x = frame.left + margin;
+    left.y = frame.top;
 
     const right = trackRefs.get("right");
     right.texture = sprites.frame.textures["compass_right"];
     right.x = frame.left + margin + width - tileSize;
+    right.y = frame.top;
 
     for (let i = 1; i < tilesCount - 1; i++) {
       const mid = trackRefs.get(`mid_${i}`);
       mid.texture = sprites.frame.textures["compass_mid"];
       mid.x = frame.left + margin + i * tileSize;
+      mid.y = frame.top;
     }
 
     trackRefs.afterAll();
@@ -112,9 +106,11 @@ export const drawCompass: DrawFunction<{
       const north = pointsRefs.get("north");
       north.texture = sprites.frame.textures["compass_point_grey"];
       north.x = getPointX(northPointValue);
+      north.y = frame.top;
 
       const northText = textsRefs.get("north");
       northText.x = getPointX(northPointValue) + tileSize / 2;
+      northText.y = frame.top;
       northText.text = "N";
     }
 
@@ -127,9 +123,11 @@ export const drawCompass: DrawFunction<{
       const south = pointsRefs.get("south");
       south.texture = sprites.frame.textures["compass_point_grey"];
       south.x = getPointX(southPointValue);
+      south.y = frame.top;
 
       const southText = textsRefs.get("south");
       southText.x = getPointX(southPointValue) + tileSize / 2;
+      southText.y = frame.top;
       southText.text = "S";
     }
 
@@ -142,9 +140,11 @@ export const drawCompass: DrawFunction<{
       const west = pointsRefs.get("west");
       west.texture = sprites.frame.textures["compass_point_grey"];
       west.x = getPointX(westPointValue);
+      west.y = frame.top;
 
       const westText = textsRefs.get("west");
       westText.x = getPointX(westPointValue) + tileSize / 2;
+      westText.y = frame.top;
       westText.text = "W";
     }
 
@@ -157,9 +157,11 @@ export const drawCompass: DrawFunction<{
       const east = pointsRefs.get("east");
       east.texture = sprites.frame.textures["compass_point_grey"];
       east.x = getPointX(eastPointValue);
+      east.y = frame.top;
 
       const eastText = textsRefs.get("east");
       eastText.x = getPointX(eastPointValue) + tileSize / 2;
+      eastText.y = frame.top;
       eastText.text = "E";
     }
 
