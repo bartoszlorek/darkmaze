@@ -7,12 +7,12 @@ import { subscribeResize } from "./helpers";
 import { useAppContext } from "./context";
 import { useGameLayer } from "./useGameLayer";
 import {
+  drawCompass,
   drawFrame,
   drawLevel,
   drawPlayer,
-  createFrameBounds,
-  createEmptyFrameBounds,
   createLights,
+  FrameBounds,
   LightsFilter,
 } from "./rendering";
 
@@ -30,13 +30,25 @@ export function MainStageLayer({ player, level }: PropsType) {
       const back = new PIXI.Container();
       const front = new PIXI.Container();
       const frame = new PIXI.Container();
+      const compass = new PIXI.Container();
       layer.addChild(back);
       layer.addChild(front);
       layer.addChild(frame);
+      layer.addChild(compass);
 
-      const frameBoundsRef = createEmptyFrameBounds();
+      const frameBounds = new FrameBounds();
       const redrawFrame = drawFrame({
         parent: frame,
+        frame: frameBounds,
+        tileSize: TILE_SIZE,
+        sprites,
+      });
+
+      const redrawCompass = drawCompass({
+        parent: compass,
+        player,
+        level,
+        frame: frameBounds,
         tileSize: TILE_SIZE,
         sprites,
       });
@@ -46,12 +58,9 @@ export function MainStageLayer({ player, level }: PropsType) {
         front.x = back.x = Math.floor(window.innerWidth / 2 - halfSize);
         front.y = back.y = Math.floor(window.innerHeight / 2 - halfSize);
 
-        const frameBounds = createFrameBounds(
-          frameBoundsRef,
-          TILE_SIZE,
-          TILE_SIZE
-        );
-        redrawFrame(frameBounds);
+        frameBounds.update(TILE_SIZE, TILE_SIZE);
+        redrawFrame();
+        redrawCompass();
       };
 
       const unsubscribeResize = subscribeResize(resize);

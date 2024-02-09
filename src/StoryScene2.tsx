@@ -1,7 +1,7 @@
 import * as React from "react";
 import { ANTICIPATION_TIME } from "./consts";
 import { Level, Room } from "./core";
-import { ActionScreen, Button, Compass, Dialog } from "./components";
+import { ActionScreen, Button, Dialog } from "./components";
 import { createPlayer } from "./createPlayer";
 import { dialogues } from "./dialogues";
 import { MainStageLayer } from "./MainStageLayer";
@@ -62,7 +62,6 @@ export function StoryScene2({ nextScene, resetScene }: PropsType) {
   return (
     <>
       <MainStageLayer player={player} level={level} />
-      <Compass player={player} level={level} />
       {dialog !== null && <Dialog value={dialog} />}
       {playerStatus === "died" && (
         <ActionScreen title="you died" titleColor="red">
