@@ -26,17 +26,24 @@ export const drawCompass: DrawFunction<{
   sprites: LoadedSpritesheets;
 }> = ({ parent, player, level, frame, tileSize, sprites }) => {
   const trackLayer = new PIXI.Container();
-  const pointsLayer = new PIXI.Container();
+  const pointsFrontLayer = new PIXI.Container();
+  const pointsBackLayer = new PIXI.Container();
   parent.addChild(trackLayer);
-  parent.addChild(pointsLayer);
+  parent.addChild(pointsBackLayer);
+  parent.addChild(pointsFrontLayer);
 
   const trackRefs = new Pool(
     () => trackLayer.addChild(new PIXI.Sprite()),
     (sprite) => sprite.destroy()
   );
 
-  const pointsRefs = new Pool(
-    () => pointsLayer.addChild(new PIXI.Sprite()),
+  const pointsFrontRefs = new Pool(
+    () => pointsFrontLayer.addChild(new PIXI.Sprite()),
+    (sprite) => sprite.destroy()
+  );
+
+  const pointsBackRefs = new Pool(
+    () => pointsBackLayer.addChild(new PIXI.Sprite()),
     (sprite) => sprite.destroy()
   );
 
@@ -44,7 +51,7 @@ export const drawCompass: DrawFunction<{
     () => {
       const text = new PIXI.Text("", textStyles);
       text.anchor.set(0.5);
-      return pointsLayer.addChild(text);
+      return pointsBackLayer.addChild(text);
     },
     (sprite) => sprite.destroy()
   );
@@ -55,6 +62,11 @@ export const drawCompass: DrawFunction<{
       goldenRooms.push(room.value);
     }
   }
+
+  let nearbyEvilRooms: Room[] = [];
+  level.subscribe("room_enter", ({ room }) => {
+    nearbyEvilRooms = level.getConnectedRooms(room).filter(Room.isEvil);
+  });
 
   let tilesCount = 0;
   let width = 0;
@@ -89,21 +101,14 @@ export const drawCompass: DrawFunction<{
     trackRefs.afterAll();
   };
 
-  const updatePoints = (currentRoom = level.lastVisitedRoom) => {
-    if (!currentRoom) {
-      return;
-    }
-    const nearbyEvilRooms = level
-      .getConnectedRooms(currentRoom)
-      .filter(Room.isEvil);
-
+  const updatePoints = () => {
     const northPointValue = getCompassPointInView(
       player.angle,
       Direction4Angle.up
     );
 
-    if (northPointValue >= 0 && northPointValue <= 1) {
-      const north = pointsRefs.get("north");
+    if (isPointVisible(northPointValue)) {
+      const north = pointsBackRefs.get("north");
       north.texture = sprites.frame.textures["compass_point_grey"];
       north.x = getPointX(northPointValue);
       north.y = frame.top;
@@ -119,8 +124,8 @@ export const drawCompass: DrawFunction<{
       Direction4Angle.down
     );
 
-    if (southPointValue >= 0 && southPointValue <= 1) {
-      const south = pointsRefs.get("south");
+    if (isPointVisible(southPointValue)) {
+      const south = pointsBackRefs.get("south");
       south.texture = sprites.frame.textures["compass_point_grey"];
       south.x = getPointX(southPointValue);
       south.y = frame.top;
@@ -136,8 +141,8 @@ export const drawCompass: DrawFunction<{
       Direction4Angle.left
     );
 
-    if (westPointValue >= 0 && westPointValue <= 1) {
-      const west = pointsRefs.get("west");
+    if (isPointVisible(westPointValue)) {
+      const west = pointsBackRefs.get("west");
       west.texture = sprites.frame.textures["compass_point_grey"];
       west.x = getPointX(westPointValue);
       west.y = frame.top;
@@ -153,8 +158,8 @@ export const drawCompass: DrawFunction<{
       Direction4Angle.right
     );
 
-    if (eastPointValue >= 0 && eastPointValue <= 1) {
-      const east = pointsRefs.get("east");
+    if (isPointVisible(eastPointValue)) {
+      const east = pointsBackRefs.get("east");
       east.texture = sprites.frame.textures["compass_point_grey"];
       east.x = getPointX(eastPointValue);
       east.y = frame.top;
@@ -165,17 +170,51 @@ export const drawCompass: DrawFunction<{
       eastText.text = "E";
     }
 
-    pointsRefs.afterAll();
+    for (let i = 0; i < goldenRooms.length; i++) {
+      const pointValue = clampPointValue(
+        getCompassPointInView(
+          player.angle,
+          angleBetweenPoints(
+            player.x,
+            player.y,
+            goldenRooms[i].x,
+            goldenRooms[i].y
+          )
+        )
+      );
+
+      const point = pointsFrontRefs.get(`golden_${i}`);
+      point.texture = sprites.frame.textures["compass_point_gold"];
+      point.x = getPointX(pointValue);
+      point.y = frame.top;
+    }
+
+    for (let i = 0; i < nearbyEvilRooms.length; i++) {
+      const pointValue = clampPointValue(
+        getCompassPointInView(
+          player.angle,
+          angleBetweenPoints(
+            player.x,
+            player.y,
+            nearbyEvilRooms[i].x,
+            nearbyEvilRooms[i].y
+          )
+        )
+      );
+
+      const point = pointsFrontRefs.get(`evil_${i}`);
+      point.texture = sprites.frame.textures["compass_point_red"];
+      point.x = getPointX(pointValue);
+      point.y = frame.top;
+    }
+
+    pointsFrontRefs.afterAll();
+    pointsBackRefs.afterAll();
     textsRefs.afterAll();
   };
 
-  player.subscribe("move", () => updatePoints());
-  player.subscribe("turn", () => updatePoints());
-
-  const unsubscribeFirstEnter = level.subscribe("room_enter", ({ room }) => {
-    updatePoints(room);
-    unsubscribeFirstEnter();
-  });
+  player.subscribe("move", updatePoints);
+  player.subscribe("turn", updatePoints);
 
   return () => {
     updateTrack();
@@ -185,4 +224,12 @@ export const drawCompass: DrawFunction<{
 
 function getCompassPointInView(a: number, b: number) {
   return getPointInView(floorNumber(a, 10), floorNumber(b, 10), 200);
+}
+
+function isPointVisible(value: number) {
+  return !(value < 0 || value > 1);
+}
+
+function clampPointValue(value: number) {
+  return value < 0 ? 0 : value > 1 ? 1 : value;
 }
