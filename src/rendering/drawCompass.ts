@@ -82,18 +82,18 @@ export const drawCompass: DrawFunction<{
     margin = Math.round((frame.width - width) / 2);
 
     const left = trackRefs.get("left");
-    left.texture = sprites.frame.textures["compass_left"];
+    left.texture = sprites.tiles.textures["compass_left"];
     left.x = frame.left + margin;
     left.y = frame.top;
 
     const right = trackRefs.get("right");
-    right.texture = sprites.frame.textures["compass_right"];
+    right.texture = sprites.tiles.textures["compass_right"];
     right.x = frame.left + margin + width - tileSize;
     right.y = frame.top;
 
     for (let i = 1; i < tilesCount - 1; i++) {
       const mid = trackRefs.get(`mid_${i}`);
-      mid.texture = sprites.frame.textures["compass_mid"];
+      mid.texture = sprites.tiles.textures["compass_mid"];
       mid.x = frame.left + margin + i * tileSize;
       mid.y = frame.top;
     }
@@ -109,7 +109,7 @@ export const drawCompass: DrawFunction<{
 
     if (isPointVisible(northPointValue)) {
       const north = pointsBackRefs.get("north");
-      north.texture = sprites.frame.textures["compass_point_grey"];
+      north.texture = sprites.tiles.textures["compass_point_grey"];
       north.x = getPointX(northPointValue);
       north.y = frame.top;
 
@@ -126,7 +126,7 @@ export const drawCompass: DrawFunction<{
 
     if (isPointVisible(southPointValue)) {
       const south = pointsBackRefs.get("south");
-      south.texture = sprites.frame.textures["compass_point_grey"];
+      south.texture = sprites.tiles.textures["compass_point_grey"];
       south.x = getPointX(southPointValue);
       south.y = frame.top;
 
@@ -143,7 +143,7 @@ export const drawCompass: DrawFunction<{
 
     if (isPointVisible(westPointValue)) {
       const west = pointsBackRefs.get("west");
-      west.texture = sprites.frame.textures["compass_point_grey"];
+      west.texture = sprites.tiles.textures["compass_point_grey"];
       west.x = getPointX(westPointValue);
       west.y = frame.top;
 
@@ -160,7 +160,7 @@ export const drawCompass: DrawFunction<{
 
     if (isPointVisible(eastPointValue)) {
       const east = pointsBackRefs.get("east");
-      east.texture = sprites.frame.textures["compass_point_grey"];
+      east.texture = sprites.tiles.textures["compass_point_grey"];
       east.x = getPointX(eastPointValue);
       east.y = frame.top;
 
@@ -184,7 +184,7 @@ export const drawCompass: DrawFunction<{
       );
 
       const point = pointsFrontRefs.get(`golden_${i}`);
-      point.texture = sprites.frame.textures["compass_point_gold"];
+      point.texture = sprites.tiles.textures["compass_point_gold"];
       point.x = getPointX(pointValue);
       point.y = frame.top;
     }
@@ -203,7 +203,7 @@ export const drawCompass: DrawFunction<{
       );
 
       const point = pointsFrontRefs.get(`evil_${i}`);
-      point.texture = sprites.frame.textures["compass_point_red"];
+      point.texture = sprites.tiles.textures["compass_point_red"];
       point.x = getPointX(pointValue);
       point.y = frame.top;
     }
