@@ -11,7 +11,7 @@ export function getPointInView(
   return ((radial - offset) * scale) / 360;
 }
 
-export function createPointInView({ fieldOfView }: { fieldOfView: number }) {
+export function createPointInView(fieldOfView: number) {
   const scale = 360 / fieldOfView;
   const offset = (360 - fieldOfView) / 2;
 

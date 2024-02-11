@@ -75,13 +75,16 @@ export function MainStageLayer({ player, level }: PropsType) {
       const unsubscribeResize = subscribeResize(resize);
       resize();
 
-      const commonLightsFilter = new LightsFilter();
-      background.filters = [commonLightsFilter];
-      frame.filters = [commonLightsFilter];
+      const backgroundLightsFilter = new LightsFilter();
+      const frameLightsFilter = new LightsFilter();
+      background.filters = [backgroundLightsFilter];
+      frame.filters = [frameLightsFilter];
 
       const getLights = createLights(level, player);
-      const updateLightsFilter = () => {
-        commonLightsFilter.setLights(getLights());
+      const updateLightsFilter = (deltaTime: number) => {
+        const lights = getLights(deltaTime);
+        backgroundLightsFilter.setLights(lights.background);
+        frameLightsFilter.setLights(lights.frame);
       };
 
       const redrawLevel = drawLevel({
@@ -107,13 +110,13 @@ export function MainStageLayer({ player, level }: PropsType) {
       };
     },
 
-    onUpdate: (_, ctx) => {
+    onUpdate: (ctx, deltaTime) => {
       ctx.redrawLevel();
       ctx.redrawPlayer();
-      ctx.updateLightsFilter();
+      ctx.updateLightsFilter(deltaTime);
     },
 
-    onUnmount: (_, ctx) => {
+    onUnmount: (ctx) => {
       ctx.unsubscribeResize();
     },
   });

@@ -1,8 +1,19 @@
 /**
  * Linear interpolation between two values.
  */
-export function lerp(a: number, b: number, bias: number) {
-  return a * (1 - bias) + b * bias;
+export function lerp(
+  a: number,
+  b: number,
+  bias: number,
+  error: number = 0.001
+) {
+  // really close values should not be interpolated
+  // and it is important when feeding back the result
+  // of this function as the "a" component
+  if (Math.abs(a - b) > error) {
+    return a * (1 - bias) + b * bias;
+  }
+  return b;
 }
 
 export function ceilNumber(value: number, precision: number) {

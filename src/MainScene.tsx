@@ -4,6 +4,7 @@ import { FreerunSceneSettings } from "./FreerunSceneSettings";
 import { FreerunScene } from "./FreerunScene";
 import { StoryScene } from "./StoryScene";
 import { TitleScene } from "./TitleScene";
+import { LightTest } from "./LightTest";
 
 export function MainScene() {
   return (
@@ -15,6 +16,7 @@ export function MainScene() {
         <Route index element={<FreerunScene />} />
         <Route path=":dimension" element={<FreerunScene />} />
       </Route>
+      <Route path="/light-test" element={<LightTest />} />
     </Routes>
   );
 }

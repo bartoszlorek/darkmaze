@@ -3,6 +3,7 @@ export * from "./bitmask";
 export * from "./debounce";
 export * from "./dfs";
 export * from "./direction";
+export * from "./dynamics";
 export * from "./easing";
 export * from "./fieldOfView";
 export * from "./grid";
