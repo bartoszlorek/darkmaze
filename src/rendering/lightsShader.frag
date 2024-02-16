@@ -63,5 +63,5 @@ void main(void) {
   alpha += calculateLight(x, lights[3]);
   alpha = min(1.0, alpha);
 
-  gl_FragColor = color * (lum < 1.0 - alpha ? 0.0 : 1.0);
+  gl_FragColor = color * (lum <= 1.0 - alpha ? 0.0 : 1.0);
 }
