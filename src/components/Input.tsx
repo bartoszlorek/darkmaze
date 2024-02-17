@@ -41,35 +41,53 @@ export function InputNumber({
   ...restProps
 }: NumberPropsType) {
   const handleChange = (e: React.FormEvent<HTMLInputElement>) => {
-    const { min, max } = restProps;
-    const value = e.currentTarget.value;
+    const value = validateNumber(e.currentTarget.value, valueType);
+    if (value !== null) {
+      onChange(value);
+    }
+  };
 
-    let valueNum: number = 0;
-    if (valueType === "int") {
-      if (validator.isInt(value)) {
-        valueNum = validator.toInt(value);
-      } else {
-        return;
-      }
-    } else if (valueType === "float") {
-      if (validator.isFloat(value)) {
-        valueNum = validator.toFloat(value);
-      } else {
-        return;
-      }
+  const handleBlur = (e: React.FormEvent<HTMLInputElement>) => {
+    let value = validateNumber(e.currentTarget.value, valueType);
+    if (value === null) {
+      return;
     }
 
+    const { min, max } = restProps;
     if (min !== undefined) {
-      valueNum = Math.max(min, valueNum);
+      value = Math.max(min, value);
     }
     if (max !== undefined) {
-      valueNum = Math.min(max, valueNum);
+      value = Math.min(max, value);
     }
 
-    onChange(valueNum);
+    onChange(value);
   };
 
   return (
-    <input {...restProps} className={styles.input} onChange={handleChange} />
+    <input
+      {...restProps}
+      className={styles.input}
+      onChange={handleChange}
+      onBlur={handleBlur}
+    />
   );
+}
+
+function validateNumber(value: string, type: "float" | "int"): number | null {
+  switch (type) {
+    case "float":
+      if (validator.isFloat(value)) {
+        return validator.toFloat(value);
+      } else {
+        return null;
+      }
+
+    case "int":
+      if (validator.isInt(value)) {
+        return validator.toInt(value);
+      } else {
+        return null;
+      }
+  }
 }
