@@ -1,12 +1,10 @@
 import {
-  direction4KeyFromAngle,
   Direction4Angle,
   ceilNumber,
   floorNumber,
   lerp,
   lerpAngle,
   normalizeAngle,
-  subtractAngle,
 } from "../helpers";
 import { EventEmitter } from "./EventEmitter";
 import { Room } from "./Room";
@@ -21,7 +19,6 @@ export const PLAYER_DEFAULT_STATUS: PlayerStatus = "idle";
 export type PlayerEvents = {
   move: { x: number; y: number };
   turn: { angle: number };
-  pathSense: { left: number; right: number };
   status: { value: PlayerStatus };
 };
 
@@ -46,15 +43,10 @@ export class Player extends EventEmitter<PlayerEvents> {
   public moveDirection: number = 0;
   public turnDirection: number = 0;
 
-  // detection of alternative level paths
-  public pathSenseLeft: number = 0; // [0..1]
-  public pathSenseRight: number = 0; // [0..1]
-
   // pre-allocated memory
   private _events: PlayerEvents = {
     move: { x: 0, y: 0 },
     turn: { angle: 0 },
-    pathSense: { left: 0, right: 0 },
     status: { value: PLAYER_DEFAULT_STATUS },
   };
 
@@ -102,7 +94,6 @@ export class Player extends EventEmitter<PlayerEvents> {
       this.status === "turning"
     ) {
       this.applyMovement(deltaTime, currentRoom);
-      this.applyPathSense(currentRoom);
     }
   }
 
@@ -229,48 +220,6 @@ export class Player extends EventEmitter<PlayerEvents> {
       this.setStatus("turning");
     } else {
       this.setStatus("idle");
-    }
-  }
-
-  protected applyPathSense(currentRoom: Room) {
-    const angleLeft = this.facingAngle - 90;
-    const angleRight = this.facingAngle + 90;
-    const directionKeyLeft = direction4KeyFromAngle(angleLeft);
-    const directionKeyRight = direction4KeyFromAngle(angleRight);
-
-    // references
-    const pathSenseLeftBefore = this.pathSenseLeft;
-    const pathSenseRightBefore = this.pathSenseRight;
-
-    if (!currentRoom.walls[directionKeyLeft]) {
-      const angleDiff = subtractAngle(
-        Direction4Angle[directionKeyLeft],
-        angleLeft
-      );
-
-      this.pathSenseLeft = (45 - Math.abs(angleDiff)) / 45;
-    } else {
-      this.pathSenseLeft = 0;
-    }
-
-    if (!currentRoom.walls[directionKeyRight]) {
-      const angleDiff = subtractAngle(
-        Direction4Angle[directionKeyRight],
-        angleRight
-      );
-
-      this.pathSenseRight = (45 - Math.abs(angleDiff)) / 45;
-    } else {
-      this.pathSenseRight = 0;
-    }
-
-    if (
-      this.pathSenseLeft !== pathSenseLeftBefore ||
-      this.pathSenseRight !== pathSenseRightBefore
-    ) {
-      this._events.pathSense.left = this.pathSenseLeft;
-      this._events.pathSense.right = this.pathSenseRight;
-      this.emit("pathSense", this._events.pathSense);
     }
   }
 }
