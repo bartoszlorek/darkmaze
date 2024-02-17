@@ -75,16 +75,16 @@ export function MainStageLayer({ player, level }: PropsType) {
       const unsubscribeResize = subscribeResize(resize);
       resize();
 
-      const backgroundLightsFilter = new LightsFilter();
-      const frameLightsFilter = new LightsFilter();
-      background.filters = [backgroundLightsFilter];
-      frame.filters = [frameLightsFilter];
+      const normalLightsFilter = new LightsFilter(4);
+      const delayedLightsFilter = new LightsFilter(4);
+      background.filters = [delayedLightsFilter];
+      frame.filters = [normalLightsFilter];
 
       const getLights = createLights(level, player);
       const updateLightsFilter = (deltaTime: number) => {
         const lights = getLights(deltaTime);
-        backgroundLightsFilter.setLights(lights.background);
-        frameLightsFilter.setLights(lights.frame);
+        normalLightsFilter.setLights(lights.normal);
+        delayedLightsFilter.setLights(lights.delayed);
       };
 
       const redrawLevel = drawLevel({

@@ -1,7 +1,7 @@
 import { EventEmitter } from "./EventEmitter";
 import { Player } from "./Player";
 import { Room } from "./Room";
-import { GridMap } from "../helpers";
+import { GridMap, findPathUntil, angleBetweenPoints } from "../helpers";
 
 export type LevelEvents = {
   room_enter: { room: Room };
@@ -122,5 +122,79 @@ export class Level extends EventEmitter<LevelEvents> {
     }
 
     return matches;
+  }
+
+  updateCorrectPaths() {
+    let startRoom: Room | null = null;
+    let goalRoom: Room | null = null;
+    const deadEndRooms: Room[] = [];
+
+    for (const [key, room] of this.rooms) {
+      if (room.value.type === "start") {
+        startRoom = room.value;
+      }
+
+      if (room.value.type === "golden" || room.value.type === "passage") {
+        goalRoom = room.value;
+      }
+
+      if (room.value.deadEnd) {
+        deadEndRooms.push(room.value);
+      }
+    }
+
+    if (!startRoom || !goalRoom) {
+      throw new Error("the level requires start and goal rooms");
+    }
+
+    const neighbors = (room: Room) => this.getConnectedRooms(room);
+    const isGoalRoom = (room: Room) => room === goalRoom;
+
+    // find the main path to the goal
+    const mainPath = findPathUntil(startRoom, neighbors, isGoalRoom);
+    for (let i = 0; i < mainPath.length - 1; i++) {
+      const currRoom = mainPath[i];
+      const nextRoom = mainPath[i + 1];
+      currRoom.correctPathAngle = angleBetweenPoints(
+        currRoom.x,
+        currRoom.y,
+        nextRoom.x,
+        nextRoom.y
+      );
+    }
+
+    if (mainPath.length > 1) {
+      const lastIndex = mainPath.length - 1;
+
+      // keep the angle of the path in the golden
+      // room the same as in the room before it
+      mainPath[lastIndex].correctPathAngle =
+        mainPath[lastIndex - 1].correctPathAngle;
+    }
+
+    // find all ways back to the main
+    // path from the remaining dead ends
+    const hasCorrectPathAssigned = (room: Room) =>
+      room.correctPathAngle !== Room.unassignedCorrectPathAngle;
+
+    for (const room of deadEndRooms) {
+      if (room.correctPathAngle !== Room.unassignedCorrectPathAngle) {
+        continue;
+      }
+
+      const pathBack = findPathUntil(room, neighbors, hasCorrectPathAssigned);
+      for (let i = 0; i < pathBack.length - 1; i++) {
+        const currRoom = pathBack[i];
+        const nextRoom = pathBack[i + 1];
+        currRoom.correctPathAngle = angleBetweenPoints(
+          currRoom.x,
+          currRoom.y,
+          nextRoom.x,
+          nextRoom.y
+        );
+      }
+    }
+
+    return this;
   }
 }

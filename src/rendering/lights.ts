@@ -3,93 +3,90 @@ import { Direction4Angle, createPointInView } from "../helpers";
 import { Light } from "./LightsFilter";
 
 const getPointInView = createPointInView(180);
-const BACKGROUND_OUT_DELAY = 1000;
+
+const delayedOptions = {
+  changeUpDelay: 0,
+  changeDownDelay: 800,
+};
 
 export function createLights(level: Level, player: Player) {
-  const f1 = new Light();
-  const f2 = new Light();
-  const f3 = new Light();
-  const f4 = new Light();
+  // prettier-ignore
+  const normal = [
+    new Light(),
+    new Light(),
+    new Light(),
+    new Light()
+  ];
 
-  const b1 = new Light();
-  const b2 = new Light();
-  const b3 = new Light();
-  const b4 = new Light();
-
-  const updatePositions = (angle: number) => {
-    const width = window.innerWidth;
-    f1.x = b1.x = getPointInView(angle, Direction4Angle.up) * width;
-    f2.x = b2.x = getPointInView(angle, Direction4Angle.right) * width;
-    f3.x = b3.x = getPointInView(angle, Direction4Angle.down) * width;
-    f4.x = b4.x = getPointInView(angle, Direction4Angle.left) * width;
-  };
-
-  player.subscribe("turn", ({ angle }) => updatePositions(angle));
-  updatePositions(player.angle);
-
-  level.subscribe("room_enter", ({ room }) => {
-    if (room.walls.up) {
-      f1.setIntensity(0);
-      b1.setIntensity(0, BACKGROUND_OUT_DELAY);
-    } else {
-      f1.setIntensity(1);
-      b1.setIntensity(1);
-    }
-
-    if (room.walls.right) {
-      f2.setIntensity(0);
-      b2.setIntensity(0, BACKGROUND_OUT_DELAY);
-    } else {
-      f2.setIntensity(1);
-      b2.setIntensity(1);
-    }
-
-    if (room.walls.down) {
-      f3.setIntensity(0);
-      b3.setIntensity(0, BACKGROUND_OUT_DELAY);
-    } else {
-      f3.setIntensity(1);
-      b3.setIntensity(1);
-    }
-
-    if (room.walls.left) {
-      f4.setIntensity(0);
-      b4.setIntensity(0, BACKGROUND_OUT_DELAY);
-    } else {
-      f4.setIntensity(1);
-      b4.setIntensity(1);
-    }
-  });
+  const delayed = [
+    new Light(delayedOptions),
+    new Light(delayedOptions),
+    new Light(delayedOptions),
+    new Light(delayedOptions),
+  ];
 
   const output = {
-    frame: [f1, f2, f3, f4],
-    background: [b1, b2, b3, b4],
+    normal,
+    delayed,
   };
 
+  level.subscribe("room_enter", ({ room }) => {
+    normal[0].intensity = delayed[0].intensity =
+      room.correctPathAngle === Direction4Angle.up ? 1 : 0;
+
+    normal[1].intensity = delayed[1].intensity =
+      room.correctPathAngle === Direction4Angle.left ? 1 : 0;
+
+    normal[2].intensity = delayed[2].intensity =
+      room.correctPathAngle === Direction4Angle.right ? 1 : 0;
+
+    normal[3].intensity = delayed[3].intensity =
+      room.correctPathAngle === Direction4Angle.down ? 1 : 0;
+  });
+
+  const updatePositions = () => {
+    const angle = player.angle;
+    const width = window.innerWidth;
+
+    normal[0].x = delayed[0].x =
+      getPointInView(angle, Direction4Angle.up) * width;
+
+    normal[1].x = delayed[1].x =
+      getPointInView(angle, Direction4Angle.left) * width;
+
+    normal[2].x = delayed[2].x =
+      getPointInView(angle, Direction4Angle.right) * width;
+
+    normal[3].x = delayed[3].x =
+      getPointInView(angle, Direction4Angle.down) * width;
+  };
+
+  player.subscribe("turn", updatePositions);
+  updatePositions();
+
   return (deltaTime: number) => {
-    const room = level.lastVisitedRoom;
-    if (!room) {
-      return output;
-    }
+    const radius = window.innerWidth / 2;
 
-    f1.radius =
-      f2.radius =
-      f3.radius =
-      f4.radius =
-      b1.radius =
-      b2.radius =
-      b3.radius =
-      b4.radius =
-        window.innerWidth / 2;
+    normal[0].radius = radius;
+    normal[1].radius = radius;
+    normal[2].radius = radius;
+    normal[3].radius = radius;
 
-    f1.update(deltaTime);
-    f2.update(deltaTime);
-    f3.update(deltaTime);
-    f4.update(deltaTime);
-    b1.update(deltaTime);
-    b2.update(deltaTime);
-    b3.update(deltaTime);
-    b4.update(deltaTime);
+    normal[0].update(deltaTime);
+    normal[1].update(deltaTime);
+    normal[2].update(deltaTime);
+    normal[3].update(deltaTime);
+
+    delayed[0].radius = radius;
+    delayed[1].radius = radius;
+    delayed[2].radius = radius;
+    delayed[3].radius = radius;
+
+    delayed[0].update(deltaTime);
+    delayed[1].update(deltaTime);
+    delayed[2].update(deltaTime);
+    delayed[3].update(deltaTime);
+
     return output;
   };
 }

@@ -4,6 +4,7 @@ export enum DEBUG_MODE {
   VISITED_CONNECTED = 2,
   WALLS_INDEX = 3,
   EDGES_INDEX = 4,
+  ANGLE_TO_GOAL = 5,
 }
 
 export function getDebugMode(): DEBUG_MODE {

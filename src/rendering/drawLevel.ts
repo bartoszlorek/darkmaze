@@ -192,7 +192,10 @@ export const drawLevel: DrawFunction<{
 
   level.subscribe("room_explore", exploreRoom);
 
-  if (debugMode === DEBUG_MODE.ROOMS_LAYOUT) {
+  if (
+    debugMode === DEBUG_MODE.ROOMS_LAYOUT ||
+    debugMode === DEBUG_MODE.ANGLE_TO_GOAL
+  ) {
     for (const { value: room } of level.rooms.values()) {
       exploreRoom({ room });
     }
@@ -206,9 +209,19 @@ export const drawLevel: DrawFunction<{
           x * tileSize + tileSize / 2,
           y * tileSize + tileSize / 2
         );
+      } else if (debugMode === DEBUG_MODE.ANGLE_TO_GOAL) {
+        debug.print(
+          room.correctPathAngle,
+          x * tileSize + tileSize / 2,
+          y * tileSize + tileSize / 2
+        );
       }
 
-      if (room.explored || debugMode === DEBUG_MODE.ROOMS_LAYOUT) {
+      if (
+        room.explored ||
+        debugMode === DEBUG_MODE.ROOMS_LAYOUT ||
+        debugMode === DEBUG_MODE.ANGLE_TO_GOAL
+      ) {
         const roomKey = `${x},${y}`;
         switch (room.type) {
           case "evil": {

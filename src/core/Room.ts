@@ -21,6 +21,15 @@ export class Room {
     down: false,
   };
 
+  static unassignedCorrectPathAngle = -1;
+
+  /**
+   * an angle indicating the exit from
+   * the room on the way to the main goal
+   * of the level
+   */
+  public correctPathAngle: number = Room.unassignedCorrectPathAngle;
+
   /**
    * the room has only one exit
    */

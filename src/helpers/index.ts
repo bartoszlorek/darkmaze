@@ -1,7 +1,6 @@
 export * from "./array";
 export * from "./bitmask";
 export * from "./debounce";
-export * from "./dfs";
 export * from "./direction";
 export * from "./dynamics";
 export * from "./easing";
@@ -12,6 +11,7 @@ export * from "./pooling";
 export * from "./randomNumber";
 export * from "./randomSeed";
 export * from "./resize";
+export * from "./search";
 export * from "./storage";
 export * from "./throttle";
 export * from "./types";

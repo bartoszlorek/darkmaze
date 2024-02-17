@@ -19,7 +19,7 @@ type PropsType = Readonly<{
 
 export function StoryScene3({ nextScene, resetScene }: PropsType) {
   const { app } = useAppContext();
-  const level = useInstance(() => new Level(createRooms()));
+  const level = useInstance(() => createLevel());
   const player = useInstance(() => createPlayer(level, false));
   const playerStatus = usePlayerStatus({ player });
   const [dialog, setDialog] = useDialog(dialogues);
@@ -73,8 +73,8 @@ export function StoryScene3({ nextScene, resetScene }: PropsType) {
   );
 }
 
-function createRooms(): Room[] {
-  return [
+function createLevel(): Level {
+  const rooms = [
     new Room(0, 0, "evil").setWallsByBit(1, 1, 1, 0),
     new Room(1, 0, "golden").setWallsByBit(1, 1, 0, 1),
     new Room(2, 0).setWallsByBit(1, 0, 0, 1),
@@ -95,4 +95,6 @@ function createRooms(): Room[] {
     new Room(2, 3).setWallsByBit(0, 0, 1, 1),
     new Room(3, 3, "evil").setWallsByBit(0, 1, 1, 1),
   ];
+
+  return new Level(rooms).updateCorrectPaths();
 }

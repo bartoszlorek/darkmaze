@@ -2,19 +2,33 @@ import { defaultFilterVertex, Filter } from "@pixi/core";
 import { lerp } from "../helpers";
 import fragment from "./lightsShader.frag";
 
+export interface LightOptions {
+  changeUpDelay: number;
+  changeUpSpeed: number; // [0..1]
+  changeDownDelay: number;
+  changeDownSpeed: number; // [0..1]
+}
+
 export class Light {
   public x: number = 0;
   public radius: number = 0;
+  public options: LightOptions;
 
-  // brightness
-  public intensity: number = 0;
-  protected intensityTarget: number = 0;
-  protected enabled: boolean = false;
-
-  // ability to change
-  protected speedUp: number = 0.1;
-  protected speedDown: number = 0.008;
+  // dynamic intensity
+  protected currentIntensity: number = 0;
+  protected targetIntensity: number = 0;
+  protected speed: number = 0;
   protected delay: number = 0;
+
+  constructor(options: Partial<LightOptions> = {}) {
+    this.options = {
+      changeUpDelay: 0,
+      changeUpSpeed: 0.1,
+      changeDownDelay: 0,
+      changeDownSpeed: 0.008,
+      ...options,
+    };
+  }
 
   /**
    * vec3(
@@ -25,24 +39,36 @@ export class Light {
    */
   static vectorSize = 3;
 
-  setIntensity(value: number, delay: number = 0) {
-    if (this.intensityTarget !== value) {
-      this.intensityTarget = value;
-      this.delay = delay;
+  get intensity() {
+    return this.currentIntensity;
+  }
+
+  set intensity(value: number) {
+    this.targetIntensity = value;
+
+    if (this.currentIntensity < this.targetIntensity) {
+      this.speed = this.options.changeUpSpeed;
+      this.delay = this.options.changeUpDelay;
+    } else if (this.currentIntensity > this.targetIntensity) {
+      this.speed = this.options.changeDownSpeed;
+      this.delay = this.options.changeDownDelay;
     }
   }
 
   update(deltaTime: number) {
-    this.delay = Math.max(0, this.delay - deltaTime);
-
-    if (this.delay > 0 || this.intensity === this.intensityTarget) {
+    if (this.currentIntensity === this.targetIntensity) {
       return;
     }
 
-    this.intensity = lerp(
-      this.intensity,
-      this.intensityTarget,
-      this.intensity < this.intensityTarget ? this.speedUp : this.speedDown
+    this.delay = Math.max(0, this.delay - deltaTime);
+    if (this.delay > 0) {
+      return;
+    }
+
+    this.currentIntensity = lerp(
+      this.currentIntensity,
+      this.targetIntensity,
+      this.speed
     );
   }
 
@@ -57,7 +83,7 @@ export class Light {
 export class LightsFilter extends Filter {
   public lightsCount: number;
 
-  constructor(lightsCount: number = 4) {
+  constructor(lightsCount: number) {
     /**
      * https://www.khronos.org/opengl/wiki/Uniform_(GLSL)
      */
@@ -74,6 +100,12 @@ export class LightsFilter extends Filter {
   }
 
   setLights(lights: Light[]) {
+    if (lights.length !== this.lightsCount) {
+      throw new Error(
+        `filter expects ${this.lightsCount} lights but received ${lights.length}`
+      );
+    }
+
     for (let i = 0; i < this.lightsCount; i++) {
       lights[i].toVectorArray(this.uniforms.lights, i);
     }
