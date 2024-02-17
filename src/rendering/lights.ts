@@ -1,6 +1,13 @@
-import { Level, Player } from "../core";
+import { Level, Player, Room } from "../core";
 import { Direction4Angle, createPointInView } from "../helpers";
 import { Light } from "./LightsFilter";
+
+enum LightIndex {
+  up,
+  left,
+  right,
+  down,
+}
 
 const getPointInView = createPointInView(180);
 
@@ -31,33 +38,57 @@ export function createLights(level: Level, player: Player) {
   };
 
   level.subscribe("room_enter", ({ room }) => {
-    normal[0].intensity = delayed[0].intensity =
+    normal[LightIndex.up].intensity = delayed[LightIndex.up].intensity =
       room.correctPathAngle === Direction4Angle.up ? 1 : 0;
 
-    normal[1].intensity = delayed[1].intensity =
+    normal[LightIndex.left].intensity = delayed[LightIndex.left].intensity =
       room.correctPathAngle === Direction4Angle.left ? 1 : 0;
 
-    normal[2].intensity = delayed[2].intensity =
+    normal[LightIndex.right].intensity = delayed[LightIndex.right].intensity =
       room.correctPathAngle === Direction4Angle.right ? 1 : 0;
 
-    normal[3].intensity = delayed[3].intensity =
+    normal[LightIndex.down].intensity = delayed[LightIndex.down].intensity =
       room.correctPathAngle === Direction4Angle.down ? 1 : 0;
+
+    const nearbyEvilRooms = level.getConnectedRooms(room).filter(Room.isEvil);
+    for (const evilRoom of nearbyEvilRooms) {
+      switch (true) {
+        case room.y > evilRoom.y:
+          normal[LightIndex.up].intensity = 1;
+          delayed[LightIndex.up].intensity = 1;
+          break;
+
+        case room.y < evilRoom.y:
+          normal[LightIndex.down].intensity = 1;
+          delayed[LightIndex.down].intensity = 1;
+          break;
+
+        case room.x > evilRoom.x:
+          normal[LightIndex.left].intensity = 1;
+          delayed[LightIndex.left].intensity = 1;
+          break;
+
+        default:
+          normal[LightIndex.right].intensity = 1;
+          delayed[LightIndex.right].intensity = 1;
+      }
+    }
   });
 
   const updatePositions = () => {
     const angle = player.angle;
     const width = window.innerWidth;
 
-    normal[0].x = delayed[0].x =
+    normal[LightIndex.up].x = delayed[LightIndex.up].x =
       getPointInView(angle, Direction4Angle.up) * width;
 
-    normal[1].x = delayed[1].x =
+    normal[LightIndex.left].x = delayed[LightIndex.left].x =
       getPointInView(angle, Direction4Angle.left) * width;
 
-    normal[2].x = delayed[2].x =
+    normal[LightIndex.right].x = delayed[LightIndex.right].x =
       getPointInView(angle, Direction4Angle.right) * width;
 
-    normal[3].x = delayed[3].x =
+    normal[LightIndex.down].x = delayed[LightIndex.down].x =
       getPointInView(angle, Direction4Angle.down) * width;
   };
 
