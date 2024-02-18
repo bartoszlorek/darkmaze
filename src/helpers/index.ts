@@ -4,6 +4,7 @@ export * from "./debounce";
 export * from "./direction";
 export * from "./dynamics";
 export * from "./easing";
+export * from "./events";
 export * from "./fieldOfView";
 export * from "./grid";
 export * from "./math";

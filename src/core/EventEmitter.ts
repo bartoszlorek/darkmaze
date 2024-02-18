@@ -33,4 +33,8 @@ export class EventEmitter<T extends Record<string, unknown>> {
     this.registry.set(event, handlers);
     arrayRemove(handlers, handler);
   }
+
+  destroy() {
+    this.registry.clear();
+  }
 }

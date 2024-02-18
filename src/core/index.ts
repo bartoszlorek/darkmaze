@@ -3,3 +3,4 @@ export * from "./Keyboard";
 export * from "./Level";
 export * from "./Player";
 export * from "./Room";
+export * from "./VirtualJoystick";

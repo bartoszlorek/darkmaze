@@ -4,20 +4,28 @@
   box-sizing: border-box;
 }
 
+html {
+  height: -webkit-fill-available;
+}
+
 body {
   margin: 0;
   padding: 0;
   background-color: #17152e;
   font-family: "Red Hat Mono", monospace;
   color: #f2f0e5;
+  min-height: 100vh;
+  /* mobile viewport bug fix */
+  min-height: -webkit-fill-available;
+  overflow: hidden;
 }
 
 #root {
   position: absolute;
   left: 0;
   top: 0;
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
+  height: 100%;
 }
 
 canvas {

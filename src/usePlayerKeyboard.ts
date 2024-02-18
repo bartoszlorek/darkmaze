@@ -1,5 +1,6 @@
 import * as React from "react";
-import { Keyboard, Player, PlayerStatus } from "./core";
+import { Keyboard, Player, PlayerStatus, VirtualJoystick } from "./core";
+import { dispatchKeyboardEvent } from "./helpers";
 
 type PlayerMovementKeys =
   | "ArrowUp"
@@ -28,6 +29,7 @@ export function usePlayerKeyboard({ player, playerStatus }: PropsType) {
     }
 
     const keyboard = new Keyboard<PlayerMovementKeys>();
+    const joystick = new PlayerVirtualJoystick();
 
     keyboard.on(["ArrowLeft", "a"], (pressed) => {
       if (pressed) {
@@ -63,6 +65,41 @@ export function usePlayerKeyboard({ player, playerStatus }: PropsType) {
 
     return () => {
       keyboard.destroy();
+      joystick.destroy();
     };
   }, [player, shouldBindKeyboard]);
+}
+
+class PlayerVirtualJoystick extends VirtualJoystick {
+  protected pressed: Set<PlayerMovementKeys> = new Set();
+
+  constructor() {
+    super();
+    this.bind();
+  }
+
+  onChangeUp() {
+    dispatchKeyboardEvent<PlayerMovementKeys>("keydown", "ArrowUp");
+    this.pressed.add("ArrowUp");
+  }
+
+  onChangeDown() {
+    dispatchKeyboardEvent<PlayerMovementKeys>("keydown", "ArrowDown");
+    this.pressed.add("ArrowDown");
+  }
+
+  onChangeLeft() {
+    dispatchKeyboardEvent<PlayerMovementKeys>("keypress", "ArrowLeft");
+  }
+
+  onChangeRight() {
+    dispatchKeyboardEvent<PlayerMovementKeys>("keypress", "ArrowRight");
+  }
+
+  onEnd() {
+    for (const key of this.pressed) {
+      dispatchKeyboardEvent<PlayerMovementKeys>("keyup", key);
+    }
+    this.pressed.clear();
+  }
 }
