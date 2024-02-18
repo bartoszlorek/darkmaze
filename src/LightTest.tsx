@@ -7,21 +7,26 @@ import { useGameLayer } from "./useGameLayer";
 import { useInstance } from "./useInstance";
 import { Diagram, Light } from "./rendering";
 
+const delayedOptions = {
+  changeUpDelay: 0,
+  changeDownDelay: 800,
+};
+
 export function LightTest() {
   const { app } = useAppContext();
   const lightA = useInstance(() => new Light());
-  const lightB = useInstance(() => new Light());
+  const lightB = useInstance(() => new Light(delayedOptions));
 
   const [turnOn, setTurnOn] = React.useState(false);
   const toggleLights = () => {
     setTurnOn((a) => !a);
 
     if (turnOn) {
-      lightA.setIntensity(0);
-      lightB.setIntensity(0, 250);
+      lightA.intensity = 0;
+      lightB.intensity = 0;
     } else {
-      lightA.setIntensity(1);
-      lightB.setIntensity(1, 250);
+      lightA.intensity = 1;
+      lightB.intensity = 1;
     }
   };
 

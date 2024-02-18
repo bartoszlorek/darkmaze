@@ -30,15 +30,6 @@ export class Light {
     };
   }
 
-  /**
-   * vec3(
-   *   float x,
-   *   float radius,
-   *   float intensity,
-   * );
-   */
-  static vectorSize = 3;
-
   get intensity() {
     return this.currentIntensity;
   }
@@ -72,23 +63,34 @@ export class Light {
     );
   }
 
-  toVectorArray(output: number[], index: number) {
-    output[Light.vectorSize * index + 0] = this.x;
-    output[Light.vectorSize * index + 1] = this.radius;
-    output[Light.vectorSize * index + 2] = this.intensity;
+  toVector3Array(output: number[], startIndex: number) {
+    output[startIndex + 0] = this.x;
+    output[startIndex + 1] = this.radius;
+    output[startIndex + 2] = this.intensity;
     return output;
   }
 }
 
 export class LightsFilter extends Filter {
-  public lightsCount: number;
+  /**
+   * ```
+   * vec3(
+   *   x,
+   *   radius,
+   *   intensity,
+   * )
+   * ```
+   */
+  static readonly attributesCount = 3;
+
+  readonly lightsCount: number;
 
   constructor(lightsCount: number) {
     /**
      * https://www.khronos.org/opengl/wiki/Uniform_(GLSL)
      */
     const uniforms = {
-      lights: new Float32Array(Light.vectorSize * lightsCount),
+      lights: new Float32Array(lightsCount * LightsFilter.attributesCount),
     };
 
     /**
@@ -99,7 +101,7 @@ export class LightsFilter extends Filter {
     this.lightsCount = lightsCount;
   }
 
-  setLights(lights: Light[]) {
+  update(lights: Light[]) {
     if (lights.length !== this.lightsCount) {
       throw new Error(
         `filter expects ${this.lightsCount} lights but received ${lights.length}`
@@ -107,7 +109,10 @@ export class LightsFilter extends Filter {
     }
 
     for (let i = 0; i < this.lightsCount; i++) {
-      lights[i].toVectorArray(this.uniforms.lights, i);
+      lights[i].toVector3Array(
+        this.uniforms.lights,
+        i * LightsFilter.attributesCount
+      );
     }
   }
 }

@@ -83,8 +83,8 @@ export function MainStageLayer({ player, level }: PropsType) {
       const getLights = createLights(level, player);
       const updateLightsFilter = (deltaTime: number) => {
         const lights = getLights(deltaTime);
-        normalLightsFilter.setLights(lights.normal);
-        delayedLightsFilter.setLights(lights.delayed);
+        normalLightsFilter.update(lights.normal);
+        delayedLightsFilter.update(lights.delayed);
       };
 
       const redrawLevel = drawLevel({
