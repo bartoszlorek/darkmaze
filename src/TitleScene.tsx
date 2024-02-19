@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useNavigate } from "react-router-dom";
-import { ActionScreen, Button } from "./components";
+import { ActionScreen, Button, Version } from "./components";
 
 export function TitleScene() {
   const navigate = useNavigate();
@@ -11,6 +11,7 @@ export function TitleScene() {
     <ActionScreen title="darkmaze">
       <Button onClick={handleStoryClick}>story</Button>
       <Button onClick={handleFreerunClick}>freerun</Button>
+      <Version>{__VERSION__}</Version>
     </ActionScreen>
   );
 }

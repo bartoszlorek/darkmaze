@@ -1,4 +1,5 @@
 const path = require("path");
+const webpack = require("webpack");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const autoprefixer = require("autoprefixer");
@@ -83,6 +84,9 @@ module.exports = (_, argv) => ({
     }),
     new MiniCssExtractPlugin({
       filename: "styles.css",
+    }),
+    new webpack.DefinePlugin({
+      __VERSION__: JSON.stringify(process.env.npm_package_version),
     }),
   ],
 });
