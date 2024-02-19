@@ -1,6 +1,5 @@
 import * as React from "react";
 import * as PIXI from "pixi.js";
-
 import { TILE_SIZE } from "./consts";
 import { Level, Player } from "./core";
 import { subscribeResize } from "./helpers";
@@ -30,10 +29,12 @@ export function MainStageLayer({ player, level }: PropsType) {
     onMount: (layer) => {
       // the gameplay elements
       const world = new PIXI.Container();
+      const worldMask = new PIXI.Graphics();
       const background = new PIXI.Container();
       const foreground = new PIXI.Container();
       world.addChild(background);
       world.addChild(foreground);
+      world.mask = worldMask;
 
       // the ui elements
       const frame = new PIXI.Container();
@@ -65,11 +66,22 @@ export function MainStageLayer({ player, level }: PropsType) {
       player.subscribe("move", () => camera.lookAt(player));
 
       const resize = () => {
-        camera.lookAt(player);
         const margin = window.innerWidth > 800 ? TILE_SIZE : TILE_SIZE / 4;
         frameBounds.update(TILE_SIZE, margin);
+
+        worldMask
+          .clear()
+          .beginFill(0xffffff)
+          .drawRect(
+            frameBounds.left + TILE_SIZE,
+            frameBounds.top + TILE_SIZE,
+            frameBounds.width - TILE_SIZE * 2,
+            frameBounds.height - TILE_SIZE * 2
+          );
+
         redrawFrame();
         redrawCompass();
+        camera.lookAt(player);
       };
 
       const unsubscribeResize = subscribeResize(resize);

@@ -1,6 +1,5 @@
 import * as React from "react";
 import * as PIXI from "pixi.js";
-
 import { Button } from "./components";
 import { useAppContext } from "./context";
 import { useGameLayer } from "./useGameLayer";
