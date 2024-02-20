@@ -15,6 +15,7 @@ export class Level extends EventEmitter<LevelEvents> {
   public dimension: number;
   public rooms: GridMap<Room>;
   public lastVisitedRoom: Room | null = null;
+  public difficulty: number = 0;
 
   constructor(rooms: Room[]) {
     super();
