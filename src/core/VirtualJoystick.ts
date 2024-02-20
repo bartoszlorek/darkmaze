@@ -1,57 +1,108 @@
-export class VirtualJoystick {
-  protected thresholdX: number;
-  protected thresholdY: number;
+import { EventEmitter } from "./EventEmitter";
+
+type PanState = "up" | "down" | "none";
+
+export type VirtualJoystickEvents = {
+  /**
+   * horizontal actions
+   */
+  swipeLeft: undefined;
+  swipeRight: undefined;
+  /**
+   * vertical actions
+   */
+  panUp: boolean;
+  panDown: boolean;
+};
+
+export class VirtualJoystick extends EventEmitter<VirtualJoystickEvents> {
+  protected threshold: number;
+  protected velocity: number;
 
   protected handleStart?: (event: TouchEvent) => void;
   protected handleMove?: (event: TouchEvent) => void;
-  protected handleEnd?: (event: TouchEvent) => void;
+  protected handleEnd?: () => void;
 
-  constructor(thresholdX: number = 20, thresholdY: number = 20) {
-    this.thresholdX = thresholdX;
-    this.thresholdY = thresholdY;
+  constructor(threshold: number = 10, velocity: number = 0.3) {
+    super();
+    this.threshold = threshold;
+    this.velocity = velocity;
   }
 
   bind() {
-    let startClientX = 0;
-    let startClientY = 0;
-    let lastClientX = 0;
-    let lastClientY = 0;
+    let startClientX: number;
+    let startClientY: number;
+    let lastClientX: number;
+    let lastClientY: number;
+    let lastTimeStamp: number;
+    let lastPanState: PanState;
 
     const handleStart = (e: TouchEvent) => {
       startClientX = lastClientX = e.touches[0].clientX;
       startClientY = lastClientY = e.touches[0].clientY;
-      this.onStart();
+      lastTimeStamp = performance.now();
+      lastPanState = "none";
     };
 
     const handleMove = (e: TouchEvent) => {
       const clientX = e.touches[0].clientX;
       const clientY = e.touches[0].clientY;
+      lastClientX = clientX;
 
-      if (Math.abs(startClientX - clientX) > Math.abs(startClientY - clientY)) {
-        if (Math.abs(lastClientX - clientX) >= this.thresholdX) {
-          if (lastClientX > clientX) {
-            this.onChangeLeft();
-          } else {
-            this.onChangeRight();
-          }
+      // skip horizontal interactions
+      if (distance(startClientX, clientX) > distance(startClientY, clientY)) {
+        return;
+      }
 
-          lastClientX = clientX;
+      // required distance for recognition
+      if (distance(lastClientY, clientY) < this.threshold) {
+        return;
+      }
+
+      // should end the previous state
+      // before emitting the next one
+      if (lastClientY > clientY) {
+        if (lastPanState === "down") {
+          this.emit("panDown", false);
+        }
+        if (lastPanState !== "up") {
+          lastPanState = "up";
+          this.emit("panUp", true);
         }
       } else {
-        if (Math.abs(lastClientY - clientY) >= this.thresholdY) {
-          if (lastClientY > clientY) {
-            this.onChangeUp();
-          } else {
-            this.onChangeDown();
-          }
-
-          lastClientY = clientY;
+        if (lastPanState === "up") {
+          this.emit("panUp", false);
+        }
+        if (lastPanState !== "down") {
+          lastPanState = "down";
+          this.emit("panDown", true);
         }
       }
+
+      lastClientY = clientY;
     };
 
     const handleEnd = () => {
-      this.onEnd();
+      if (lastPanState === "up") {
+        this.emit("panUp", false);
+      }
+      if (lastPanState === "down") {
+        this.emit("panDown", false);
+      }
+
+      const dist = distance(startClientX, lastClientX);
+      const velocity = dist / (performance.now() - lastTimeStamp);
+
+      // required distance and velocity for recognition
+      if (dist < this.threshold || velocity < this.velocity) {
+        return;
+      }
+
+      if (startClientX > lastClientX) {
+        this.emit("swipeLeft", undefined);
+      } else {
+        this.emit("swipeRight", undefined);
+      }
     };
 
     document.addEventListener("touchstart", handleStart, false);
@@ -62,6 +113,7 @@ export class VirtualJoystick {
     this.handleStart = handleStart;
     this.handleMove = handleMove;
     this.handleEnd = handleEnd;
+    return this;
   }
 
   destroy() {
@@ -78,17 +130,12 @@ export class VirtualJoystick {
     if (this.handleEnd !== undefined) {
       document.removeEventListener("touchend", this.handleEnd);
       document.removeEventListener("touchcancel", this.handleEnd);
+      this.handleEnd();
       this.handleEnd = undefined;
     }
-
-    this.onEnd();
   }
+}
 
-  // methods to implement
-  onStart() {}
-  onEnd() {}
-  onChangeUp() {}
-  onChangeDown() {}
-  onChangeLeft() {}
-  onChangeRight() {}
+function distance(a: number, b: number) {
+  return Math.abs(a - b);
 }

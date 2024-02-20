@@ -5,6 +5,7 @@ import {
   lerp,
   lerpAngle,
   normalizeAngle,
+  subtractAngle,
 } from "../helpers";
 import { EventEmitter } from "./EventEmitter";
 import { Room } from "./Room";
@@ -14,6 +15,7 @@ export const PLAYER_MOVE_FOLLOWING_AXIS = 0.1; // bias
 export const PLAYER_FACING_ANGLE = 45;
 export const PLAYER_TURN_SPEED = 5; // degrees
 export const PLAYER_TURN_ALIGNMENT = 0.05; // bias
+export const PLAYER_TURN_AUTOMATIC = 0.2; // bias
 export const PLAYER_DEFAULT_STATUS: PlayerStatus = "idle";
 
 export type PlayerEvents = {
@@ -36,6 +38,7 @@ export class Player extends EventEmitter<PlayerEvents> {
   public x: number;
   public y: number;
   public angle: number;
+  public targetAngle: number;
   public facingAngle: number;
   public status: PlayerStatus = PLAYER_DEFAULT_STATUS;
 
@@ -57,6 +60,7 @@ export class Player extends EventEmitter<PlayerEvents> {
     this.x = x;
     this.y = y;
     this.angle = angle;
+    this.targetAngle = angle;
     this.facingAngle = floorNumber(angle, PLAYER_FACING_ANGLE);
     this.prevFacingAngle = this.facingAngle;
   }
@@ -75,6 +79,10 @@ export class Player extends EventEmitter<PlayerEvents> {
 
   public turnLeft() {
     this.turnDirection -= 1;
+  }
+
+  public rotateBy(value: number) {
+    this.targetAngle = normalizeAngle(this.angle + value);
   }
 
   public setStatus(status: PlayerStatus) {
@@ -188,16 +196,30 @@ export class Player extends EventEmitter<PlayerEvents> {
       }
     }
 
-    if (this.turnDirection !== 0) {
-      const velocity = this.turnDirection * PLAYER_TURN_SPEED * deltaTime;
+    // automatic rotation
+    if (this.angle !== this.targetAngle) {
+      this.angle = normalizeAngle(
+        lerpAngle(this.angle, this.targetAngle, PLAYER_TURN_AUTOMATIC)
+      );
+      this.facingAngle =
+        subtractAngle(this.targetAngle, this.angle) > 0
+          ? ceilNumber(this.angle, PLAYER_FACING_ANGLE)
+          : floorNumber(this.angle, PLAYER_FACING_ANGLE);
+    }
 
-      this.angle = normalizeAngle(this.angle + velocity);
+    // manual rotation
+    else if (this.turnDirection !== 0) {
+      const velocity = this.turnDirection * PLAYER_TURN_SPEED * deltaTime;
+      this.angle = this.targetAngle = normalizeAngle(this.angle + velocity);
       this.facingAngle =
         this.turnDirection > 0
           ? ceilNumber(this.angle, PLAYER_FACING_ANGLE)
           : floorNumber(this.angle, PLAYER_FACING_ANGLE);
-    } else {
-      this.angle = lerpAngle(
+    }
+
+    // damping effect
+    else {
+      this.angle = this.targetAngle = lerpAngle(
         this.angle,
         this.facingAngle,
         PLAYER_TURN_ALIGNMENT

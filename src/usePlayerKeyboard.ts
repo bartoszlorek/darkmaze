@@ -29,7 +29,31 @@ export function usePlayerKeyboard({ player, playerStatus }: PropsType) {
     }
 
     const keyboard = new Keyboard<PlayerMovementKeys>();
-    const joystick = new PlayerVirtualJoystick();
+    const joystick = new VirtualJoystick().bind();
+
+    joystick.subscribe("panUp", (pressed) => {
+      if (pressed) {
+        player.moveForward();
+      } else {
+        player.moveBackward();
+      }
+    });
+
+    joystick.subscribe("panDown", (pressed) => {
+      if (pressed) {
+        player.moveBackward();
+      } else {
+        player.moveForward();
+      }
+    });
+
+    joystick.subscribe("swipeLeft", () => {
+      player.rotateBy(-90);
+    });
+
+    joystick.subscribe("swipeRight", () => {
+      player.rotateBy(90);
+    });
 
     keyboard.on(["ArrowLeft", "a"], (pressed) => {
       if (pressed) {
@@ -68,38 +92,4 @@ export function usePlayerKeyboard({ player, playerStatus }: PropsType) {
       joystick.destroy();
     };
   }, [player, shouldBindKeyboard]);
-}
-
-class PlayerVirtualJoystick extends VirtualJoystick {
-  protected pressed: Set<PlayerMovementKeys> = new Set();
-
-  constructor() {
-    super();
-    this.bind();
-  }
-
-  onChangeUp() {
-    dispatchKeyboardEvent<PlayerMovementKeys>("keydown", "ArrowUp");
-    this.pressed.add("ArrowUp");
-  }
-
-  onChangeDown() {
-    dispatchKeyboardEvent<PlayerMovementKeys>("keydown", "ArrowDown");
-    this.pressed.add("ArrowDown");
-  }
-
-  onChangeLeft() {
-    dispatchKeyboardEvent<PlayerMovementKeys>("keypress", "ArrowLeft");
-  }
-
-  onChangeRight() {
-    dispatchKeyboardEvent<PlayerMovementKeys>("keypress", "ArrowRight");
-  }
-
-  onEnd() {
-    for (const key of this.pressed) {
-      dispatchKeyboardEvent<PlayerMovementKeys>("keyup", key);
-    }
-    this.pressed.clear();
-  }
 }
