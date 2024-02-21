@@ -1,6 +1,5 @@
 import * as React from "react";
 import { Keyboard, Player, PlayerStatus, VirtualJoystick } from "./core";
-import { dispatchKeyboardEvent } from "./helpers";
 
 type PlayerMovementKeys =
   | "ArrowUp"

@@ -16,6 +16,20 @@ import {
   LightsFilter,
 } from "./rendering";
 
+const mobileMargin = {
+  top: TILE_SIZE,
+  left: TILE_SIZE / 4,
+  right: TILE_SIZE / 4,
+  bottom: TILE_SIZE / 4,
+};
+
+const desktopMargin = {
+  top: TILE_SIZE * 2,
+  left: TILE_SIZE,
+  right: TILE_SIZE,
+  bottom: TILE_SIZE,
+};
+
 type PropsType = Readonly<{
   player: Player;
   level: Level;
@@ -66,8 +80,10 @@ export function MainStageLayer({ player, level }: PropsType) {
       player.subscribe("move", () => camera.lookAt(player));
 
       const resize = () => {
-        const margin = window.innerWidth > 800 ? TILE_SIZE : TILE_SIZE / 4;
-        frameBounds.update(TILE_SIZE, margin);
+        frameBounds.update(
+          TILE_SIZE,
+          window.innerWidth < 800 ? mobileMargin : desktopMargin
+        );
 
         worldMask
           .clear()

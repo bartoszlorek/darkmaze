@@ -1,3 +1,10 @@
+export interface MarginObject {
+  top: number;
+  left: number;
+  right: number;
+  bottom: number;
+}
+
 export class FrameBounds {
   top: number = 0;
   left: number = 0;
@@ -10,22 +17,31 @@ export class FrameBounds {
   tilesCountX: number = 0;
   tilesCountY: number = 0;
 
-  update(tileSize: number, margin: number = 0) {
+  update(tileSize: number, margin: MarginObject) {
     const maxWidth = window.innerWidth;
     const maxHeight = window.innerHeight;
 
-    this.tilesCountX = Math.floor((maxWidth - margin * 2) / tileSize);
-    this.tilesCountY = Math.floor((maxHeight - margin * 2) / tileSize);
+    const marginX = margin.left + margin.right;
+    const marginY = margin.top + margin.bottom;
+    const marginLeftScale = margin.left / marginX;
+    const marginTopScale = margin.top / marginY;
+
+    this.tilesCountX = Math.floor((maxWidth - marginX) / tileSize);
+    this.tilesCountY = Math.floor((maxHeight - marginY) / tileSize);
     this.width = this.tilesCountX * tileSize;
     this.height = this.tilesCountY * tileSize;
 
-    const actualMarginX = Math.round((maxWidth - this.width) / 2);
-    const actualMarginY = Math.round((maxHeight - this.height) / 2);
+    const actualMarginLeft = Math.floor(
+      (maxWidth - this.width) * marginLeftScale
+    );
+    const actualMarginTop = Math.floor(
+      (maxHeight - this.height) * marginTopScale
+    );
 
-    this.top = actualMarginY;
-    this.left = actualMarginX;
-    this.right = actualMarginX + this.width;
-    this.bottom = actualMarginY + this.height;
+    this.top = actualMarginTop;
+    this.left = actualMarginLeft;
+    this.right = actualMarginLeft + this.width;
+    this.bottom = actualMarginTop + this.height;
     return this;
   }
 }
