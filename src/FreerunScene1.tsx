@@ -3,7 +3,7 @@ import { ANTICIPATION_TIME } from "./consts";
 import {
   ActionScreen,
   Button,
-  HeadPanel,
+  InfoPanel,
   LabelText,
   TimeCounter,
 } from "./components";
@@ -70,15 +70,13 @@ export function FreerunScene1({
   return (
     <>
       <MainStageLayer player={player} level={level} />
-      <HeadPanel>
+      <InfoPanel>
         <LabelText label="deaths">0</LabelText>
         <LabelText label="time">
           <TimeCounter timer={timer} />
         </LabelText>
-        <LabelText label="best">
-          <TimeCounter timer={timer} />
-        </LabelText>
-      </HeadPanel>
+        <LabelText label="best">n/a</LabelText>
+      </InfoPanel>
 
       {playerStatus === "died" && (
         <ActionScreen title="you died" titleColor="red">

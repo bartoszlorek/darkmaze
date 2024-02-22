@@ -17,14 +17,14 @@ import {
 } from "./rendering";
 
 const mobileMargin = {
-  top: TILE_SIZE * 1.5,
+  top: TILE_SIZE,
   left: TILE_SIZE / 4,
   right: TILE_SIZE / 4,
-  bottom: TILE_SIZE / 4,
+  bottom: TILE_SIZE,
 };
 
 const desktopMargin = {
-  top: TILE_SIZE * 2,
+  top: TILE_SIZE,
   left: TILE_SIZE,
   right: TILE_SIZE,
   bottom: TILE_SIZE,
