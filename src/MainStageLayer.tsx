@@ -17,7 +17,7 @@ import {
 } from "./rendering";
 
 const mobileMargin = {
-  top: TILE_SIZE,
+  top: TILE_SIZE * 1.5,
   left: TILE_SIZE / 4,
   right: TILE_SIZE / 4,
   bottom: TILE_SIZE / 4,

@@ -1,6 +1,13 @@
 import * as React from "react";
 import { ANTICIPATION_TIME } from "./consts";
-import { ActionScreen, Button } from "./components";
+import {
+  ActionScreen,
+  Button,
+  HeadPanel,
+  LabelText,
+  TimeCounter,
+} from "./components";
+import { Timer } from "./core";
 import { generateLevel } from "./generators";
 import { createPlayer } from "./createPlayer";
 import { MainStageLayer } from "./MainStageLayer";
@@ -24,6 +31,7 @@ export function FreerunScene1({
   quitScene,
 }: PropsType) {
   const { app } = useAppContext();
+  const timer = useInstance(() => new Timer());
   const level = useInstance(() => generateLevel(dimension, seed));
   const player = useInstance(() => createPlayer(level, true));
   const playerStatus = usePlayerStatus({ player });
@@ -43,23 +51,35 @@ export function FreerunScene1({
     level.subscribe("room_enter", ({ room }) => {
       switch (room.type) {
         case "evil":
+          timer.finish();
           level.emit("reveal", undefined);
           player.setStatus("paused");
           setTimeout(() => player.setStatus("died"), ANTICIPATION_TIME);
           break;
 
         case "golden":
+          timer.finish();
           level.emit("reveal", undefined);
           player.setStatus("paused");
           setTimeout(() => player.setStatus("won"), ANTICIPATION_TIME);
           break;
       }
     });
-  }, [player, level]);
+  }, [player, level, timer]);
 
   return (
     <>
       <MainStageLayer player={player} level={level} />
+      <HeadPanel>
+        <LabelText label="deaths:">0</LabelText>
+        <LabelText label="time:">
+          <TimeCounter timer={timer} />
+        </LabelText>
+        <LabelText label="best time:">
+          <TimeCounter timer={timer} />
+        </LabelText>
+      </HeadPanel>
+
       {playerStatus === "died" && (
         <ActionScreen title="you died" titleColor="red">
           <Button onClick={resetScene}>restart</Button>

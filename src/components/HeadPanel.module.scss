@@ -1,0 +1,19 @@
+.container {
+  position: absolute;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #496880;
+  gap: 8px;
+
+  width: 80%;
+  height: 72px;
+  top: 0;
+  left: 10%;
+
+  @media (min-width: 800px) {
+    width: 60%;
+    height: 96px;
+    left: 20%;
+  }
+}
