@@ -2,7 +2,9 @@
   text-align: center;
 }
 
-.label {
+.label,
+.content {
   display: inline-block;
-  margin-right: 8px;
+  margin-left: 4px;
+  margin-right: 4px;
 }

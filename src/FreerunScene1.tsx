@@ -71,11 +71,11 @@ export function FreerunScene1({
     <>
       <MainStageLayer player={player} level={level} />
       <HeadPanel>
-        <LabelText label="deaths:">0</LabelText>
-        <LabelText label="time:">
+        <LabelText label="deaths">0</LabelText>
+        <LabelText label="time">
           <TimeCounter timer={timer} />
         </LabelText>
-        <LabelText label="best time:">
+        <LabelText label="best">
           <TimeCounter timer={timer} />
         </LabelText>
       </HeadPanel>
