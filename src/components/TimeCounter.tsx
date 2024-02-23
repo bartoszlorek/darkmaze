@@ -11,16 +11,17 @@ export function TimeCounter({ timer }: PropsType) {
   });
 
   React.useEffect(() => {
-    timer.subscribe("tick", (a) => {
+    const unsubscribeTick = timer.subscribe("tick", (a) => {
       setTime(a.toTime());
     });
 
-    timer.subscribe("finish", (a) => {
+    const unsubscribeStop = timer.subscribe("stop", (a) => {
       setTime(a.toPreciseTime());
     });
 
     return () => {
-      timer.destroy();
+      unsubscribeTick();
+      unsubscribeStop();
     };
   }, [timer]);
 

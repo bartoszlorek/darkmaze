@@ -3,40 +3,60 @@
 import { EventEmitter } from "./EventEmitter";
 
 export type TimerEvents = {
+  start: Timer;
+  stop: Timer;
   tick: Timer;
-  finish: Timer;
 };
 
 export class Timer extends EventEmitter<TimerEvents> {
-  private tickTimeout: NodeJS.Timeout | null = null;
+  public running: boolean = false;
 
-  readonly startTimeMs: number = 0;
-  public finishTimeMs: number | null = null;
-  public finished: boolean = false;
+  protected durationMs: number = 0;
+  protected startTimeMs: number = 0;
+  protected stopTimeMs: number = 0;
+  protected tickTimeout: NodeJS.Timeout | null = null;
+  protected tickTimeMs: number = 1000;
 
-  constructor(startTimeMs: number = Date.now(), tickTimeMs: number = 1000) {
+  constructor(initialDurationMs: number = 0) {
     super();
-    this.startTimeMs = startTimeMs;
+    this.durationMs = initialDurationMs;
+  }
+
+  start() {
+    this.running = true;
+    this.startTimeMs = Date.now();
+    this.emit("start", this);
 
     const tick = () => {
       this.tickTimeout = setTimeout(() => {
         this.emit("tick", this);
         tick();
-      }, tickTimeMs);
+      }, this.tickTimeMs);
     };
-
     tick();
   }
 
-  get elapsedTimeMs() {
-    return (this.finishTimeMs ?? Date.now()) - this.startTimeMs;
+  stop() {
+    this.running = false;
+    this.durationMs += Date.now() - this.startTimeMs;
+    this.emit("stop", this);
+
+    if (this.tickTimeout !== null) {
+      clearTimeout(this.tickTimeout);
+    }
+  }
+
+  getDuration() {
+    return this.running
+      ? this.durationMs + Date.now() - this.startTimeMs
+      : this.durationMs;
   }
 
   toTime() {
-    const diff = this.elapsedTimeMs;
-    const h = Math.trunc((diff / 3_600_000) % 24);
-    const m = Math.trunc((diff / 60_000) % 60);
-    const s = Math.trunc((diff / 1000) % 60);
+    const duration = this.getDuration();
+    const h = Math.trunc((duration / 3_600_000) % 24);
+    const m = Math.trunc((duration / 60_000) % 60);
+    const s = Math.trunc((duration / 1000) % 60);
 
     let output = "";
     if (h > 0) output += pad(h) + ":";
@@ -44,11 +64,11 @@ export class Timer extends EventEmitter<TimerEvents> {
   }
 
   toPreciseTime() {
-    const diff = this.elapsedTimeMs;
-    const h = Math.trunc((diff / 3_600_000) % 24);
-    const m = Math.trunc((diff / 60_000) % 60);
-    const s = Math.trunc((diff / 1000) % 60);
-    const ms = Math.trunc(diff % 1000);
+    const duration = this.getDuration();
+    const h = Math.trunc((duration / 3_600_000) % 24);
+    const m = Math.trunc((duration / 60_000) % 60);
+    const s = Math.trunc((duration / 1000) % 60);
+    const ms = Math.trunc(duration % 1000);
 
     let output = "";
     if (h > 0) output += pad(h) + ":";
@@ -57,14 +77,12 @@ export class Timer extends EventEmitter<TimerEvents> {
 
   destroy() {
     super.destroy();
+    this.running = false;
+    this.durationMs = NaN;
+
     if (this.tickTimeout !== null) {
       clearTimeout(this.tickTimeout);
     }
-  }
-
-  finish() {
-    this.emit("finish", this);
-    this.destroy();
   }
 }
 

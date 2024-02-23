@@ -49,17 +49,25 @@ export function FreerunScene1({
   });
 
   React.useEffect(() => {
+    timer.start();
+
+    return () => {
+      timer.destroy();
+    };
+  }, [timer]);
+
+  React.useEffect(() => {
     level.subscribe("room_enter", ({ room }) => {
       switch (room.type) {
         case "evil":
-          timer.finish();
+          timer.stop();
           level.emit("reveal", undefined);
           player.setStatus("paused");
           setTimeout(() => player.setStatus("died"), ANTICIPATION_TIME);
           break;
 
         case "golden":
-          timer.finish();
+          timer.stop();
           level.emit("reveal", undefined);
           player.setStatus("paused");
           setTimeout(() => player.setStatus("won"), ANTICIPATION_TIME);
