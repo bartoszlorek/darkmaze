@@ -8,7 +8,6 @@ export type LevelEvents = {
   room_leave: { room: Room };
   room_visit: { room: Room };
   room_explore: { room: Room };
-  reveal: undefined;
 };
 
 export class Level extends EventEmitter<LevelEvents> {

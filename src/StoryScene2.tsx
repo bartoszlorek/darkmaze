@@ -38,17 +38,17 @@ export function StoryScene2({ nextScene, resetScene }: PropsType) {
   React.useEffect(() => {
     level.subscribe("room_enter", ({ room }) => {
       switch (room.type) {
-        case "evil":
-          level.emit("reveal", undefined);
+        case "evil": {
           player.setStatus("paused");
           setTimeout(() => player.setStatus("died"), ANTICIPATION_TIME);
           break;
+        }
 
-        case "passage":
-          level.emit("reveal", undefined);
+        case "passage": {
           player.setStatus("exiting");
           setTimeout(nextScene, ANTICIPATION_TIME);
           break;
+        }
 
         default: {
           if (level.getConnectedRooms(room).some(Room.isEvil)) {

@@ -3,11 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { MIN_DIMENSION, MAX_DIMENSION } from "./consts";
 import { accessLocalStorage, generateRandomSeed } from "./helpers";
 import { Button, Input, MenuScreen } from "./components";
-
-type StorageType = Readonly<{
-  seed: string;
-  dimension: number;
-}>;
+import type { StorageType } from "./storage";
 
 export function FreerunSceneSettings() {
   const navigate = useNavigate();

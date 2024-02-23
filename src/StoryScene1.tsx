@@ -37,7 +37,6 @@ export function StoryScene1({ nextScene }: PropsType) {
   React.useEffect(() => {
     level.subscribe("room_enter", ({ room }) => {
       if (room.type === "passage") {
-        level.emit("reveal", undefined);
         player.setStatus("exiting");
         setTimeout(nextScene, ANTICIPATION_TIME);
       }

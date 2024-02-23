@@ -7,6 +7,7 @@ export * from "./easing";
 export * from "./events";
 export * from "./fieldOfView";
 export * from "./grid";
+export * from "./language";
 export * from "./math";
 export * from "./pooling";
 export * from "./randomNumber";

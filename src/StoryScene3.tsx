@@ -38,17 +38,17 @@ export function StoryScene3({ nextScene, resetScene }: PropsType) {
   React.useEffect(() => {
     level.subscribe("room_enter", ({ room }) => {
       switch (room.type) {
-        case "evil":
-          level.emit("reveal", undefined);
+        case "evil": {
           player.setStatus("paused");
           setTimeout(() => player.setStatus("died"), ANTICIPATION_TIME);
           break;
+        }
 
-        case "golden":
-          level.emit("reveal", undefined);
+        case "golden": {
           player.setStatus("paused");
           setTimeout(() => player.setStatus("won"), ANTICIPATION_TIME);
           break;
+        }
       }
     });
 
