@@ -15,20 +15,7 @@ import {
   FrameBounds,
   LightsFilter,
 } from "./rendering";
-
-const mobileMargin = {
-  top: TILE_SIZE * 0.75,
-  left: TILE_SIZE * 0.25,
-  right: TILE_SIZE * 0.25,
-  bottom: TILE_SIZE * 0.75,
-};
-
-const desktopMargin = {
-  top: TILE_SIZE,
-  left: TILE_SIZE,
-  right: TILE_SIZE,
-  bottom: TILE_SIZE,
-};
+import { getMargin } from "./margin";
 
 type PropsType = Readonly<{
   player: Player;
@@ -59,7 +46,7 @@ export function MainStageLayer({ player, level }: PropsType) {
       layer.addChild(frame);
       layer.addChild(compass);
 
-      const frameBounds = new FrameBounds();
+      const frameBounds = new FrameBounds(TILE_SIZE, getMargin());
       const redrawFrame = drawFrame({
         parent: frame,
         frame: frameBounds,
@@ -80,11 +67,7 @@ export function MainStageLayer({ player, level }: PropsType) {
       player.subscribe("move", () => camera.lookAt(player));
 
       const resize = () => {
-        frameBounds.update(
-          TILE_SIZE,
-          window.innerWidth < 800 ? mobileMargin : desktopMargin
-        );
-
+        frameBounds.update(getMargin());
         worldMask
           .clear()
           .beginFill(0xffffff)
@@ -94,7 +77,6 @@ export function MainStageLayer({ player, level }: PropsType) {
             frameBounds.width - TILE_SIZE * 2,
             frameBounds.height - TILE_SIZE * 2
           );
-
         redrawFrame();
         redrawCompass();
         camera.lookAt(player);

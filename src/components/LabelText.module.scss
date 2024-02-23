@@ -1,10 +1,18 @@
+@import "./mixins";
+
 .wrapper {
   text-align: center;
+  white-space: nowrap;
 }
 
-.label,
-.content {
-  display: inline-block;
-  margin-left: 4px;
-  margin-right: 4px;
+.wrapperDesktopOnly {
+  display: none;
+
+  @include desktop() {
+    display: block;
+  }
+}
+
+.label {
+  margin-right: 8px;
 }

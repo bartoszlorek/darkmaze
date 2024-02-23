@@ -89,4 +89,7 @@ module.exports = (_, argv) => ({
       __VERSION__: JSON.stringify(process.env.npm_package_version),
     }),
   ],
+  performance: {
+    hints: false,
+  },
 });

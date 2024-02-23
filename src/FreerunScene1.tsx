@@ -1,5 +1,5 @@
 import * as React from "react";
-import { ANTICIPATION_TIME } from "./consts";
+import { ANTICIPATION_TIME, TILE_SIZE } from "./consts";
 import {
   ActionScreen,
   Button,
@@ -8,6 +8,7 @@ import {
   TimeCounter,
 } from "./components";
 import { Timer } from "./core";
+import { getMargin } from "./margin";
 import { generateLevel } from "./generators";
 import { createPlayer } from "./createPlayer";
 import { MainStageLayer } from "./MainStageLayer";
@@ -70,8 +71,10 @@ export function FreerunScene1({
   return (
     <>
       <MainStageLayer player={player} level={level} />
-      <InfoPanel>
-        <LabelText label="deaths">0</LabelText>
+      <InfoPanel tileSize={TILE_SIZE} getMargin={getMargin}>
+        <LabelText label="deaths" desktopOnly>
+          0
+        </LabelText>
         <LabelText label="time">
           <TimeCounter timer={timer} />
         </LabelText>

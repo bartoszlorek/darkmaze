@@ -1,3 +1,5 @@
+@import "./mixins";
+
 .wrapper {
   display: flex;
   position: absolute;
@@ -12,15 +14,13 @@
   justify-content: space-around;
   align-items: center;
   color: #496880;
-  height: 72px;
-  margin: auto;
+  margin: 16px auto auto;
   padding: 0 8px;
   width: 100%;
   gap: 8px;
 
   @media (min-width: 800px) {
     width: 60%;
-    height: 96px;
     max-width: 500px;
   }
 }
