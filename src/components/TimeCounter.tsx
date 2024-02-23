@@ -1,4 +1,5 @@
 import * as React from "react";
+import styles from "./TimeCounter.module.scss";
 import type { Timer } from "../core";
 
 type PropsType = Readonly<{
@@ -25,5 +26,5 @@ export function TimeCounter({ timer }: PropsType) {
     };
   }, [timer]);
 
-  return <span>{time}</span>;
+  return <span className={styles.container}>{time}</span>;
 }

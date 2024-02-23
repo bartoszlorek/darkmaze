@@ -1,6 +1,6 @@
 {
   "name": "darkmaze",
-  "version": "0.1.10",
+  "version": "0.1.11",
   "main": "index.js",
   "repository": "git@github.com:bartoszlorek/darkmaze.git",
   "author": "Bartosz Lorek <bartosz.lorek@brainly.com>",
@@ -48,5 +48,9 @@
     "webpack-cli": "^5.1.4",
     "webpack-dev-server": "^4.15.1",
     "webpack-glsl-loader": "^1.0.1"
-  }
+  },
+  "browserslist": [
+    "last 2 versions",
+    "> 1%"
+  ]
 }
