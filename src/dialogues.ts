@@ -1,5 +1,6 @@
 export const dialogues = {
-  entry: "Where am I? It is so dark. I have to use all my SENSES to escape.",
-  evil: "What was that?! I feel someone's presence.",
-  goal: "I feel that my GOAL is very close, I just have to survive until the end.",
+  entry: "Where am I? It is so dark. I must trust my instincts to break free.",
+  correctPath: "I see lights in that direction!",
+  evil: "What was that?! I hear someone nearby.",
+  goal: "I sense the end of my quest is close.",
 } as const;

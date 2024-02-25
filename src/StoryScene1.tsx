@@ -2,6 +2,7 @@ import * as React from "react";
 import { ANTICIPATION_TIME } from "./consts";
 import { Level, Room } from "./core";
 import { Dialog } from "./components";
+import { Direction4Angle } from "./helpers";
 import { createPlayer } from "./createPlayer";
 import { dialogues } from "./dialogues";
 import { MainStageLayer } from "./MainStageLayer";
@@ -39,6 +40,12 @@ export function StoryScene1({ nextScene }: PropsType) {
       if (room.type === "passage") {
         player.setStatus("exiting");
         setTimeout(nextScene, ANTICIPATION_TIME);
+      }
+    });
+
+    player.subscribe("turn", () => {
+      if (player.facingAngle === Direction4Angle.left) {
+        setDialog("correctPath");
       }
     });
 
