@@ -21,11 +21,11 @@ export function accessLevelStorage({
   dimension: number;
 }) {
   const storage = accessLocalStorage<StorageType>("darkmaze");
-  const levelKey = `${seed}:${dimension}`;
+  const levelHashKey = `${seed}#${dimension}`;
 
   function getValue(): LevelStats {
     const { stats } = storage.getValue();
-    const current = stats?.[levelKey];
+    const current = stats?.[levelHashKey];
 
     return {
       seed,
@@ -42,7 +42,7 @@ export function accessLevelStorage({
     storage.setValue({
       stats: {
         ...currentStats,
-        [levelKey]: fn(getValue()),
+        [levelHashKey]: fn(getValue()),
       },
     });
   }

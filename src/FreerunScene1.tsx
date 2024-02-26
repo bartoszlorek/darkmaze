@@ -121,12 +121,14 @@ export function FreerunScene1({
 
       {playerStatus === "died" && (
         <ActionScreen title="you died" titleColor="red">
-          <div>{currentDeathCopy(deaths)}</div>
+          <div>{youDiedCopy(deaths)}</div>
           <Button onClick={resetScene}>restart</Button>
+          <Button onClick={quitScene}>quit</Button>
         </ActionScreen>
       )}
       {playerStatus === "won" && (
         <ActionScreen title="you won" titleColor="yellow">
+          <div>{youWonCopy(deaths)}</div>
           <Button onClick={quitScene}>main menu</Button>
         </ActionScreen>
       )}
@@ -146,4 +148,12 @@ const setBestTime =
     bestTime: Math.min(prev.bestTime || Infinity, nextBestTime),
   });
 
-const currentDeathCopy = (n: number) => `${n}${nth(n)} death`;
+const youDiedCopy = (deaths: number) => {
+  return `${deaths}${nth(deaths)} death`;
+};
+
+const youWonCopy = (deaths: number) => {
+  if (deaths === 0) return "without losing a life";
+  if (deaths === 1) return "after 1 death";
+  return `after ${deaths} deaths`;
+};
