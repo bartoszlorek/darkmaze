@@ -1,5 +1,6 @@
 export * from "./ActionScreen";
 export * from "./Button";
+export * from "./Controls";
 export * from "./Dialog";
 export * from "./InfoPanel";
 export * from "./Input";

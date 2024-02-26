@@ -1,6 +1,7 @@
 export * from "./array";
 export * from "./bitmask";
 export * from "./debounce";
+export * from "./device";
 export * from "./direction";
 export * from "./dynamics";
 export * from "./easing";

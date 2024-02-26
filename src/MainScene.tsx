@@ -5,6 +5,7 @@ import { FreerunScene } from "./FreerunScene";
 import { StoryScene } from "./StoryScene";
 import { TitleScene } from "./TitleScene";
 import { LightTest } from "./LightTest";
+import "./components/_global.scss";
 
 export function MainScene() {
   return (
