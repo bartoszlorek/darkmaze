@@ -21,7 +21,7 @@ export class VirtualJoystick extends EventEmitter<VirtualJoystickEvents> {
 
   protected handleStart?: (event: TouchEvent) => void;
   protected handleMove?: (event: TouchEvent) => void;
-  protected handleEnd?: () => void;
+  protected handleEnd?: (event?: TouchEvent) => void;
 
   constructor(threshold: number = 10, velocity: number = 0.3) {
     super();
@@ -37,18 +37,25 @@ export class VirtualJoystick extends EventEmitter<VirtualJoystickEvents> {
     let lastTimeStamp: number;
     let lastPanState: PanState;
 
-    const handleStart = (e: TouchEvent) => {
-      e.preventDefault();
-      startClientX = lastClientX = e.touches[0].clientX;
-      startClientY = lastClientY = e.touches[0].clientY;
+    const handleStart = (event: TouchEvent) => {
+      event.preventDefault();
+
+      // ignores multi-touch interactions
+      if (event.touches.length > 1) {
+        return;
+      }
+
+      startClientX = lastClientX = event.touches[0].clientX;
+      startClientY = lastClientY = event.touches[0].clientY;
       lastTimeStamp = performance.now();
       lastPanState = "none";
     };
 
-    const handleMove = (e: TouchEvent) => {
-      e.preventDefault();
-      const clientX = e.touches[0].clientX;
-      const clientY = e.touches[0].clientY;
+    const handleMove = (event: TouchEvent) => {
+      event.preventDefault();
+
+      const clientX = event.touches[0].clientX;
+      const clientY = event.touches[0].clientY;
       lastClientX = clientX;
 
       // skip horizontal interactions
@@ -84,7 +91,15 @@ export class VirtualJoystick extends EventEmitter<VirtualJoystickEvents> {
       lastClientY = clientY;
     };
 
-    const handleEnd = () => {
+    const handleEnd = (event?: TouchEvent) => {
+      event?.preventDefault();
+
+      // ignores multi-touch interactions
+      const touches = event ? event.touches.length : 0;
+      if (touches > 0) {
+        return;
+      }
+
       if (lastPanState === "up") {
         this.emit("panUp", false);
       }
@@ -109,9 +124,8 @@ export class VirtualJoystick extends EventEmitter<VirtualJoystickEvents> {
 
     document.addEventListener("touchstart", handleStart, false);
     document.addEventListener("touchmove", handleMove, false);
-    document.addEventListener("touchend", handleEnd, false);
-    document.addEventListener("touchend", disableDoubleTapMagnifier, false);
     document.addEventListener("touchcancel", handleEnd, false);
+    document.addEventListener("touchend", handleEnd, false);
 
     this.handleStart = handleStart;
     this.handleMove = handleMove;
@@ -136,18 +150,9 @@ export class VirtualJoystick extends EventEmitter<VirtualJoystickEvents> {
       this.handleEnd();
       this.handleEnd = undefined;
     }
-
-    document.removeEventListener("touchend", disableDoubleTapMagnifier);
   }
 }
 
 function distance(a: number, b: number) {
   return Math.abs(a - b);
-}
-
-/**
- * https://stackoverflow.com/questions/75628788/disable-double-tap-magnifying-glass-in-safari-ios
- */
-function disableDoubleTapMagnifier(e: TouchEvent) {
-  e.preventDefault();
 }
