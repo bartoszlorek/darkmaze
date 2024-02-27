@@ -110,6 +110,7 @@ export class VirtualJoystick extends EventEmitter<VirtualJoystickEvents> {
     document.addEventListener("touchstart", handleStart, false);
     document.addEventListener("touchmove", handleMove, false);
     document.addEventListener("touchend", handleEnd, false);
+    document.addEventListener("touchend", disableDoubleTapMagnifier, false);
     document.addEventListener("touchcancel", handleEnd, false);
 
     this.handleStart = handleStart;
@@ -135,9 +136,18 @@ export class VirtualJoystick extends EventEmitter<VirtualJoystickEvents> {
       this.handleEnd();
       this.handleEnd = undefined;
     }
+
+    document.removeEventListener("touchend", disableDoubleTapMagnifier);
   }
 }
 
 function distance(a: number, b: number) {
   return Math.abs(a - b);
+}
+
+/**
+ * https://stackoverflow.com/questions/75628788/disable-double-tap-magnifying-glass-in-safari-ios
+ */
+function disableDoubleTapMagnifier(e: TouchEvent) {
+  e.preventDefault();
 }
