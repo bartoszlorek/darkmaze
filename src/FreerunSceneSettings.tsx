@@ -2,7 +2,7 @@ import * as React from "react";
 import { useNavigate } from "react-router-dom";
 import { MIN_DIMENSION, MAX_DIMENSION } from "./consts";
 import { accessLocalStorage, generateRandomSeed } from "./helpers";
-import { Button, Input, MenuScreen } from "./components";
+import { Button, InputText, InputNumber, MenuScreen } from "./components";
 import type { StorageType } from "./storage";
 
 export function FreerunSceneSettings() {
@@ -49,15 +49,14 @@ export function FreerunSceneSettings() {
 
   return (
     <MenuScreen>
-      <Input
-        type="number"
+      <InputNumber
         valueType="int"
         value={dimension}
         onChange={handleDimensionInputChange}
         min={MIN_DIMENSION}
         max={MAX_DIMENSION}
       />
-      <Input type="text" value={seed} onChange={handleSeedInputChange} />
+      <InputText value={seed} onChange={handleSeedInputChange} />
       <Button onClick={handleRegenerateButtonClick}>regenerate</Button>
       <Button onClick={handleStartButtonClick}>start the game</Button>
       <Button onClick={handleBackButtonClick}>main menu</Button>

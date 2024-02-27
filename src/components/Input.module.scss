@@ -1,14 +1,85 @@
 @import "./mixins";
 
-.input {
-  padding: 8px;
+$height: 40px;
+$maxWidth: 250px;
+$padding: 8px;
+
+.inputText,
+.inputNumber {
+  padding: $padding;
   width: 100%;
-  max-width: 250px;
+  height: $height;
+  max-width: $maxWidth;
   user-select: none;
   text-align: center;
-  color: #212123;
-  font-family: "Red Hat Mono", monospace;
   font-weight: bold;
-  background-color: #f2f0e5;
-  border: 0;
+  color: #f2f0e5;
+  background-color: #313e57;
+  outline: none;
+  border: none;
+
+  &:focus {
+    outline: 2px solid #496880;
+  }
+}
+
+.inputNumberWrapper {
+  position: relative;
+  width: 100%;
+  max-width: $maxWidth;
+}
+
+.inputNumber {
+  padding: $padding ($height + $padding);
+
+  /* Firefox */
+  -moz-appearance: textfield;
+
+  /* Chrome, Safari, Edge, Opera */
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+}
+
+.inputNumberDown,
+.inputNumberUp {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: $height;
+  height: $height;
+  background-color: #496880;
+  top: 0;
+
+  &::after {
+    content: "";
+    width: 0px;
+    height: 0px;
+    border-style: solid;
+    border-width: 0 10px 10px 10px;
+    border-color: transparent transparent #17152e transparent;
+  }
+
+  &:hover::after {
+    border-color: transparent transparent #313e57 transparent;
+  }
+}
+
+.inputNumberDown {
+  left: 0;
+
+  &::after {
+    transform: rotate(-90deg);
+  }
+}
+
+.inputNumberUp {
+  right: 0;
+
+  &::after {
+    transform: rotate(90deg);
+  }
 }
