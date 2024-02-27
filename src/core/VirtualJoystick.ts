@@ -38,6 +38,7 @@ export class VirtualJoystick extends EventEmitter<VirtualJoystickEvents> {
     let lastPanState: PanState;
 
     const handleStart = (e: TouchEvent) => {
+      e.preventDefault();
       startClientX = lastClientX = e.touches[0].clientX;
       startClientY = lastClientY = e.touches[0].clientY;
       lastTimeStamp = performance.now();
@@ -45,6 +46,7 @@ export class VirtualJoystick extends EventEmitter<VirtualJoystickEvents> {
     };
 
     const handleMove = (e: TouchEvent) => {
+      e.preventDefault();
       const clientX = e.touches[0].clientX;
       const clientY = e.touches[0].clientY;
       lastClientX = clientX;
