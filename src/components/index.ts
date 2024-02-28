@@ -6,6 +6,7 @@ export * from "./InfoPanel";
 export * from "./InputNumber";
 export * from "./InputText";
 export * from "./LabelText";
+export * from "./Logger";
 export * from "./MenuScreen";
 export * from "./SceneManager";
 export * from "./TimeCounter";

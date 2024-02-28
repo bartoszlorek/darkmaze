@@ -5,6 +5,7 @@ import {
   Button,
   InfoPanel,
   LabelText,
+  Logger,
   TimeCounter,
 } from "./components";
 import { Timer } from "./core";
@@ -108,6 +109,7 @@ export function FreerunScene1({
 
   return (
     <>
+      <Logger />
       <MainStageLayer player={player} level={level} />
       <InfoPanel tileSize={TILE_SIZE} getMargin={getMargin}>
         <LabelText label="deaths" desktopOnly>

@@ -1,6 +1,6 @@
 import { EventEmitter } from "./EventEmitter";
 
-type PanState = "up" | "down" | "none";
+type PanEvent = "panUp" | "panDown";
 
 export type VirtualJoystickEvents = {
   /**
@@ -19,9 +19,10 @@ export class VirtualJoystick extends EventEmitter<VirtualJoystickEvents> {
   protected threshold: number;
   protected velocity: number;
 
+  protected currentPanEvent: PanEvent | null = null;
   protected handleStart?: (event: TouchEvent) => void;
   protected handleMove?: (event: TouchEvent) => void;
-  protected handleEnd?: (event?: TouchEvent) => void;
+  protected handleEnd?: (event: TouchEvent) => void;
 
   constructor(threshold: number = 10, velocity: number = 0.3) {
     super();
@@ -35,7 +36,6 @@ export class VirtualJoystick extends EventEmitter<VirtualJoystickEvents> {
     let lastClientX: number;
     let lastClientY: number;
     let lastTimeStamp: number;
-    let lastPanState: PanState;
 
     const handleStart = (event: TouchEvent) => {
       event.preventDefault();
@@ -48,7 +48,7 @@ export class VirtualJoystick extends EventEmitter<VirtualJoystickEvents> {
       startClientX = lastClientX = event.touches[0].clientX;
       startClientY = lastClientY = event.touches[0].clientY;
       lastTimeStamp = performance.now();
-      lastPanState = "none";
+      this.currentPanEvent = null;
     };
 
     const handleMove = (event: TouchEvent) => {
@@ -68,31 +68,17 @@ export class VirtualJoystick extends EventEmitter<VirtualJoystickEvents> {
         return;
       }
 
-      // should end the previous state
-      // before emitting the next one
       if (lastClientY > clientY) {
-        if (lastPanState === "down") {
-          this.emit("panDown", false);
-        }
-        if (lastPanState !== "up") {
-          lastPanState = "up";
-          this.emit("panUp", true);
-        }
+        this.startPanEvent("panUp");
       } else {
-        if (lastPanState === "up") {
-          this.emit("panUp", false);
-        }
-        if (lastPanState !== "down") {
-          lastPanState = "down";
-          this.emit("panDown", true);
-        }
+        this.startPanEvent("panDown");
       }
 
       lastClientY = clientY;
     };
 
-    const handleEnd = (event?: TouchEvent) => {
-      event?.preventDefault();
+    const handleEnd = (event: TouchEvent) => {
+      event.preventDefault();
 
       // ignores multi-touch interactions
       const touches = event ? event.touches.length : 0;
@@ -100,13 +86,7 @@ export class VirtualJoystick extends EventEmitter<VirtualJoystickEvents> {
         return;
       }
 
-      if (lastPanState === "up") {
-        this.emit("panUp", false);
-      }
-      if (lastPanState === "down") {
-        this.emit("panDown", false);
-      }
-
+      this.endCurrentPanEvent();
       const dist = distance(startClientX, lastClientX);
       const velocity = dist / (performance.now() - lastTimeStamp);
 
@@ -133,7 +113,24 @@ export class VirtualJoystick extends EventEmitter<VirtualJoystickEvents> {
     return this;
   }
 
+  startPanEvent(type: PanEvent) {
+    if (type !== this.currentPanEvent) {
+      this.endCurrentPanEvent();
+      this.currentPanEvent = type;
+      this.emit(type, true);
+    }
+  }
+
+  endCurrentPanEvent() {
+    if (this.currentPanEvent !== null) {
+      this.emit(this.currentPanEvent, false);
+      this.currentPanEvent = null;
+    }
+  }
+
   destroy() {
+    this.endCurrentPanEvent();
+
     if (this.handleStart !== undefined) {
       document.removeEventListener("touchstart", this.handleStart);
       this.handleStart = undefined;
@@ -147,7 +144,6 @@ export class VirtualJoystick extends EventEmitter<VirtualJoystickEvents> {
     if (this.handleEnd !== undefined) {
       document.removeEventListener("touchend", this.handleEnd);
       document.removeEventListener("touchcancel", this.handleEnd);
-      this.handleEnd();
       this.handleEnd = undefined;
     }
   }
