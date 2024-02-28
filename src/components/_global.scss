@@ -4,17 +4,15 @@
   box-sizing: border-box;
 }
 
-html {
-  height: -webkit-fill-available;
+html,
+body {
+  height: 100dvh;
 }
 
 body {
   margin: 0;
   padding: 0;
   background-color: #17152e;
-  min-height: 100vh;
-  /* mobile viewport bug fix */
-  min-height: -webkit-fill-available;
   overflow: hidden;
   user-select: none;
   touch-action: none;
