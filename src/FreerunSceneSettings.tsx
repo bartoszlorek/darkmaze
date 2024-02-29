@@ -49,10 +49,12 @@ export function FreerunSceneSettings() {
 
   return (
     <MenuScreen>
+      <div>dimension & seed</div>
       <InputNumber
         valueType="int"
         value={dimension}
         onChange={handleDimensionInputChange}
+        pattern={dimensionInputPattern}
         min={MIN_DIMENSION}
         max={MAX_DIMENSION}
       />
@@ -63,3 +65,5 @@ export function FreerunSceneSettings() {
     </MenuScreen>
   );
 }
+
+const dimensionInputPattern = (n: number) => `${n}×${n}`;

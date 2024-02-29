@@ -8,6 +8,7 @@ type PropsType = Readonly<{
   valueType: ValueType;
   value: number;
   onChange: (value: number) => void;
+  pattern?: (value: number) => string;
   min?: number;
   max?: number;
   step?: number;
@@ -17,10 +18,13 @@ export function InputNumber({
   valueType,
   value,
   onChange,
+  pattern,
   min,
   max,
   step = 1,
 }: PropsType) {
+  const [focused, setFocused] = React.useState(false);
+
   const handleChange = (e: React.FormEvent<HTMLInputElement>) => {
     const nextValue = validateNumber(e.currentTarget.value, valueType);
     if (nextValue !== null) {
@@ -28,7 +32,9 @@ export function InputNumber({
     }
   };
 
+  const handleFocus = () => setFocused(true);
   const handleBlur = (e: React.FormEvent<HTMLInputElement>) => {
+    setFocused(false);
     const nextValue = validateNumber(e.currentTarget.value, valueType);
     if (nextValue !== null) {
       onChange(clamp(nextValue, min, max));
@@ -49,16 +55,20 @@ export function InputNumber({
     }
   };
 
+  const inputType = pattern && !focused ? "text" : "number";
+  const inputValue = pattern && !focused ? pattern(value) : value;
+
   return (
     <div className={styles.inputNumberWrapper}>
       <input
-        type="number"
-        value={value}
+        type={inputType}
+        value={inputValue}
         min={min}
         max={max}
         step={step}
         className={styles.inputNumber}
         onChange={handleChange}
+        onFocus={handleFocus}
         onBlur={handleBlur}
       />
       <div className={styles.inputNumberDown} onClick={handleDownClick} />

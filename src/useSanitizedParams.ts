@@ -1,6 +1,6 @@
 import validator from "validator";
 import { useParams } from "react-router-dom";
-import { MIN_DIMENSION, MAX_DIMENSION } from "./consts";
+import { MIN_DIMENSION, MAX_DIMENSION, DEFAULT_DIMENSION } from "./consts";
 import { clamp } from "./helpers";
 
 type ParamsType = Readonly<{
@@ -14,7 +14,7 @@ export function useSanitizedParams(): ParamsType {
   if (rawDimension === undefined || !validator.isInt(rawDimension)) {
     return {
       seed,
-      dimension: MIN_DIMENSION,
+      dimension: DEFAULT_DIMENSION,
     };
   }
 

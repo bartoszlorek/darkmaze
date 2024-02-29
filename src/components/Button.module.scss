@@ -8,8 +8,9 @@
   user-select: none;
   text-align: center;
   color: #f2f0e5;
-  border: 2px solid #496880;
   background-color: transparent;
+  border: 2px solid #496880;
+  border-radius: 4px;
 
   &:hover {
     background-color: #313e57;
