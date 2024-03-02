@@ -4,7 +4,7 @@ import {
   ActionScreen,
   Button,
   InfoPanel,
-  LabelText,
+  InfoPanelElement,
   Logger,
   TimeCounter,
 } from "./components";
@@ -14,18 +14,20 @@ import { nth } from "./helpers";
 import { generateLevel } from "./generators";
 import { createPlayer } from "./createPlayer";
 import { MainStageLayer } from "./MainStageLayer";
+import { accessLevelStorage, LevelStats } from "./storage";
 import { useAppContext } from "./context";
 import { useGameLoop } from "./useGameLoop";
 import { useInstance } from "./useInstance";
 import { usePlayerKeyboard } from "./usePlayerKeyboard";
 import { usePlayerStatus } from "./usePlayerStatus";
-import { accessLevelStorage, LevelStats } from "./storage";
+import { MenuState } from "./useMenu";
 
 type PropsType = Readonly<{
   dimension: number;
   seed: string;
   resetScene: () => void;
   quitScene: () => void;
+  menu: MenuState;
 }>;
 
 export function FreerunScene1({
@@ -33,6 +35,7 @@ export function FreerunScene1({
   seed,
   resetScene,
   quitScene,
+  menu,
 }: PropsType) {
   const { app } = useAppContext();
   const timer = useInstance(() => new Timer());
@@ -59,6 +62,7 @@ export function FreerunScene1({
   usePlayerKeyboard({
     player,
     playerStatus,
+    menu,
   });
 
   useGameLoop({
@@ -111,14 +115,17 @@ export function FreerunScene1({
     <>
       <Logger />
       <MainStageLayer player={player} level={level} />
+
       <InfoPanel tileSize={TILE_SIZE} getMargin={getMargin}>
-        <LabelText label="deaths" desktopOnly>
-          {deaths}
-        </LabelText>
-        <LabelText label="time">
-          <TimeCounter timer={timer} />
-        </LabelText>
-        <LabelText label="best">{formattedBestTime}</LabelText>
+        <InfoPanelElement visible="desktop">deaths {deaths}</InfoPanelElement>
+        <InfoPanelElement>
+          time <TimeCounter timer={timer} />
+        </InfoPanelElement>
+        {menu.isOpen ? (
+          <InfoPanelElement>best {formattedBestTime}</InfoPanelElement>
+        ) : (
+          <InfoPanelElement onClick={menu.open}>menu</InfoPanelElement>
+        )}
       </InfoPanel>
 
       {playerStatus === "died" && (

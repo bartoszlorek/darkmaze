@@ -16,8 +16,9 @@ export type VirtualJoystickEvents = {
 };
 
 export class VirtualJoystick extends EventEmitter<VirtualJoystickEvents> {
-  protected threshold: number;
-  protected velocity: number;
+  public tappableElementAttr = "data-tappable";
+  public threshold: number;
+  public velocity: number;
 
   protected currentPanEvent: PanEvent | null = null;
   protected handleStart?: (event: TouchEvent) => void;
@@ -38,8 +39,6 @@ export class VirtualJoystick extends EventEmitter<VirtualJoystickEvents> {
     let lastTimeStamp: number;
 
     const handleStart = (event: TouchEvent) => {
-      event.preventDefault();
-
       // ignores multi-touch interactions
       if (event.touches.length > 1) {
         return;
@@ -78,8 +77,6 @@ export class VirtualJoystick extends EventEmitter<VirtualJoystickEvents> {
     };
 
     const handleEnd = (event: TouchEvent) => {
-      event.preventDefault();
-
       // ignores multi-touch interactions
       const touches = event ? event.touches.length : 0;
       if (touches > 0) {
@@ -87,6 +84,11 @@ export class VirtualJoystick extends EventEmitter<VirtualJoystickEvents> {
       }
 
       this.endCurrentPanEvent();
+      if (this.isTappableEventTarget(event.target)) {
+        return;
+      }
+
+      event.preventDefault();
       const dist = distance(startClientX, lastClientX);
       const velocity = dist / (performance.now() - lastTimeStamp);
 
@@ -113,7 +115,7 @@ export class VirtualJoystick extends EventEmitter<VirtualJoystickEvents> {
     return this;
   }
 
-  startPanEvent(type: PanEvent) {
+  protected startPanEvent(type: PanEvent) {
     if (type !== this.currentPanEvent) {
       this.endCurrentPanEvent();
       this.currentPanEvent = type;
@@ -121,11 +123,18 @@ export class VirtualJoystick extends EventEmitter<VirtualJoystickEvents> {
     }
   }
 
-  endCurrentPanEvent() {
+  protected endCurrentPanEvent() {
     if (this.currentPanEvent !== null) {
       this.emit(this.currentPanEvent, false);
       this.currentPanEvent = null;
     }
+  }
+
+  protected isTappableEventTarget(target: EventTarget | null) {
+    if (target instanceof HTMLElement) {
+      return Boolean(target.getAttribute(this.tappableElementAttr));
+    }
+    return false;
   }
 
   destroy() {

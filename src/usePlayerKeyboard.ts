@@ -1,5 +1,6 @@
 import * as React from "react";
 import { Keyboard, Player, PlayerStatus, VirtualJoystick } from "./core";
+import { MenuState } from "./useMenu";
 
 type PlayerMovementKeys =
   | "ArrowUp"
@@ -14,16 +15,20 @@ type PlayerMovementKeys =
 type PropsType = Readonly<{
   player: Player;
   playerStatus: PlayerStatus;
+  menu: MenuState;
 }>;
 
-export function usePlayerKeyboard({ player, playerStatus }: PropsType) {
-  const shouldBindKeyboard =
-    playerStatus === "idle" ||
-    playerStatus === "running" ||
-    playerStatus === "turning";
+export function usePlayerKeyboard({ player, playerStatus, menu }: PropsType) {
+  const shouldBindPlayer =
+    (playerStatus === "idle" ||
+      playerStatus === "running" ||
+      playerStatus === "turning") &&
+    menu.isOpen === false;
+
+  const shouldBindMenu = !(playerStatus === "died" || playerStatus === "won");
 
   React.useEffect(() => {
-    if (!shouldBindKeyboard) {
+    if (!shouldBindPlayer) {
       return;
     }
 
@@ -90,5 +95,20 @@ export function usePlayerKeyboard({ player, playerStatus }: PropsType) {
       keyboard.destroy();
       joystick.destroy();
     };
-  }, [player, shouldBindKeyboard]);
+  }, [player, shouldBindPlayer]);
+
+  React.useEffect(() => {
+    if (!shouldBindMenu) {
+      return;
+    }
+
+    const keyboard = new Keyboard<"Escape">();
+    keyboard.on(["Escape"], (pressed) => {
+      if (pressed) menu.toggle();
+    });
+
+    return () => {
+      keyboard.destroy();
+    };
+  }, [menu, shouldBindMenu]);
 }

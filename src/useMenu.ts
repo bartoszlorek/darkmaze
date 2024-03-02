@@ -1,23 +1,24 @@
 import * as React from "react";
-import { Keyboard } from "./core";
 
-type MenuKeys = "Escape";
+export type MenuState = Readonly<{
+  open: () => void;
+  close: () => void;
+  toggle: () => void;
+  isOpen: boolean;
+}>;
 
-export function useMenu(): [boolean, () => void] {
-  const [open, setOpen] = React.useState(false);
-  const close = React.useCallback(() => setOpen(false), []);
+export function useMenu(): MenuState {
+  const [isOpen, setIsOpen] = React.useState(false);
 
-  React.useEffect(() => {
-    const keyboard = new Keyboard<MenuKeys>();
+  const state = React.useMemo(
+    () => ({
+      open: () => setIsOpen(true),
+      close: () => setIsOpen(false),
+      toggle: () => setIsOpen((prev) => !prev),
+      isOpen,
+    }),
+    [isOpen]
+  );
 
-    keyboard.on(["Escape"], (pressed) => {
-      if (pressed) setOpen((bool) => !bool);
-    });
-
-    return () => {
-      keyboard.destroy();
-    };
-  }, []);
-
-  return [open, close];
+  return state;
 }

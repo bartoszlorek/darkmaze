@@ -8,7 +8,7 @@ import { StoryScene3 } from "./StoryScene3";
 
 export function StoryScene() {
   const navigate = useNavigate();
-  const [isMenuOpen, closeMenu] = useMenu();
+  const menu = useMenu();
   const [resetKey, setResetKey] = React.useState(0);
   const [sceneIndex, setSceneIndex] = React.useState(0);
 
@@ -18,8 +18,8 @@ export function StoryScene() {
 
   const resetScene = React.useCallback(() => {
     setResetKey((n) => n + 1);
-    closeMenu();
-  }, [closeMenu]);
+    menu.close();
+  }, [menu]);
 
   const exitScene = React.useCallback(() => {
     navigate("/");
@@ -31,13 +31,22 @@ export function StoryScene() {
         resetKey={resetKey}
         sceneIndex={sceneIndex}
         scenes={[
-          <StoryScene1 nextScene={nextScene} />,
-          <StoryScene2 nextScene={nextScene} resetScene={resetScene} />,
-          <StoryScene3 nextScene={exitScene} resetScene={resetScene} />,
+          <StoryScene1 menu={menu} nextScene={nextScene} />,
+          <StoryScene2
+            menu={menu}
+            nextScene={nextScene}
+            resetScene={resetScene}
+          />,
+          <StoryScene3
+            menu={menu}
+            nextScene={exitScene}
+            resetScene={resetScene}
+          />,
         ]}
       />
-      {isMenuOpen && (
+      {menu.isOpen && (
         <MenuScreen>
+          <Button onClick={menu.close}>resume</Button>
           <Button onClick={resetScene}>restart</Button>
           <Button onClick={() => navigate("/")}>main menu</Button>
         </MenuScreen>

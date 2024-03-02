@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useNavigate } from "react-router-dom";
-import { MIN_DIMENSION, MAX_DIMENSION } from "./consts";
+import { MIN_DIMENSION, MAX_DIMENSION, DEFAULT_DIMENSION } from "./consts";
 import { accessLocalStorage, generateRandomSeed } from "./helpers";
 import { Button, InputText, InputNumber, MenuScreen } from "./components";
 import type { StorageType } from "./storage";
@@ -12,7 +12,7 @@ export function FreerunSceneSettings() {
   }, []);
 
   const [dimension, setDimension] = React.useState(() => {
-    const { dimension = MIN_DIMENSION } = storage.getValue();
+    const { dimension = DEFAULT_DIMENSION } = storage.getValue();
     storage.setValue({ dimension });
     return dimension;
   });

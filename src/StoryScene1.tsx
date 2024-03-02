@@ -1,7 +1,8 @@
 import * as React from "react";
-import { ANTICIPATION_TIME } from "./consts";
+import { ANTICIPATION_TIME, TILE_SIZE } from "./consts";
 import { Level, Room } from "./core";
-import { Dialog } from "./components";
+import { getMargin } from "./margin";
+import { Dialog, InfoPanel, InfoPanelElement } from "./components";
 import { Direction4Angle } from "./helpers";
 import { createPlayer } from "./createPlayer";
 import { dialogues } from "./dialogues";
@@ -12,12 +13,14 @@ import { useGameLoop } from "./useGameLoop";
 import { useInstance } from "./useInstance";
 import { usePlayerKeyboard } from "./usePlayerKeyboard";
 import { usePlayerStatus } from "./usePlayerStatus";
+import { MenuState } from "./useMenu";
 
 type PropsType = Readonly<{
+  menu: MenuState;
   nextScene: () => void;
 }>;
 
-export function StoryScene1({ nextScene }: PropsType) {
+export function StoryScene1({ menu, nextScene }: PropsType) {
   const { app } = useAppContext();
   const level = useInstance(() => createLevel());
   const player = useInstance(() => createPlayer(level, false));
@@ -27,6 +30,7 @@ export function StoryScene1({ nextScene }: PropsType) {
   usePlayerKeyboard({
     player,
     playerStatus,
+    menu,
   });
 
   useGameLoop({
@@ -55,6 +59,13 @@ export function StoryScene1({ nextScene }: PropsType) {
   return (
     <>
       <MainStageLayer player={player} level={level} />
+
+      <InfoPanel tileSize={TILE_SIZE} getMargin={getMargin}>
+        {!menu.isOpen && (
+          <InfoPanelElement onClick={menu.open}>menu</InfoPanelElement>
+        )}
+      </InfoPanel>
+
       {dialog !== null && <Dialog value={dialog} />}
     </>
   );
