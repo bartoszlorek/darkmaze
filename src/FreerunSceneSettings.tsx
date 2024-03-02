@@ -49,7 +49,7 @@ export function FreerunSceneSettings() {
 
   return (
     <MenuScreen>
-      <div>dimension & seed</div>
+      <h2>dimension & seed</h2>
       <InputNumber
         valueType="int"
         value={dimension}
