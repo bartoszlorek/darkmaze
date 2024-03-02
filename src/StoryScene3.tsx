@@ -29,9 +29,11 @@ type PropsType = Readonly<{
 export function StoryScene3({ menu, nextScene, resetScene }: PropsType) {
   const { app } = useAppContext();
   const level = useInstance(() => createLevel());
+  const [dialog, setDialog] = useDialog(dialogues);
+
   const player = useInstance(() => createPlayer(level, false));
   const playerStatus = usePlayerStatus({ player });
-  const [dialog, setDialog] = useDialog(dialogues);
+  const playerDiedOrWon = playerStatus === "died" || playerStatus === "won";
 
   usePlayerKeyboard({
     player,
@@ -70,7 +72,7 @@ export function StoryScene3({ menu, nextScene, resetScene }: PropsType) {
       <MainStageLayer player={player} level={level} />
 
       <InfoPanel tileSize={TILE_SIZE} getMargin={getMargin}>
-        {!menu.isOpen && (
+        {!(menu.isOpen || playerDiedOrWon) && (
           <InfoPanelElement onClick={menu.open}>menu</InfoPanelElement>
         )}
       </InfoPanel>

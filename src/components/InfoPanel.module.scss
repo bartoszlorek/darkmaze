@@ -15,7 +15,7 @@
   width: 100%;
   margin: 0 auto;
 
-  @media (min-width: 800px) {
+  @include desktop() {
     width: 60%;
     max-width: 500px;
   }

@@ -40,8 +40,10 @@ export function FreerunScene1({
   const { app } = useAppContext();
   const timer = useInstance(() => new Timer());
   const level = useInstance(() => generateLevel(dimension, seed));
+
   const player = useInstance(() => createPlayer(level, true));
   const playerStatus = usePlayerStatus({ player });
+  const playerDiedOrWon = playerStatus === "died" || playerStatus === "won";
 
   const levelStorage = React.useMemo(() => {
     return accessLevelStorage({ seed, dimension });
@@ -121,7 +123,7 @@ export function FreerunScene1({
         <InfoPanelElement>
           time <TimeCounter timer={timer} />
         </InfoPanelElement>
-        {menu.isOpen ? (
+        {menu.isOpen || playerDiedOrWon ? (
           <InfoPanelElement>best {formattedBestTime}</InfoPanelElement>
         ) : (
           <InfoPanelElement onClick={menu.open}>menu</InfoPanelElement>
