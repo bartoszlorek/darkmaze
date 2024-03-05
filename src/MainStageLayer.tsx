@@ -7,6 +7,7 @@ import { useAppContext } from "./context";
 import { useGameLayer } from "./useGameLayer";
 import {
   Camera,
+  drawBackgroundMask,
   drawCompass,
   drawFrame,
   drawLevel,
@@ -28,25 +29,27 @@ export function MainStageLayer({ player, level }: PropsType) {
   useGameLayer({
     app,
     onMount: (layer) => {
-      // the gameplay elements
-      const world = new PIXI.Container();
-      const worldMask = new PIXI.Graphics();
       const background = new PIXI.Container();
       const foreground = new PIXI.Container();
-      world.addChild(background);
-      world.addChild(foreground);
-      world.mask = worldMask;
+      background.addChild(background);
 
       // the ui elements
       const frame = new PIXI.Container();
+      const frameBounds = new FrameBounds(TILE_SIZE, getMargin());
       const compass = new PIXI.Container();
 
       // compose the view
-      layer.addChild(world);
+      layer.addChild(background);
+      layer.addChild(foreground);
       layer.addChild(frame);
       layer.addChild(compass);
 
-      const frameBounds = new FrameBounds(TILE_SIZE, getMargin());
+      const redrawBackgroundMask = drawBackgroundMask({
+        parent: background,
+        frame: frameBounds,
+        tileSize: TILE_SIZE,
+      });
+
       const redrawFrame = drawFrame({
         parent: frame,
         frame: frameBounds,
@@ -63,23 +66,30 @@ export function MainStageLayer({ player, level }: PropsType) {
         sprites,
       });
 
-      const camera = new Camera(world, TILE_SIZE);
+      const redrawLevel = drawLevel({
+        parent: background,
+        level,
+        tileSize: TILE_SIZE,
+        sprites,
+        debugMode,
+      });
+
+      const redrawPlayer = drawPlayer({
+        parent: foreground,
+        player,
+        frame: frameBounds,
+        sprites,
+      });
+
+      const camera = new Camera(background, TILE_SIZE);
       player.subscribe("move", () => camera.lookAt(player));
 
       const resize = () => {
+        camera.lookAt(player);
         frameBounds.update(getMargin());
-        worldMask
-          .clear()
-          .beginFill(0xffffff)
-          .drawRect(
-            frameBounds.left + TILE_SIZE,
-            frameBounds.top + TILE_SIZE,
-            frameBounds.width - TILE_SIZE * 2,
-            frameBounds.height - TILE_SIZE * 2
-          );
+        redrawBackgroundMask();
         redrawFrame();
         redrawCompass();
-        camera.lookAt(player);
       };
 
       const unsubscribeResize = subscribeResize(resize);
@@ -96,21 +106,6 @@ export function MainStageLayer({ player, level }: PropsType) {
         normalLightsFilter.update(lights.normal);
         delayedLightsFilter.update(lights.delayed);
       };
-
-      const redrawLevel = drawLevel({
-        parent: background,
-        level,
-        tileSize: TILE_SIZE,
-        sprites,
-        debugMode,
-      });
-
-      const redrawPlayer = drawPlayer({
-        parent: foreground,
-        player,
-        tileSize: TILE_SIZE,
-        sprites,
-      });
 
       return {
         redrawLevel,
