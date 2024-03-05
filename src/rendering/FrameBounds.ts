@@ -7,6 +7,8 @@ export class FrameBounds {
   bottom: number = 0;
   width: number = 0;
   height: number = 0;
+  centerX: number = 0;
+  centerY: number = 0;
 
   // margin
   actualMarginTop: number = 0;
@@ -48,6 +50,8 @@ export class FrameBounds {
     this.left = this.actualMarginLeft;
     this.right = this.actualMarginLeft + this.width;
     this.bottom = this.actualMarginTop + this.height;
+    this.centerX = this.actualMarginLeft + this.width / 2;
+    this.centerY = this.actualMarginTop + this.height / 2;
 
     this.actualMarginRight = maxWidth - this.right;
     this.actualMarginBottom = maxHeight - this.bottom;
