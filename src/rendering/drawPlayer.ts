@@ -1,5 +1,5 @@
 import * as PIXI from "pixi.js";
-import { Direction8Angle } from "../helpers";
+import { Direction8Angle, createAnimationFrames } from "../helpers";
 import { DrawFunction } from "./draw";
 import type { LoadedSpritesheets } from "../assets";
 import type { Player, PlayerStatus } from "../core";
@@ -10,16 +10,17 @@ export const drawPlayer: DrawFunction<{
   frame: FrameBounds;
   sprites: LoadedSpritesheets;
 }> = ({ parent, player, frame, sprites }) => {
-  const anim = new PIXI.AnimatedSprite(sprites.player.animations.right_walk);
-  anim.anchor.set(0.5);
-  anim.animationSpeed = 0.1666;
-  parent.addChild(anim);
+  const animations = createAnimationFrames(sprites.player);
+  const sprite = new PIXI.AnimatedSprite(animations.right_walk);
+  sprite.anchor.set(0.5);
+  parent.addChild(sprite);
 
   let lastFacingAngle: number;
   let lastPlayerStatus: PlayerStatus;
+
   return () => {
-    anim.x = frame.centerX;
-    anim.y = frame.centerY;
+    sprite.x = frame.centerX;
+    sprite.y = frame.centerY;
 
     if (
       lastFacingAngle !== player.facingAngle ||
@@ -27,40 +28,72 @@ export const drawPlayer: DrawFunction<{
     ) {
       switch (player.facingAngle) {
         case Direction8Angle.upLeft:
-          anim.textures = sprites.player.animations.upLeft_walk;
+          if (player.status === "running") {
+            sprite.textures = animations.upLeft_walk;
+          } else {
+            sprite.textures = animations.upLeft_idle;
+          }
           break;
 
         case Direction8Angle.up:
-          anim.textures = sprites.player.animations.up_walk;
+          if (player.status === "running") {
+            sprite.textures = animations.up_walk;
+          } else {
+            sprite.textures = animations.up_idle;
+          }
           break;
 
         case Direction8Angle.upRight:
-          anim.textures = sprites.player.animations.upRight_walk;
+          if (player.status === "running") {
+            sprite.textures = animations.upRight_walk;
+          } else {
+            sprite.textures = animations.upRight_idle;
+          }
           break;
 
         case Direction8Angle.left:
-          anim.textures = sprites.player.animations.left_walk;
+          if (player.status === "running") {
+            sprite.textures = animations.left_walk;
+          } else {
+            sprite.textures = animations.left_idle;
+          }
           break;
 
         case Direction8Angle.right:
-          anim.textures = sprites.player.animations.right_walk;
+          if (player.status === "running") {
+            sprite.textures = animations.right_walk;
+          } else {
+            sprite.textures = animations.right_idle;
+          }
           break;
 
         case Direction8Angle.downLeft:
-          anim.textures = sprites.player.animations.downLeft_walk;
+          if (player.status === "running") {
+            sprite.textures = animations.downLeft_walk;
+          } else {
+            sprite.textures = animations.downLeft_idle;
+          }
           break;
 
         case Direction8Angle.down:
-          anim.textures = sprites.player.animations.down_walk;
+          if (player.status === "running") {
+            sprite.textures = animations.down_walk;
+          } else {
+            sprite.textures = animations.down_idle;
+          }
           break;
 
         case Direction8Angle.downRight:
-          anim.textures = sprites.player.animations.downRight_walk;
+          if (player.status === "running") {
+            sprite.textures = animations.downRight_walk;
+          } else {
+            sprite.textures = animations.downRight_idle;
+          }
           break;
       }
 
-      if (player.status === "running") {
-        anim.gotoAndPlay(0);
+      if (player.status === "running" || player.status === "idle") {
+        sprite.gotoAndPlay(0);
       }
     }
 

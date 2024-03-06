@@ -10,6 +10,7 @@ export * from "./fieldOfView";
 export * from "./grid";
 export * from "./language";
 export * from "./math";
+export * from "./pixijs";
 export * from "./pooling";
 export * from "./randomNumber";
 export * from "./randomSeed";
