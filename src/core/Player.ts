@@ -238,7 +238,7 @@ export class Player extends EventEmitter<PlayerEvents> {
 
     if (didSomeMove) {
       this.setStatus("running");
-    } else if (didSomeTurn) {
+    } else if (this.turnDirection !== 0) {
       this.setStatus("turning");
     } else {
       this.setStatus("idle");
