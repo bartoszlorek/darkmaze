@@ -10,6 +10,7 @@ import {
   InfoPanelElement,
 } from "./components";
 import { createPlayer } from "./createPlayer";
+import { accessMainStorage } from "./storage";
 import { dialogues } from "./dialogues";
 import { MainStageLayer } from "./MainStageLayer";
 import { useAppContext } from "./context";
@@ -35,6 +36,10 @@ export function StoryScene3({ menu, nextScene, resetScene }: PropsType) {
   const playerStatus = usePlayerStatus({ player });
   const playerDiedOrWon = playerStatus === "died" || playerStatus === "won";
 
+  const storage = React.useMemo(() => {
+    return accessMainStorage();
+  }, []);
+
   usePlayerKeyboard({
     player,
     playerStatus,
@@ -58,6 +63,7 @@ export function StoryScene3({ menu, nextScene, resetScene }: PropsType) {
 
         case "golden": {
           player.setStatus("paused");
+          storage.setValue({ finishedStory: true });
           setTimeout(() => player.setStatus("won"), ANTICIPATION_TIME);
           break;
         }
@@ -65,7 +71,7 @@ export function StoryScene3({ menu, nextScene, resetScene }: PropsType) {
     });
 
     setDialog("goal");
-  }, [player, level, setDialog]);
+  }, [player, level, setDialog, storage]);
 
   return (
     <>

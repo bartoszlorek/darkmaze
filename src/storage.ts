@@ -4,6 +4,7 @@ export type StorageType = Readonly<{
   seed: string;
   dimension: number;
   stats: Record<string, LevelStats>;
+  finishedStory: boolean;
 }>;
 
 export type LevelStats = Readonly<{
@@ -13,6 +14,10 @@ export type LevelStats = Readonly<{
   bestTime: number | null;
 }>;
 
+export function accessMainStorage() {
+  return accessLocalStorage<StorageType>("darkmaze");
+}
+
 export function accessLevelStorage({
   seed,
   dimension,
@@ -20,7 +25,7 @@ export function accessLevelStorage({
   seed: string;
   dimension: number;
 }) {
-  const storage = accessLocalStorage<StorageType>("darkmaze");
+  const storage = accessMainStorage();
   const levelHashKey = `${seed}#${dimension}`;
 
   function getValue(): LevelStats {

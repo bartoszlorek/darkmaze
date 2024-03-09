@@ -1,14 +1,14 @@
 import * as React from "react";
 import { useNavigate } from "react-router-dom";
 import { MIN_DIMENSION, MAX_DIMENSION, DEFAULT_DIMENSION } from "./consts";
-import { accessLocalStorage, generateRandomSeed } from "./helpers";
 import { Button, InputText, InputNumber, MenuScreen } from "./components";
-import type { StorageType } from "./storage";
+import { generateRandomSeed } from "./helpers";
+import { accessMainStorage } from "./storage";
 
 export function FreerunSceneSettings() {
   const navigate = useNavigate();
   const storage = React.useMemo(() => {
-    return accessLocalStorage<StorageType>("darkmaze");
+    return accessMainStorage();
   }, []);
 
   const [dimension, setDimension] = React.useState(() => {

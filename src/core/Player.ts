@@ -10,7 +10,7 @@ import {
 import { EventEmitter } from "./EventEmitter";
 import { Room } from "./Room";
 
-export const PLAYER_MOVE_SPEED = 0.05; // pixels
+export const PLAYER_MOVE_SPEED = 0.04; // pixels
 export const PLAYER_MOVE_FOLLOWING_AXIS = 0.1; // bias
 export const PLAYER_FACING_ANGLE = 45;
 export const PLAYER_TURN_SPEED = 5; // degrees

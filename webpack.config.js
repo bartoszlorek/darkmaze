@@ -39,6 +39,7 @@ module.exports = (_, argv) => ({
           {
             loader: "css-loader",
             options: {
+              url: false,
               modules: {
                 localIdentName:
                   argv.mode === "production"

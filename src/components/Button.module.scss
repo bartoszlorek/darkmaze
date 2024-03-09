@@ -1,6 +1,7 @@
 @import "./mixins";
 
 .button {
+  position: relative;
   padding: 8px;
   width: 100%;
   height: 40px;
@@ -12,7 +13,39 @@
   border: 2px solid #496880;
   border-radius: 4px;
 
-  &:hover {
+  &:not(.locked):hover {
     background-color: #313e57;
+  }
+}
+
+.locked:active {
+  animation-name: shake;
+  animation-duration: 250ms;
+}
+
+.lock {
+  @include ui(0px, 0px);
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  right: 6px;
+  top: 6px;
+}
+
+@keyframes shake {
+  0% {
+    transform: translateX(0px);
+  }
+  25% {
+    transform: translateX(-10px);
+  }
+  50% {
+    transform: translateX(10px);
+  }
+  75% {
+    transform: translateX(-10px);
+  }
+  100% {
+    transform: translateX(0);
   }
 }
