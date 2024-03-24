@@ -1,16 +1,16 @@
 import * as PIXI from "pixi.js";
 import { Direction8Angle, createAnimationFrames } from "../helpers";
 import { DrawFunction } from "./draw";
-import type { LoadedSpritesheets } from "../assets";
+import type { LoadedAssets } from "../assets";
 import type { Player, PlayerStatus } from "../core";
 import { FrameBounds } from "./FrameBounds";
 
 export const drawPlayer: DrawFunction<{
   player: Player;
   frame: FrameBounds;
-  sprites: LoadedSpritesheets;
-}> = ({ parent, player, frame, sprites }) => {
-  const animations = createAnimationFrames(sprites.player);
+  assets: LoadedAssets;
+}> = ({ parent, player, frame, assets }) => {
+  const animations = createAnimationFrames(assets.player);
   const sprite = new PIXI.AnimatedSprite(animations.right_walk);
   sprite.anchor.set(0.5);
   parent.addChild(sprite);

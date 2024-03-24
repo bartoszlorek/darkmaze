@@ -10,6 +10,7 @@ import {
   drawBackgroundMask,
   drawCompass,
   drawFrame,
+  drawLevel3d,
   drawLevel,
   drawPlayer,
   createLights,
@@ -24,12 +25,13 @@ type PropsType = Readonly<{
 }>;
 
 export function MainStageLayer({ player, level }: PropsType) {
-  const { app, sprites, debugMode } = useAppContext();
+  const { app, assets, debugMode } = useAppContext();
 
   useGameLayer({
     app,
     onMount: (layer) => {
       const background = new PIXI.Container();
+      const background3d = new PIXI.Container();
       const foreground = new PIXI.Container();
       background.addChild(background);
 
@@ -40,6 +42,7 @@ export function MainStageLayer({ player, level }: PropsType) {
 
       // compose the view
       layer.addChild(background);
+      layer.addChild(background3d);
       layer.addChild(foreground);
       layer.addChild(frame);
       layer.addChild(compass);
@@ -54,7 +57,7 @@ export function MainStageLayer({ player, level }: PropsType) {
         parent: frame,
         frame: frameBounds,
         tileSize: TILE_SIZE,
-        sprites,
+        assets,
       });
 
       const redrawCompass = drawCompass({
@@ -63,14 +66,21 @@ export function MainStageLayer({ player, level }: PropsType) {
         level,
         frame: frameBounds,
         tileSize: TILE_SIZE,
-        sprites,
+        assets,
+      });
+
+      const redrawLevel3d = drawLevel3d({
+        parent: background3d,
+        level,
+        player,
+        assets,
       });
 
       const redrawLevel = drawLevel({
         parent: background,
         level,
         tileSize: TILE_SIZE,
-        sprites,
+        assets,
         debugMode,
       });
 
@@ -78,7 +88,7 @@ export function MainStageLayer({ player, level }: PropsType) {
         parent: foreground,
         player,
         frame: frameBounds,
-        sprites,
+        assets,
       });
 
       const camera = new Camera(background, TILE_SIZE);
@@ -109,6 +119,7 @@ export function MainStageLayer({ player, level }: PropsType) {
 
       return {
         redrawLevel,
+        redrawLevel3d,
         redrawPlayer,
         unsubscribeResize,
         updateLightsFilter,
@@ -117,6 +128,7 @@ export function MainStageLayer({ player, level }: PropsType) {
 
     onUpdate: (ctx, deltaTime) => {
       ctx.redrawLevel();
+      ctx.redrawLevel3d();
       ctx.redrawPlayer();
       ctx.updateLightsFilter(deltaTime);
     },

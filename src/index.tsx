@@ -1,7 +1,7 @@
 import * as PIXI from "pixi.js";
 import { createRoot } from "react-dom/client";
 import { HashRouter } from "react-router-dom";
-import { loadSpritesheets } from "./assets";
+import { loadAssets } from "./assets";
 import { getDebugMode } from "./debug";
 import { AppContextProvider } from "./context";
 import { MainScene } from "./MainScene";
@@ -22,10 +22,10 @@ const app = new PIXI.Application({
 
 const debugMode = getDebugMode();
 
-loadSpritesheets().then((sprites) => {
+loadAssets().then((assets) => {
   createRoot(root).render(
     <HashRouter>
-      <AppContextProvider value={{ app, sprites, debugMode }}>
+      <AppContextProvider value={{ app, assets, debugMode }}>
         <MainScene />
       </AppContextProvider>
     </HashRouter>

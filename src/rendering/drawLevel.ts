@@ -1,5 +1,5 @@
 import * as PIXI from "pixi.js";
-import { LoadedSpritesheets } from "../assets";
+import { LoadedAssets } from "../assets";
 import { Level, Room } from "../core";
 import { DEBUG_MODE } from "../debug";
 import {
@@ -25,12 +25,12 @@ enum TileState {
 export const drawLevel: DrawFunction<{
   level: Level;
   tileSize: number;
-  sprites: LoadedSpritesheets;
+  assets: LoadedAssets;
   debugMode: DEBUG_MODE;
-}> = ({ parent, level, tileSize, sprites, debugMode }) => {
+}> = ({ parent, level, tileSize, assets, debugMode }) => {
   const halfTileSize = tileSize / 2;
-  const wallTextures = createWallTextures(sprites);
-  const edgeTextures = createEdgeTextures(sprites);
+  const wallTextures = createWallTextures(assets);
+  const edgeTextures = createEdgeTextures(assets);
 
   const tileStates = new GridMap<TileState>(
     level.dimension * 2 + TILES_MARGIN,
@@ -226,7 +226,7 @@ export const drawLevel: DrawFunction<{
         switch (room.type) {
           case "evil": {
             const sprite = itemsSprites.get(roomKey);
-            sprite.texture = sprites.items.textures.room_evil;
+            sprite.texture = assets.items.textures.room_evil;
             sprite.x = x * tileSize;
             sprite.y = y * tileSize;
             break;
@@ -234,7 +234,7 @@ export const drawLevel: DrawFunction<{
 
           case "golden": {
             const sprite = itemsSprites.get(roomKey);
-            sprite.texture = sprites.items.textures.room_golden;
+            sprite.texture = assets.items.textures.room_golden;
             sprite.x = x * tileSize;
             sprite.y = y * tileSize;
             break;
@@ -242,7 +242,7 @@ export const drawLevel: DrawFunction<{
 
           case "passage": {
             const sprite = itemsSprites.get(roomKey);
-            sprite.texture = sprites.items.textures.room_passage;
+            sprite.texture = assets.items.textures.room_passage;
             sprite.x = x * tileSize;
             sprite.y = y * tileSize;
             break;
@@ -261,7 +261,7 @@ export const drawLevel: DrawFunction<{
 
 const createWallTextures = ({
   tiles: { textures: t },
-}: LoadedSpritesheets): Record<Bit4MaskValue, PIXI.Texture[]> => ({
+}: LoadedAssets): Record<Bit4MaskValue, PIXI.Texture[]> => ({
   0: [t.walls_2b, t.walls_3b],
   1: [t.walls_4b],
   2: [t.walls_2a, t.walls_2c, t.walls_3a, t.walls_3c, t.walls_4c],
@@ -282,7 +282,7 @@ const createWallTextures = ({
 
 const createEdgeTextures = ({
   tiles: { textures: t },
-}: LoadedSpritesheets): Record<Bit8MaskValue, PIXI.Texture[]> => ({
+}: LoadedAssets): Record<Bit8MaskValue, PIXI.Texture[]> => ({
   0: [],
   1: [],
   2: [],

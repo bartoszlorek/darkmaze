@@ -5,14 +5,19 @@ import tilesData from "./tiles.json";
 
 PIXI.BaseTexture.defaultOptions.scaleMode = PIXI.SCALE_MODES.NEAREST;
 
-export type LoadedSpritesheets = Readonly<{
+export type LoadedAssets = Readonly<{
+  checker: PIXI.Texture;
   player: PIXI.Spritesheet<typeof playerData>;
   items: PIXI.Spritesheet<typeof itemsData>;
   tiles: PIXI.Spritesheet<typeof tilesData>;
 }>;
 
-export async function loadSpritesheets(): Promise<LoadedSpritesheets> {
+export async function loadAssets(): Promise<LoadedAssets> {
   const textures = await PIXI.Assets.load<PIXI.Texture>([
+    {
+      alias: "checker",
+      src: "./assets/checker.png",
+    },
     {
       alias: "player",
       src: "./assets/player.png",
@@ -34,6 +39,7 @@ export async function loadSpritesheets(): Promise<LoadedSpritesheets> {
   await Promise.all([player.parse(), items.parse(), tiles.parse()]);
 
   return {
+    checker: textures.checker,
     player,
     items,
     tiles,

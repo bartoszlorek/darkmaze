@@ -1,11 +1,11 @@
 import * as React from "react";
 import * as PIXI from "pixi.js";
-import type { LoadedSpritesheets } from "./assets";
+import type { LoadedAssets } from "./assets";
 import type { DEBUG_MODE } from "./debug";
 
 export interface AppContextValue {
   app: PIXI.Application;
-  sprites: LoadedSpritesheets;
+  assets: LoadedAssets;
   debugMode: DEBUG_MODE;
 }
 
