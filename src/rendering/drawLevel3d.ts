@@ -13,13 +13,13 @@ export const drawLevel3d: DrawFunction<{
   assets: LoadedAssets;
   app: PIXI.Application;
 }> = ({ parent, level, player, assets, app }) => {
-  const renderTexture = PIXI.RenderTexture.create();
-  const renderSprite = new PIXI.Sprite(renderTexture);
-  parent.addChild(renderSprite);
-
   const camera = new PIXIProjection.Camera3d();
   camera.position3d.z = WALL_SIZE * 2;
   camera.setPlanes(WALL_SIZE * 2.5, -WALL_SIZE * 2, WALL_SIZE * 2);
+
+  const renderTexture = PIXI.RenderTexture.create();
+  const renderSprite = new PIXI.Sprite(renderTexture);
+  parent.addChild(renderSprite);
 
   const resize = () => {
     camera.position.set(window.innerWidth / 2, window.innerHeight / 2);
@@ -32,7 +32,6 @@ export const drawLevel3d: DrawFunction<{
   const wallFront = new PIXIProjection.Sprite3d(assets.checker);
   wallFront.anchor.set(0.5);
   wallFront.position3d.z = WALL_SIZE / 2;
-  wallFront.euler.x = Math.PI;
 
   const wallRight = new PIXIProjection.Sprite3d(assets.checker);
   wallRight.anchor.set(0.5);
@@ -42,7 +41,7 @@ export const drawLevel3d: DrawFunction<{
   const wallLeft = new PIXIProjection.Sprite3d(assets.checker);
   wallLeft.anchor.set(0.5);
   wallLeft.position3d.x = -WALL_SIZE / 2;
-  wallLeft.euler.y = Math.PI / 2;
+  wallLeft.euler.y = -Math.PI / 2;
 
   const wallBack = new PIXIProjection.Sprite3d(assets.checker);
   wallBack.anchor.set(0.5);
