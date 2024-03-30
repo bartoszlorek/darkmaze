@@ -17,16 +17,17 @@ export const drawLevel3d: DrawFunction<{
   const renderSprite = new PIXI.Sprite(renderTexture);
   parent.addChild(renderSprite);
 
-  const resizeRenderTexture = () =>
-    renderTexture.resize(window.innerWidth, window.innerHeight);
-
-  const unsubscribeResize = subscribeResize(resizeRenderTexture);
-  resizeRenderTexture();
-
   const camera = new PIXIProjection.Camera3d();
-  camera.position.set(window.innerWidth / 2, window.innerHeight / 2);
   camera.position3d.z = WALL_SIZE * 2;
   camera.setPlanes(WALL_SIZE * 2.5, -WALL_SIZE * 2, WALL_SIZE * 2);
+
+  const resize = () => {
+    camera.position.set(window.innerWidth / 2, window.innerHeight / 2);
+    renderTexture.resize(window.innerWidth, window.innerHeight);
+  };
+
+  const unsubscribeResize = subscribeResize(resize);
+  resize();
 
   const wallFront = new PIXIProjection.Sprite3d(assets.checker);
   wallFront.anchor.set(0.5);
