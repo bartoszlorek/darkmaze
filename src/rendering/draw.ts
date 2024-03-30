@@ -7,6 +7,10 @@ export type DrawFunctionArgs<T extends Record<string, unknown>> = T & {
 export type DrawFunction<
   T extends Record<string, unknown>,
   P extends unknown[] = []
-> = (args: DrawFunctionArgs<T>) => RedrawFunction<P>;
+> = (args: DrawFunctionArgs<T>) => [RedrawFunction<P>, CleanupFunction];
 
 export type RedrawFunction<P extends unknown[]> = (...args: P) => void;
+
+export type CleanupFunction = () => void;
+
+export const noop = () => undefined;

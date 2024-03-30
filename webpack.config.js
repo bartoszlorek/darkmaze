@@ -75,6 +75,7 @@ module.exports = (_, argv) => ({
   },
   externals: {
     "pixi.js": "PIXI",
+    "pixi-projection": "PIXI.projection",
   },
   plugins: [
     new CopyWebpackPlugin({

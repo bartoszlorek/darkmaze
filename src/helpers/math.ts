@@ -73,3 +73,7 @@ export function angleBetweenPoints(
   const deltaY = pointY - originY;
   return (Math.atan2(deltaY, deltaX) * 180) / Math.PI + 90;
 }
+
+export function radians(degrees: number) {
+  return degrees * (Math.PI / 180);
+}

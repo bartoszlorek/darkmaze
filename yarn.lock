@@ -4716,6 +4716,11 @@ pirates@^4.0.4:
   resolved "https://registry.yarnpkg.com/pirates/-/pirates-4.0.6.tgz#3018ae32ecfcff6c29ba2267cbf21166ac1f36b9"
   integrity sha512-saLsH7WeYYPiD25LDuLRRY/i+6HaPYr6G1OUlN39otzkSTxKnubR9RTxS3/Kk50s1g2JTgFwWQDQyplC5/SHZg==
 
+pixi-projection@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/pixi-projection/-/pixi-projection-1.0.0.tgz#4120f63157996a74bb3272ddfdbf461ef63b881d"
+  integrity sha512-+fV7SA69OLxNR3nXOoR6Z5vFTqcp3oH/+sHXsQ+Jw6J9nOK+APzlrnCcO3ftB9Y/GIVgR3+HIDpKpRWe6EPPSw==
+
 pixi.js@^7.3.2:
   version "7.3.2"
   resolved "https://registry.yarnpkg.com/pixi.js/-/pixi.js-7.3.2.tgz#86f0287a3763e9141691f496e384a2763fb6552c"

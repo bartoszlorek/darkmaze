@@ -13,7 +13,7 @@ import {
   createEmptyNeighbors8,
 } from "../helpers";
 import { createDebugger } from "./debugger";
-import { DrawFunction } from "./draw";
+import { DrawFunction, noop } from "./draw";
 
 const TILES_MARGIN = 1;
 
@@ -201,62 +201,65 @@ export const drawLevel: DrawFunction<{
     }
   }
 
-  return () => {
-    for (const { x, y, value: room } of level.rooms.values()) {
-      if (debugMode === DEBUG_MODE.VISITED_CONNECTED) {
-        debug.print(
-          room.visitedConnectedRooms,
-          x * tileSize + tileSize / 2,
-          y * tileSize + tileSize / 2
-        );
-      } else if (debugMode === DEBUG_MODE.ANGLE_TO_GOAL) {
-        debug.print(
-          room.correctPathAngle,
-          x * tileSize + tileSize / 2,
-          y * tileSize + tileSize / 2
-        );
-      }
+  return [
+    () => {
+      for (const { x, y, value: room } of level.rooms.values()) {
+        if (debugMode === DEBUG_MODE.VISITED_CONNECTED) {
+          debug.print(
+            room.visitedConnectedRooms,
+            x * tileSize + tileSize / 2,
+            y * tileSize + tileSize / 2
+          );
+        } else if (debugMode === DEBUG_MODE.ANGLE_TO_GOAL) {
+          debug.print(
+            room.correctPathAngle,
+            x * tileSize + tileSize / 2,
+            y * tileSize + tileSize / 2
+          );
+        }
 
-      if (
-        room.explored ||
-        debugMode === DEBUG_MODE.ROOMS_LAYOUT ||
-        debugMode === DEBUG_MODE.ANGLE_TO_GOAL
-      ) {
-        const roomKey = `${x},${y}`;
-        switch (room.type) {
-          case "evil": {
-            const sprite = itemsSprites.get(roomKey);
-            sprite.texture = assets.items.textures.room_evil;
-            sprite.x = x * tileSize;
-            sprite.y = y * tileSize;
-            break;
-          }
+        if (
+          room.explored ||
+          debugMode === DEBUG_MODE.ROOMS_LAYOUT ||
+          debugMode === DEBUG_MODE.ANGLE_TO_GOAL
+        ) {
+          const roomKey = `${x},${y}`;
+          switch (room.type) {
+            case "evil": {
+              const sprite = itemsSprites.get(roomKey);
+              sprite.texture = assets.items.textures.room_evil;
+              sprite.x = x * tileSize;
+              sprite.y = y * tileSize;
+              break;
+            }
 
-          case "golden": {
-            const sprite = itemsSprites.get(roomKey);
-            sprite.texture = assets.items.textures.room_golden;
-            sprite.x = x * tileSize;
-            sprite.y = y * tileSize;
-            break;
-          }
+            case "golden": {
+              const sprite = itemsSprites.get(roomKey);
+              sprite.texture = assets.items.textures.room_golden;
+              sprite.x = x * tileSize;
+              sprite.y = y * tileSize;
+              break;
+            }
 
-          case "passage": {
-            const sprite = itemsSprites.get(roomKey);
-            sprite.texture = assets.items.textures.room_passage;
-            sprite.x = x * tileSize;
-            sprite.y = y * tileSize;
-            break;
+            case "passage": {
+              const sprite = itemsSprites.get(roomKey);
+              sprite.texture = assets.items.textures.room_passage;
+              sprite.x = x * tileSize;
+              sprite.y = y * tileSize;
+              break;
+            }
           }
         }
       }
-    }
 
-    itemsSprites.afterAll();
+      itemsSprites.afterAll();
 
-    if (debugMode === DEBUG_MODE.VISITED_CONNECTED) {
-      debug.afterAll();
-    }
-  };
+      if (debugMode === DEBUG_MODE.VISITED_CONNECTED) {
+        debug.afterAll();
+      }
+    },
+    noop,
+  ];
 };
 
 const createWallTextures = ({

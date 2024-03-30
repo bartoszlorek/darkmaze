@@ -8,7 +8,7 @@ import {
   floorNumber,
   Direction4Angle,
 } from "../helpers";
-import { DrawFunction } from "./draw";
+import { DrawFunction, noop } from "./draw";
 import { FrameBounds } from "./FrameBounds";
 
 const textStyles: Partial<PIXI.ITextStyle> = {
@@ -216,10 +216,13 @@ export const drawCompass: DrawFunction<{
   player.subscribe("move", updatePoints);
   player.subscribe("turn", updatePoints);
 
-  return () => {
-    updateTrack();
-    updatePoints();
-  };
+  return [
+    () => {
+      updateTrack();
+      updatePoints();
+    },
+    noop,
+  ];
 };
 
 function getCompassPointInView(a: number, b: number) {

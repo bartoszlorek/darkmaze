@@ -12,6 +12,7 @@
     "prepare-sprite-sheets": "node scripts/prepareSpriteSheets.js ./src/assets 0.5"
   },
   "dependencies": {
+    "pixi-projection": "^1.0.0",
     "pixi.js": "^7.3.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
