@@ -5,7 +5,7 @@ import { Level, Player } from "../core";
 import { radians, subscribeResize } from "../helpers";
 import { DrawFunction } from "./draw";
 
-const WALL_SIZE = 200;
+const WALL_SIZE = 192;
 
 export const drawLevel3d: DrawFunction<{
   level: Level;
@@ -29,21 +29,21 @@ export const drawLevel3d: DrawFunction<{
   const unsubscribeResize = subscribeResize(resize);
   resize();
 
-  const wallFront = new PIXIProjection.Sprite3d(assets.checker);
+  const wallFront = new PIXIProjection.Sprite3d(assets.walls_3d);
   wallFront.anchor.set(0.5);
   wallFront.position3d.z = WALL_SIZE / 2;
 
-  const wallRight = new PIXIProjection.Sprite3d(assets.checker);
+  const wallRight = new PIXIProjection.Sprite3d(assets.walls_3d);
   wallRight.anchor.set(0.5);
   wallRight.position3d.x = WALL_SIZE / 2;
   wallRight.euler.y = Math.PI / 2;
 
-  const wallLeft = new PIXIProjection.Sprite3d(assets.checker);
+  const wallLeft = new PIXIProjection.Sprite3d(assets.walls_3d);
   wallLeft.anchor.set(0.5);
   wallLeft.position3d.x = -WALL_SIZE / 2;
   wallLeft.euler.y = -Math.PI / 2;
 
-  const wallBack = new PIXIProjection.Sprite3d(assets.checker);
+  const wallBack = new PIXIProjection.Sprite3d(assets.walls_3d);
   wallBack.anchor.set(0.5);
   wallBack.position3d.z = -WALL_SIZE / 2;
   wallBack.euler.y = Math.PI;

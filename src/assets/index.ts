@@ -7,6 +7,7 @@ PIXI.BaseTexture.defaultOptions.scaleMode = PIXI.SCALE_MODES.NEAREST;
 
 export type LoadedAssets = Readonly<{
   checker: PIXI.Texture;
+  walls_3d: PIXI.Texture;
   player: PIXI.Spritesheet<typeof playerData>;
   items: PIXI.Spritesheet<typeof itemsData>;
   tiles: PIXI.Spritesheet<typeof tilesData>;
@@ -30,6 +31,10 @@ export async function loadAssets(): Promise<LoadedAssets> {
       alias: "tiles",
       src: "./assets/tiles.png",
     },
+    {
+      alias: "walls_3d",
+      src: "./assets/walls_3d.png",
+    },
   ]);
 
   const player = new PIXI.Spritesheet(textures.player, playerData);
@@ -40,6 +45,7 @@ export async function loadAssets(): Promise<LoadedAssets> {
 
   return {
     checker: textures.checker,
+    walls_3d: textures.walls_3d,
     player,
     items,
     tiles,
