@@ -1,5 +1,6 @@
 export * from "./array";
 export * from "./bitmask";
+export * from "./camera3d";
 export * from "./debounce";
 export * from "./device";
 export * from "./direction";
