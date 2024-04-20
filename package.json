@@ -1,6 +1,6 @@
 {
   "name": "darkmaze",
-  "version": "0.1.28",
+  "version": "0.1.29",
   "main": "index.js",
   "repository": "git@github.com:bartoszlorek/darkmaze.git",
   "author": "Bartosz Lorek <bartosz.lorek@brainly.com>",
