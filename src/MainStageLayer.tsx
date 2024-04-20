@@ -69,7 +69,6 @@ export function MainStageLayer({ player, level }: PropsType) {
 
       const [redrawLevel3d, cleanupLevel3d] = drawLevel3d({
         parent: background3d,
-        level,
         player,
         assets,
         app,
@@ -107,7 +106,7 @@ export function MainStageLayer({ player, level }: PropsType) {
       const normalLightsFilter = new LightsFilter(4);
       const delayedLightsFilter = new LightsFilter(4);
       background.filters = [delayedLightsFilter];
-      background3d.filters = [normalLightsFilter];
+      // background3d.filters = [normalLightsFilter];
       frame.filters = [normalLightsFilter];
 
       const getLights = createLights(level, player);
