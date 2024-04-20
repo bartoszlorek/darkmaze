@@ -13,6 +13,8 @@ export const drawLevel3d: DrawFunction<{
   app: PIXI.Application;
 }> = ({ parent, player, assets, app }) => {
   const camera = new PIXIProjection.Camera3d();
+  const cameraScale3d = new PIXIProjection.Point3d(1, 1, 1);
+  camera.scale3d = cameraScale3d;
   camera.position3d.z = WALL_SIZE * 2;
   camera.setPlanes(WALL_SIZE * 2.5, -WALL_SIZE * 2, WALL_SIZE * 2);
 
@@ -21,6 +23,13 @@ export const drawLevel3d: DrawFunction<{
   parent.addChild(renderSprite);
 
   const resize = () => {
+    const aspectRatio = window.innerWidth / window.innerHeight;
+    const scaleFactor = 1 - Math.min(1, aspectRatio);
+    cameraScale3d.x = 1 + scaleFactor * 4;
+    cameraScale3d.y = 1 + scaleFactor * 4;
+    camera.scale3d = cameraScale3d;
+
+    // rendering camera3d to texture allows to apply 2d filters
     camera.position.set(window.innerWidth / 2, window.innerHeight / 2);
     renderTexture.resize(window.innerWidth, window.innerHeight);
   };
