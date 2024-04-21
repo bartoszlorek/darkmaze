@@ -15,6 +15,7 @@ export * from "./pixijs";
 export * from "./pooling";
 export * from "./randomNumber";
 export * from "./randomSeed";
+export * from "./rectangle3d";
 export * from "./resize";
 export * from "./search";
 export * from "./storage";

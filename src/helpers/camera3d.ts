@@ -1,5 +1,5 @@
 import * as PIXI from "pixi.js";
-import { vec3, mat4 } from "gl-matrix";
+import { vec3, mat4, ReadonlyVec3, ReadonlyMat4 } from "gl-matrix";
 
 /**
  * @see https://webglfundamentals.org/webgl/lessons/webgl-3d-perspective.html
@@ -28,7 +28,7 @@ export class Camera3d extends PIXI.Graphics {
     p[0] = x;
     p[1] = y;
     p[2] = z;
-    vec3.transformMat4(p, p, this.projectionMatrix);
+    transformMat4(p, p, this.projectionMatrix);
     return p;
   }
 
@@ -43,4 +43,25 @@ export class Camera3d extends PIXI.Graphics {
     this.lineTo(px, py);
     return this;
   }
+}
+
+// https://stackoverflow.com/questions/7604322/clip-matrix-for-3d-perspective-projection
+function transformMat4(out: vec3, a: ReadonlyVec3, m: ReadonlyMat4): vec3 {
+  const x = a[0];
+  const y = a[1];
+  const z = a[2];
+  let w = m[3] * x + m[7] * y + m[11] * z + m[15];
+  w = w || 1.0;
+
+  // It stops points before moving them behind the camera,
+  // instead of clipping a line. I don't know how to do it
+  // better at the moment.
+  if (w < 0) {
+    w = 0.00001;
+  }
+
+  out[0] = (m[0] * x + m[4] * y + m[8] * z + m[12]) / w;
+  out[1] = (m[1] * x + m[5] * y + m[9] * z + m[13]) / w;
+  out[2] = (m[2] * x + m[6] * y + m[10] * z + m[14]) / w;
+  return out;
 }
