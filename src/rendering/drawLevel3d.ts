@@ -21,8 +21,8 @@ export const drawLevel3d: DrawFunction<{
     camera.x = window.innerWidth / 2;
     camera.y = window.innerHeight / 2;
 
-    const wallWidth = Math.min(window.innerWidth, window.innerHeight) * 0.4;
-    const wallHeight = window.innerHeight * 0.4;
+    const wallWidth = Math.min(window.innerWidth, window.innerHeight) / 3;
+    const wallHeight = window.innerHeight / 3;
     camera.setPerspective(wallWidth, 0, 1000);
 
     ceiling.size = wallWidth;
