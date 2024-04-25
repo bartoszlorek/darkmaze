@@ -11,6 +11,7 @@ import {
   drawFrame,
   drawLevel3d,
   drawLevel,
+  drawPlayerMarker,
   createLights,
   FrameBounds,
   FrameMask,
@@ -79,6 +80,12 @@ export function MainStageLayer({ player, level }: PropsType) {
         debugMode,
       });
 
+      const [redrawPlayerMarker] = drawPlayerMarker({
+        parent: foreground,
+        frame: frameBounds,
+        tileSize: TILE_SIZE,
+      });
+
       const camera = new Camera(background, TILE_SIZE);
       player.subscribe("move", () => camera.lookAt(player));
 
@@ -109,6 +116,7 @@ export function MainStageLayer({ player, level }: PropsType) {
       return {
         redrawLevel,
         redrawLevel3d,
+        redrawPlayerMarker,
         unsubscribeResize,
         updateLightsFilter,
         cleanupLevel3d,
@@ -118,6 +126,7 @@ export function MainStageLayer({ player, level }: PropsType) {
     onUpdate: (ctx, deltaTime) => {
       ctx.redrawLevel();
       ctx.redrawLevel3d();
+      ctx.redrawPlayerMarker();
       ctx.updateLightsFilter(deltaTime);
     },
 

@@ -5,6 +5,7 @@ export * from "./drawFrame";
 export * from "./drawLevel3d";
 export * from "./drawLevel";
 export * from "./drawPlayer";
+export * from "./drawPlayerMarker";
 export * from "./FrameBounds";
 export * from "./FrameMask";
 export * from "./lights";
